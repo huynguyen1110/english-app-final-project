@@ -12,35 +12,32 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class Videos {
+public class Audios {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long videoId;
+    private Long audioId;
 
     private String title;
 
-    private String linkVideo;
+    private String content;
 
-    private String chanelName;
+    private String imageUrl;
 
-    private LocalDateTime createdAt;
+    private LocalDateTime creationDate;
 
-    private LocalDateTime updatedAt;
+    private LocalDateTime updateDate;
 
-    private LocalDateTime isDeletedAt;
+    private LocalDateTime deletednDate;
 
     private Boolean isDeleted;
 
-    @ManyToOne
-    @JoinColumn(name = "topic_id", referencedColumnName = "id")
-    private Topic topic;
-
     @ManyToMany
     @JoinTable(
-            name = "video_favorites",
-            joinColumns = @JoinColumn(name = "video_id"),
+            name = "audio_favorites",
+            joinColumns = @JoinColumn(name = "audio_id"),
             inverseJoinColumns = @JoinColumn(name = "favorite_id")
     )
     private List<Favorites> favorites;
 }
+

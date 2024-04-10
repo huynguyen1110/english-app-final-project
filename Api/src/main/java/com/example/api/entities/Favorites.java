@@ -1,8 +1,9 @@
 package com.example.api.entities;
 
-import com.example.api.entities.Users;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -18,4 +19,13 @@ public class Favorites {
 
     @OneToOne(mappedBy = "favorite")
     private Users user;
+
+    @ManyToMany(mappedBy = "favorites")
+    private List<News> news;
+
+    @ManyToMany(mappedBy = "favorites")
+    private List<Videos> videos;
+
+    @ManyToMany(mappedBy = "favorites")
+    private List<Audios> audios;
 }

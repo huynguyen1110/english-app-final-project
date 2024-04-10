@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -35,4 +37,12 @@ public class News {
     @ManyToOne
     @JoinColumn(name = "topic_id", referencedColumnName = "id")
     private Topic topic;
+
+    @ManyToMany
+    @JoinTable(
+            name = "news_favorites",
+            joinColumns = @JoinColumn(name = "news_id"),
+            inverseJoinColumns = @JoinColumn(name = "favorite_id")
+    )
+    private List<Favorites> favorites;
 }

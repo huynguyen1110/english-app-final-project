@@ -12,23 +12,23 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class Videos {
+public class Packages {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long videoId;
+    private Long id;
 
-    private String title;
+    private String name;
 
-    private String linkVideo;
+    private String description;
 
-    private String chanelName;
+    private Integer numOfDownloaded;
 
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
 
-    private LocalDateTime isDeletedAt;
+    private LocalDateTime deletedAt;
 
     private Boolean isDeleted;
 
@@ -36,11 +36,6 @@ public class Videos {
     @JoinColumn(name = "topic_id", referencedColumnName = "id")
     private Topic topic;
 
-    @ManyToMany
-    @JoinTable(
-            name = "video_favorites",
-            joinColumns = @JoinColumn(name = "video_id"),
-            inverseJoinColumns = @JoinColumn(name = "favorite_id")
-    )
-    private List<Favorites> favorites;
+    @ManyToMany(mappedBy = "packages")
+    private List<Words> words;
 }
