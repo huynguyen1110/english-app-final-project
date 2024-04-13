@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: Api
+  datasource:
+    url: jdbc:mysql://localhost:3306/learning-english-app
+    username: root
+    password: Huynguyen11102002
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+server:
+  port: 9000
