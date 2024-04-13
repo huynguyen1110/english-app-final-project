@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -32,8 +33,10 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private UserStatus userStatus;
 
+    @ElementCollection(targetClass = UserRole.class)
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private Set<UserRole> roles;
+
 
     private LocalDateTime createdDate;
 
