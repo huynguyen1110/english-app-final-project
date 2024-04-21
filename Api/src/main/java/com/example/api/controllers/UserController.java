@@ -1,5 +1,6 @@
 package com.example.api.controllers;
 
+import com.example.api.dtos.LoginDto;
 import com.example.api.dtos.RegisterDto;
 import com.example.api.services.impservices.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,13 @@ public class UserController {
         }
     }
 
-    @GetMapping("/test")
-    private String test() {
-        return "hello";
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticate(@RequestBody LoginDto loginDto) {
+        try {
+            var respone = userService.authenticate(loginDto);
+            return ResponseEntity.ok(respone);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
     }
 }

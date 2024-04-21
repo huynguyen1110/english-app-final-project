@@ -37,7 +37,6 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private Set<UserRole> roles;
 
-
     private LocalDateTime createdDate;
 
     private LocalDateTime updatedDate;
