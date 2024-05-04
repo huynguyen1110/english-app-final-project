@@ -11,7 +11,7 @@ import React, {
     useState
 } from 'react';
 import {GlobalStyles} from "../../styles/GlobalStyles";
-// @ts-ignore
+
 import {
     Block,
     Text,
@@ -19,6 +19,7 @@ import {
     Icon,
     theme,
     Input,
+    // @ts-ignore
     Checkbox
 } from 'galio-framework';
 import Images from "../../utils/Images";
