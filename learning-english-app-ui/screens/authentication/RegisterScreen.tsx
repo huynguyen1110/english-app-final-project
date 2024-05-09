@@ -10,6 +10,7 @@ import React, {
     useEffect,
     useState
 } from 'react';
+import * as Yup from 'yup';
 import {GlobalStyles} from "../../styles/GlobalStyles";
 
 import {
@@ -23,6 +24,7 @@ import {
     Checkbox
 } from 'galio-framework';
 import Images from "../../utils/Images";
+import {Formik, useFormik} from "formik";
 
 const {width, height} = Dimensions.get("screen");
 
@@ -30,14 +32,57 @@ const RegisterScreen = () => {
 
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
-    return (
+    const [passwordStrength, setPasswordStrength] = useState('');
 
+    const signupSchema = Yup.object().shape({
+        email: Yup.string()
+            .email('Invalid email')
+            .required('Email is required'),
+        name: Yup.string().required('Name is required'),
+        password: Yup.string()
+            .required('Password is required')
+            .matches(
+                /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                'Password must contain at least one uppercase letter, one digit, and one special character'
+            ),
+    });
+
+    const {handleChange, handleBlur, handleSubmit, values, errors} = useFormik({
+        initialValues: {
+            email: '',
+            name: '',
+            password: '',
+        },
+        validationSchema: signupSchema,
+        onSubmit: (data) => {
+            // Handle form submission (e.g., send data to server)
+            console.log(data);
+        },
+    });
+
+    const checkPasswordStrength = (password: string) => {
+        let strength = '';
+        if (password.length < 6) {
+            strength = 'Weak';
+        } else if (password.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)) {
+            strength = 'Strong';
+        } else {
+            strength = 'Moderate';
+        }
+        setPasswordStrength(strength);
+    };
+
+    const handlePasswordChange = (password: string) => {
+        checkPasswordStrength(password);
+        handleChange('password')(password);
+    };
+
+    return (
         <SafeAreaView style={
             [
                 GlobalStyles.AndroidSafeArea
             ]
         }>
-
             <Block flex middle>
                 <StatusBar hidden/>
                 <ImageBackground
@@ -102,7 +147,10 @@ const RegisterScreen = () => {
                                                         style={styles.inputIcons}
                                                     />
                                                 }
+                                                value={values.name}
+                                                onChangeText={handleChange('name')}
                                             />
+                                            {errors.name && <Text size={12} color={'red'}>{errors.name}</Text>}
                                         </Block>
                                         <Block width={width * 0.8} style={{marginBottom: 15}}>
                                             <Input
@@ -117,7 +165,10 @@ const RegisterScreen = () => {
                                                         style={styles.inputIcons}
                                                     />
                                                 }
+                                                value={values.email}
+                                                onChangeText={handleChange('email')}
                                             />
+                                            {errors.email && <Text size={12} color={'red'}>{errors.email}</Text>}
                                         </Block>
                                         <Block width={width * 0.8}>
                                             <Input
@@ -135,14 +186,17 @@ const RegisterScreen = () => {
                                                         onPress={() => setPasswordVisible(!passwordVisible)}
                                                     />
                                                 }
+                                                value={values.password}
+                                                onChangeText={handlePasswordChange}
                                             />
+                                            {errors.password && <Text size={12} color={'red'}>{errors.password}</Text>}
                                             <Block row style={styles.passwordCheck}>
                                                 <Text size={12} color={theme.COLORS?.MUTED}>
                                                     password strength:
                                                 </Text>
-                                                <Text bold size={12} color={theme.COLORS?.SUCCESS}>
-                                                    {" "}
-                                                    strong
+                                                <Text bold size={12}
+                                                      color={passwordStrength === 'Strong' ? theme.COLORS?.SUCCESS : theme.COLORS?.WARNING}>
+                                                    {` ${passwordStrength}`}
                                                 </Text>
                                             </Block>
                                         </Block>
@@ -166,7 +220,7 @@ const RegisterScreen = () => {
                                             </Button>
                                         </Block>
                                         <Block middle>
-                                            <Button color="primary" style={styles.createButton}>
+                                            <Button color="primary" style={styles.createButton} onPress={handleSubmit}>
                                                 <Text bold size={14} color={theme.COLORS?.WHITE}>
                                                     CREATE ACCOUNT
                                                 </Text>

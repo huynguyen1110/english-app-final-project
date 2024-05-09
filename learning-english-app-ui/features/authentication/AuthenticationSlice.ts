@@ -1,6 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {register} from "../../services/AuthenticationService";
+import {login, register} from "../../services/AuthenticationService";
 
 interface AuthState {
     isAuthenticated: boolean;
@@ -42,6 +42,14 @@ export const authReducer = createSlice({
                     state.registerSuccess = false;
                     console.error("Register failed with error");
                 }
+            })
+            .addCase(login.fulfilled, (state, action) => {
+                state.jwtToken = action.payload;
+                state.isAuthenticated = true;
+            })
+            .addCase(login.rejected, (state, action) => {
+                state.jwtToken = undefined;
+                state.isAuthenticated = false;
             })
     }
 })
