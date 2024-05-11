@@ -28,6 +28,7 @@ const WellcomeScreen = () => {
         navigation.navigate('LoginScreen');
     }
 
+
     return (
         <SafeAreaView style={
             [

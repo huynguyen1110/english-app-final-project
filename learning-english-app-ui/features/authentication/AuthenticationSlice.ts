@@ -1,4 +1,4 @@
-import {createSlice} from '@reduxjs/toolkit';
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {login, register} from "../../services/AuthenticationService";
 
@@ -10,7 +10,7 @@ interface AuthState {
     registerSuccess: boolean;
 }
 
-const initialRegisterState: AuthState = {
+const authInitialState: AuthState = {
     isAuthenticated: false,
     jwtToken: undefined,
     error: undefined,
@@ -20,9 +20,9 @@ const initialRegisterState: AuthState = {
 
 export const authReducer = createSlice({
     name: 'authReducer',
-    initialState: initialRegisterState,
+    initialState: authInitialState,
     reducers: {
-        logout: (state, action) => {
+        logout: (state: any, action) => {
             state.jwtToken = undefined;
             state.isAuthenticated = false;
             AsyncStorage.removeItem('jwt');
@@ -31,16 +31,22 @@ export const authReducer = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(register.fulfilled, (state, action) => {
-                state.userInfo = action.payload;
-                state.jwtToken = undefined;
-                state.isAuthenticated = false;
-                state.registerSuccess = true;
+                if(action.payload) {
+                    state.userInfo = action.payload;
+                    state.jwtToken = undefined;
+                    state.isAuthenticated = false;
+                    state.registerSuccess = true;
+                } else{
+                    state.userInfo = action.payload;
+                    state.jwtToken = undefined;
+                    state.isAuthenticated = false;
+                    state.registerSuccess = false;
+                }
                 AsyncStorage.removeItem('jwt');
             })
             .addCase(register.rejected, (state, action) => {
                 if (!action.payload) {
                     state.registerSuccess = false;
-                    console.error("Register failed with error");
                 }
             })
             .addCase(login.fulfilled, (state, action) => {
@@ -54,6 +60,6 @@ export const authReducer = createSlice({
     }
 })
 
-export const { logout } = authReducer.actions;
+export const {logout} = authReducer.actions;
 
 export default authReducer.reducer;

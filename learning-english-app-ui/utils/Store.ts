@@ -1,12 +1,14 @@
-// import { configureStore } from '@reduxjs/toolkit';
-// import {AppRegistry} from "react-native";
-//
-// const store = configureStore({
-//     reducer: {
-//         register: registerRu
-//     },
-// });
-//
-// export default store
-//
-//
+import {configureStore} from '@reduxjs/toolkit';
+import authReducer from "../features/authentication/AuthenticationSlice";
+
+const store = configureStore({
+    reducer: {
+        authentication: authReducer,
+    },
+});
+
+export type RootState = ReturnType<typeof store.getState>
+
+export default store
+
+

@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BASE_URL, LOGIN_URI, REGISTER_URI} from "../utils/API";
 import RegisterDto from "../dto/authdto/registerDto";
 import LoginDto from "../dto/authdto/loginDto";
+import {Alert} from "react-native";
 
 export const register = createAsyncThunk(
     'user/register', // action name
@@ -16,15 +17,42 @@ export const register = createAsyncThunk(
                 body: JSON.stringify(registerDto)
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
 
-            const data = await response.json();
-            // await AsyncStorage.setItem('jwt', data);
+            Alert.alert(
+                'Thông báo',
+                'Đăng ký thành công',
+                [
+                    {
+                        text: 'Đồng ý',
+                        onPress: () => {
+                            // Xử lý khi người dùng nhấn nút "Đồng ý"
+                            console.log('Người dùng đã đồng ý');
+                        },
+                    },
+                ]
+            );
+
             return data;
         } catch (err) {
-            return rejectedWithValue(err);
+            console.log(err);
+            Alert.alert(
+                'Thông báo',
+                'Email đã được sử dụng.',
+                [
+                    {
+                        text: 'Đồng ý',
+                        onPress: () => {
+                            // Xử lý khi người dùng nhấn nút "Đồng ý"
+                        },
+                    },
+                ]
+            );
+            return null;
         }
     }
 )

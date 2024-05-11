@@ -12,7 +12,6 @@ import React, {
 } from 'react';
 import * as Yup from 'yup';
 import {GlobalStyles} from "../../styles/GlobalStyles";
-
 import {
     Block,
     Text,
@@ -21,10 +20,19 @@ import {
     theme,
     Input,
     // @ts-ignore
-    Checkbox
+    Checkbox,
+    Toast
 } from 'galio-framework';
 import Images from "../../utils/Images";
-import {Formik, useFormik} from "formik";
+import {useFormik} from "formik";
+import {
+    useDispatch, useSelector
+} from 'react-redux';
+import {register} from "../../services/AuthenticationService";
+import RegisterDto from "../../dto/authdto/registerDto";
+import AuthenticationSlice from "../../features/authentication/AuthenticationSlice";
+import {RootState} from "../../utils/Store";
+
 
 const {width, height} = Dimensions.get("screen");
 
@@ -32,8 +40,21 @@ const RegisterScreen = () => {
 
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
+    const [isShow, setShow] = useState<boolean>(false);
+
+    const [isShowRegisterErr, setShowRegisterErr] = useState<boolean>(false);
+
+    const [isShowRegistersucess, setShowRegistersucess] = useState<boolean>(false);
+
+    const [isSubmitClicked, setIsSubmitClicked] = useState<boolean>(false);
+
     const [passwordStrength, setPasswordStrength] = useState('');
 
+    const registerState = useSelector((state: RootState) => state.authentication.registerSuccess);
+
+    const dispatch = useDispatch();
+
+    // validate input
     const signupSchema = Yup.object().shape({
         email: Yup.string()
             .email('Invalid email')
@@ -47,19 +68,23 @@ const RegisterScreen = () => {
             ),
     });
 
+    //form handler using Formik
     const {handleChange, handleBlur, handleSubmit, values, errors} = useFormik({
         initialValues: {
             email: '',
             name: '',
             password: '',
+            phoneNumber: ''
         },
         validationSchema: signupSchema,
-        onSubmit: (data) => {
-            // Handle form submission (e.g., send data to server)
-            console.log(data);
+        onSubmit: (data: RegisterDto) => {
+            setIsSubmitClicked(true);
+            // @ts-ignore
+            dispatch(register(data))
         },
     });
 
+    // check password strength
     const checkPasswordStrength = (password: string) => {
         let strength = '';
         if (password.length < 6) {
@@ -77,6 +102,27 @@ const RegisterScreen = () => {
         handleChange('password')(password);
     };
 
+    useEffect(() => {
+        if (isSubmitClicked) {
+            setIsSubmitClicked(false);
+            let timer;
+            if (registerState) {
+                setShowRegistersucess(true);
+                setShowRegisterErr(false);
+                timer = setTimeout(() => {
+                    setShowRegistersucess(false);
+                }, 3000);
+            } else {
+                setShowRegistersucess(false);
+                setShowRegisterErr(true);
+                timer = setTimeout(() => {
+                    setShowRegisterErr(false);
+                }, 3000);
+            }
+            return () => clearTimeout(timer);
+        }
+    }, [registerState, isSubmitClicked]);
+
     return (
         <SafeAreaView style={
             [
@@ -90,6 +136,11 @@ const RegisterScreen = () => {
                     style={{width, height, zIndex: 1}}
                 >
                     <Block safe flex middle>
+                        <Toast isShow={isShowRegisterErr} positionIndicator="top" color="warning">This is a top positioned toast</Toast>
+                        <Toast isShow={isShowRegistersucess} positionIndicator="top" color="success">This is a center
+                            positioned
+                            toast</Toast>
+
                         <Block style={styles.registerContainer}>
                             <Block flex={0.25} middle style={styles.socialConnect}>
                                 <Text color="#8898AA" size={12}>
@@ -189,7 +240,8 @@ const RegisterScreen = () => {
                                                 value={values.password}
                                                 onChangeText={handlePasswordChange}
                                             />
-                                            {errors.password && <Text size={12} color={'red'}>{errors.password}</Text>}
+                                            {errors.password &&
+                                                <Text size={12} color={'red'}>{errors.password}</Text>}
                                             <Block row style={styles.passwordCheck}>
                                                 <Text size={12} color={theme.COLORS?.MUTED}>
                                                     password strength:
@@ -220,7 +272,8 @@ const RegisterScreen = () => {
                                             </Button>
                                         </Block>
                                         <Block middle>
-                                            <Button color="primary" style={styles.createButton} onPress={handleSubmit}>
+                                            <Button color="primary" style={styles.createButton}
+                                                    onPress={handleSubmit}>
                                                 <Text bold size={14} color={theme.COLORS?.WHITE}>
                                                     CREATE ACCOUNT
                                                 </Text>
