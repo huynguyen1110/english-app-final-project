@@ -40,6 +40,7 @@ public class UserService implements IUserService {
             throw new Exception("email is already taken");
         } else {
             Users user = Users.builder()
+                    .username(registerDto.getName())
                     .email(registerDto.getEmail())
                     .phoneNumber(registerDto.getPhoneNumber())
                     .password(passwordEncoder.encode(registerDto.getPassword()))
