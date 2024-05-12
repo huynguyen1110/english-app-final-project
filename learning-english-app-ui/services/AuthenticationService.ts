@@ -3,7 +3,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BASE_URL, LOGIN_URI, REGISTER_URI} from "../utils/API";
 import RegisterDto from "../dto/authdto/registerDto";
 import LoginDto from "../dto/authdto/loginDto";
-import {Alert} from "react-native";
 
 export const register = createAsyncThunk(
     'user/register', // action name
@@ -23,35 +22,11 @@ export const register = createAsyncThunk(
                 throw new Error('Network response was not ok');
             }
 
-            Alert.alert(
-                'Thông báo',
-                'Đăng ký thành công',
-                [
-                    {
-                        text: 'Đồng ý',
-                        onPress: () => {
-                            // Xử lý khi người dùng nhấn nút "Đồng ý"
-                            console.log('Người dùng đã đồng ý');
-                        },
-                    },
-                ]
-            );
+            console.log(data);
 
             return data;
-        } catch (err) {
-            console.log(err);
-            Alert.alert(
-                'Thông báo',
-                'Email đã được sử dụng.',
-                [
-                    {
-                        text: 'Đồng ý',
-                        onPress: () => {
-                            // Xử lý khi người dùng nhấn nút "Đồng ý"
-                        },
-                    },
-                ]
-            );
+        } catch (err: any) {
+            console.log(err)
             return null;
         }
     }
