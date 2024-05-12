@@ -4,7 +4,7 @@ import {login, register} from "../../services/AuthenticationService";
 
 interface AuthState {
     isAuthenticated: boolean;
-    jwtToken: string | undefined;
+    jwtToken: string;
     error: string;
     userInfo: any;
     registerSuccess: boolean;
@@ -13,7 +13,7 @@ interface AuthState {
 
 const authInitialState: AuthState = {
     isAuthenticated: false,
-    jwtToken: undefined,
+    jwtToken: "",
     error: "",
     userInfo: null,
     registerSuccess: false,
@@ -34,6 +34,14 @@ export const authReducer = createSlice({
         },
         setErrorMessage: (state, action) => {
             state.error = action.payload;
+        },
+        resetAllInitialState: (state) => {
+            state.jwtToken = '';
+            state.isSubmitting = false;
+            state.isAuthenticated = false;
+            state.registerSuccess = false;
+            state.userInfo = null;
+            state.error = "";
         }
     },
     extraReducers: (builder) => {
@@ -41,12 +49,12 @@ export const authReducer = createSlice({
             .addCase(register.fulfilled, (state, action) => {
                 if (action.payload) {
                     state.userInfo = action.payload;
-                    state.jwtToken = undefined;
+                    state.jwtToken = "";
                     state.isAuthenticated = false;
                     state.registerSuccess = true;
                 } else {
                     state.userInfo = action.payload;
-                    state.jwtToken = undefined;
+                    state.jwtToken = "";
                     state.isAuthenticated = false;
                     state.registerSuccess = false;
                 }
@@ -62,12 +70,12 @@ export const authReducer = createSlice({
                 state.isAuthenticated = true;
             })
             .addCase(login.rejected, (state, action) => {
-                state.jwtToken = undefined;
+                state.jwtToken = "";
                 state.isAuthenticated = false;
             })
     }
 })
 
-export const {logout} = authReducer.actions;
+export const {logout, resetAllInitialState} = authReducer.actions;
 
 export default authReducer.reducer;

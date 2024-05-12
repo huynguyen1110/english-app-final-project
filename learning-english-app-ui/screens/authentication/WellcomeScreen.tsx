@@ -14,6 +14,8 @@ import {
 } from "galio-framework";
 import { LogBox } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
+import {useDispatch} from "react-redux";
+import {authReducer} from "../../features/authentication/AuthenticationSlice";
 
 const {width, height} = Dimensions.get("screen");
 
@@ -23,7 +25,10 @@ const WellcomeScreen = () => {
 
     const navigation: any = useNavigation();
 
+    const dispatch = useDispatch();
+
     const handleNavigateToRegister = () => {
+        dispatch(authReducer.actions.resetAllInitialState());
         navigation.navigate('RegisterScreen');
     }
 
