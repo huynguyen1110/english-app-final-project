@@ -16,16 +16,120 @@ import {
     Icon,
     Input,
     Text,
-    theme
+    theme, Toast
 } from "galio-framework";
 import Images from "../../utils/Images";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
+import {useFormik} from "formik";
+import RegisterDto from "../../dto/authdto/registerDto";
+import {authReducer} from "../../features/authentication/AuthenticationSlice";
+import {addToken, login, register} from "../../services/AuthenticationService";
+import * as Yup from "yup";
+import LoginDto from "../../dto/authdto/loginDto";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../utils/Store";
+import {useNavigation} from "@react-navigation/native";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const {width, height} = Dimensions.get("screen");
 
 const LoginScreen = () => {
 
+    // show password state
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+
+    const [isShowLoginErr, setShowLoginErr] = useState<boolean>(false);
+
+    const [isShowLoginsucess, setShowLoginsucess] = useState<boolean>(false);
+
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const navigation: any = useNavigation();
+
+    const loginState = useSelector((state: RootState) => state.authentication.isAuthenticated);
+
+    const isSubmitClickedState = useSelector((state: RootState) => state.authentication.isSubmitting);
+
+    const dispatch = useDispatch();
+
+    // validate login form
+    const signinSchema = Yup.object().shape({
+        email: Yup.string()
+            .email('Invalid email')
+            .required('Email is required'),
+        password: Yup.string()
+            .required('Password is required')
+    });
+
+    // form handler using Formik
+    const {handleChange, handleBlur, handleSubmit, values, errors} = useFormik({
+        initialValues: {
+            email: '',
+            password: '',
+        },
+        validationSchema: signinSchema,
+        onSubmit: (data: LoginDto) => {
+            dispatch(authReducer.actions.resetAllInitialState());
+            dispatch(authReducer.actions.setStateIsSubmiting(true));
+            // @ts-ignore
+            dispatch(login(data)).then((response) => {
+                try {
+                    if (response.payload) {
+                        if (response.payload.accessToken) {
+                            dispatch(authReducer.actions.setIsAuthenticatedState(true));
+                            // @ts-ignore
+                            dispatch(addToken(response.payload.accessToken));
+                        } else {
+                            dispatch(authReducer.actions.setIsAuthenticatedState(false));
+                        }
+                    } else {
+                        dispatch(authReducer.actions.setIsAuthenticatedState(false));
+                    }
+                } catch (err) {
+                    console.log(err);
+                }
+            })
+        },
+    });
+
+    useEffect(() => {
+        if (isSubmitClickedState) {
+            let timer1: any, timer2: any;
+
+            if (loginState !== null) {
+                if (loginState) {
+                    setShowLoginErr(false);
+                    setLoading(true);
+                    timer1 = setTimeout(() => {
+                        setLoading(false);
+                        setShowLoginsucess(true);
+
+                        timer2 = setTimeout(() => {
+                            setShowLoginsucess(false);
+                            navigation.navigate('HomeScreen');
+                        }, 1000);
+                    }, 2000);
+                } else {
+                    setShowLoginsucess(false);
+
+                    setLoading(true);
+                    timer1 = setTimeout(() => {
+                        setLoading(false);
+                        setShowLoginErr(true);
+
+                        timer2 = setTimeout(() => {
+                            setShowLoginErr(false);
+                        }, 1000);
+                    }, 2000);
+                }
+
+                return () => {
+                    clearTimeout(timer1);
+                    clearTimeout(timer2);
+                };
+            }
+        }
+    }, [loginState]);
 
     return (
         <SafeAreaView style={
@@ -33,6 +137,7 @@ const LoginScreen = () => {
                 GlobalStyles.AndroidSafeArea
             ]
         }>
+            <Spinner visible={loading} textContent={'Loading...'} textStyle={{color: '#FFF'}}/>
             <Block flex middle>
                 <StatusBar hidden/>
                 <ImageBackground
@@ -58,6 +163,10 @@ const LoginScreen = () => {
                                             <Text style={styles.socialTextButtons}>FACEBOOK</Text>
                                         </Block>
                                     </Button>
+                                    <Toast isShow={isShowLoginErr} positionIndicator="top" round={true}
+                                           color="warning"> Login failed, this account is not existed </Toast>
+                                    <Toast isShow={isShowLoginsucess} round={true} positionIndicator="top"
+                                           color="success"> Login successfully </Toast>
                                     <Button style={styles.socialButtons}>
                                         <Block row>
                                             <Icon
@@ -97,8 +206,11 @@ const LoginScreen = () => {
                                                         style={styles.inputIcons}
                                                     />
                                                 }
+                                                value={values.email}
+                                                onChangeText={handleChange("email")}
                                             />
                                         </Block>
+                                        {errors.email && <Text size={12} color={'red'}>{errors.email}</Text>}
                                         <Block width={width * 0.8}>
                                             <Input
                                                 password
@@ -115,8 +227,11 @@ const LoginScreen = () => {
                                                         onPress={() => setPasswordVisible(!passwordVisible)}
                                                     />
                                                 }
+                                                value={values.password}
+                                                onChangeText={handleChange("password")}
                                             />
                                         </Block>
+                                        {errors.password && <Text size={12} color={'red'}>{errors.password}</Text>}
                                         <Block right>
                                             <TouchableOpacity>
                                                 <Text italic={true} bold={true} size={14}>Fotgot password?</Text>
@@ -126,8 +241,8 @@ const LoginScreen = () => {
 
                                         </Block>
                                         <Block middle>
-                                            <Button color="primary" style={styles.createButton}>
-                                                <Text  size={12} color={theme.COLORS?.WHITE}>
+                                            <Button color="primary" style={styles.createButton} onPress={handleSubmit}>
+                                                <Text size={12} color={theme.COLORS?.WHITE}>
                                                     LOGIN
                                                 </Text>
                                             </Button>
