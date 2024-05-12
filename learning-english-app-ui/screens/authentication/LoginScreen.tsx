@@ -20,12 +20,40 @@ import {
 } from "galio-framework";
 import Images from "../../utils/Images";
 import React, {useState} from "react";
+import {useFormik} from "formik";
+import * as Yup from "yup";
 
 const {width, height} = Dimensions.get("screen");
 
 const LoginScreen = () => {
 
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+
+    // validation login form
+    const signupSchema = Yup.object().shape({
+        email: Yup.string()
+            .email('Invalid email')
+            .required('Email is required'),
+        password: Yup.string()
+            .required('Password is required')
+            .matches(
+                /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                'Password must contain at least one uppercase letter, one digit, and one special character'
+            ),
+    });
+
+    // handle data login form
+    const {handleChange, handleBlur, handleSubmit, values, errors} = useFormik({
+        initialValues: {
+            email: '',
+            password: '',
+        },
+        validationSchema: signupSchema,
+        onSubmit: (data) => {
+            // Handle form submission (e.g., send data to server)
+            console.log(data);
+        },
+    });
 
     return (
         <SafeAreaView style={
