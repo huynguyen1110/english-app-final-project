@@ -20,12 +20,40 @@ import {
 } from "galio-framework";
 import Images from "../../utils/Images";
 import React, {useState} from "react";
+import {useFormik} from "formik";
+import RegisterDto from "../../dto/authdto/registerDto";
+import {authReducer} from "../../features/authentication/AuthenticationSlice";
+import {register} from "../../services/AuthenticationService";
+import * as Yup from "yup";
+import LoginDto from "../../dto/authdto/loginDto";
 
 const {width, height} = Dimensions.get("screen");
 
 const LoginScreen = () => {
 
+    // show password state
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
+
+    // validate login form
+    const signinSchema = Yup.object().shape({
+        email: Yup.string()
+            .email('Invalid email')
+            .required('Email is required'),
+        password: Yup.string()
+            .required('Password is required')
+    });
+
+    // form handler using Formik
+    const {handleChange, handleBlur, handleSubmit, values, errors} = useFormik({
+        initialValues: {
+            email: '',
+            password: '',
+        },
+        validationSchema: signinSchema,
+        onSubmit: (data: LoginDto) => {
+            console.log(data);
+        },
+    });
 
     return (
         <SafeAreaView style={
@@ -97,8 +125,11 @@ const LoginScreen = () => {
                                                         style={styles.inputIcons}
                                                     />
                                                 }
+                                                value={values.email}
+                                                onChangeText={handleChange("email")}
                                             />
                                         </Block>
+                                        {errors.email && <Text size={12} color={'red'}>{errors.email}</Text>}
                                         <Block width={width * 0.8}>
                                             <Input
                                                 password
@@ -115,8 +146,11 @@ const LoginScreen = () => {
                                                         onPress={() => setPasswordVisible(!passwordVisible)}
                                                     />
                                                 }
+                                                value={values.password}
+                                                onChangeText={handleChange("password")}
                                             />
                                         </Block>
+                                        {errors.password && <Text size={12} color={'red'}>{errors.password}</Text>}
                                         <Block right>
                                             <TouchableOpacity>
                                                 <Text italic={true} bold={true} size={14}>Fotgot password?</Text>
@@ -126,7 +160,7 @@ const LoginScreen = () => {
 
                                         </Block>
                                         <Block middle>
-                                            <Button color="primary" style={styles.createButton}>
+                                            <Button color="primary" style={styles.createButton} onPress={handleSubmit}>
                                                 <Text  size={12} color={theme.COLORS?.WHITE}>
                                                     LOGIN
                                                 </Text>
