@@ -12,11 +12,14 @@ import {
     Text,
     theme
 } from "galio-framework";
+import { LogBox } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 const {width, height} = Dimensions.get("screen");
 
 const WellcomeScreen = () => {
+
+    LogBox.ignoreAllLogs();
 
     const navigation: any = useNavigation();
 

@@ -5,17 +5,19 @@ import {login, register} from "../../services/AuthenticationService";
 interface AuthState {
     isAuthenticated: boolean;
     jwtToken: string | undefined;
-    error: string | undefined;
+    error: string;
     userInfo: any;
     registerSuccess: boolean;
+    isSubmitting: boolean;
 }
 
 const authInitialState: AuthState = {
     isAuthenticated: false,
     jwtToken: undefined,
-    error: undefined,
+    error: "",
     userInfo: null,
-    registerSuccess: false
+    registerSuccess: false,
+    isSubmitting: false
 }
 
 export const authReducer = createSlice({
@@ -26,17 +28,23 @@ export const authReducer = createSlice({
             state.jwtToken = undefined;
             state.isAuthenticated = false;
             AsyncStorage.removeItem('jwt');
+        },
+        setStateIsSubmiting: (state, action) => {
+            state.isSubmitting = action.payload;
+        },
+        setErrorMessage: (state, action) => {
+            state.error = action.payload;
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(register.fulfilled, (state, action) => {
-                if(action.payload) {
+                if (action.payload) {
                     state.userInfo = action.payload;
                     state.jwtToken = undefined;
                     state.isAuthenticated = false;
                     state.registerSuccess = true;
-                } else{
+                } else {
                     state.userInfo = action.payload;
                     state.jwtToken = undefined;
                     state.isAuthenticated = false;

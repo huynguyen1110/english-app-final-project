@@ -4,7 +4,7 @@ import {
     ImageBackground,
     Dimensions,
     StatusBar,
-    KeyboardAvoidingView
+    KeyboardAvoidingView, AppRegistry
 } from 'react-native';
 import React, {
     useEffect,
@@ -30,27 +30,30 @@ import {
 } from 'react-redux';
 import {register} from "../../services/AuthenticationService";
 import RegisterDto from "../../dto/authdto/registerDto";
-import AuthenticationSlice from "../../features/authentication/AuthenticationSlice";
 import {RootState} from "../../utils/Store";
-
+import {LogBox} from 'react-native';
+import {authReducer} from "../../features/authentication/AuthenticationSlice";
+import setSurfaceProps = AppRegistry.setSurfaceProps;
 
 const {width, height} = Dimensions.get("screen");
 
 const RegisterScreen = () => {
 
+    LogBox.ignoreAllLogs();
+
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
-    const [isShow, setShow] = useState<boolean>(false);
+    const [retypePasswordVisible, setRetypePasswordVisible] = useState<boolean>(false);
 
     const [isShowRegisterErr, setShowRegisterErr] = useState<boolean>(false);
 
     const [isShowRegistersucess, setShowRegistersucess] = useState<boolean>(false);
 
-    const [isSubmitClicked, setIsSubmitClicked] = useState<boolean>(false);
-
     const [passwordStrength, setPasswordStrength] = useState('');
 
     const registerState = useSelector((state: RootState) => state.authentication.registerSuccess);
+
+    const isSubmitClickedState = useSelector((state: RootState) => state.authentication.isSubmitting);
 
     const dispatch = useDispatch();
 
@@ -66,6 +69,9 @@ const RegisterScreen = () => {
                 /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
                 'Password must contain at least one uppercase letter, one digit, and one special character'
             ),
+        retypePassword: Yup.string()
+            .oneOf([Yup.ref('password')], 'Passwords must match')
+            .required('Confirm Password is required'),
     });
 
     //form handler using Formik
@@ -74,11 +80,14 @@ const RegisterScreen = () => {
             email: '',
             name: '',
             password: '',
-            phoneNumber: ''
+            phoneNumber: '',
+            retypePassword: ''
         },
         validationSchema: signupSchema,
         onSubmit: (data: RegisterDto) => {
-            setIsSubmitClicked(true);
+            dispatch(authReducer.actions.setStateIsSubmiting(false));
+            dispatch(authReducer.actions.setStateIsSubmiting(true));
+            console.log(data.retypePassword)
             // @ts-ignore
             dispatch(register(data))
         },
@@ -103,16 +112,17 @@ const RegisterScreen = () => {
     };
 
     useEffect(() => {
-        if (isSubmitClicked) {
-            setIsSubmitClicked(false);
-            let timer;
+        if (isSubmitClickedState) {
+            let timer: any;
             if (registerState) {
+                dispatch(authReducer.actions.setErrorMessage("Register successfully"));
                 setShowRegistersucess(true);
                 setShowRegisterErr(false);
                 timer = setTimeout(() => {
                     setShowRegistersucess(false);
                 }, 3000);
             } else {
+                dispatch(authReducer.actions.setErrorMessage("This email already existed"));
                 setShowRegistersucess(false);
                 setShowRegisterErr(true);
                 timer = setTimeout(() => {
@@ -121,7 +131,7 @@ const RegisterScreen = () => {
             }
             return () => clearTimeout(timer);
         }
-    }, [registerState, isSubmitClicked]);
+    }, [registerState, isSubmitClickedState]);
 
     return (
         <SafeAreaView style={
@@ -136,11 +146,6 @@ const RegisterScreen = () => {
                     style={{width, height, zIndex: 1}}
                 >
                     <Block safe flex middle>
-                        <Toast isShow={isShowRegisterErr} positionIndicator="top" color="warning">This is a top positioned toast</Toast>
-                        <Toast isShow={isShowRegistersucess} positionIndicator="top" color="success">This is a center
-                            positioned
-                            toast</Toast>
-
                         <Block style={styles.registerContainer}>
                             <Block flex={0.25} middle style={styles.socialConnect}>
                                 <Text color="#8898AA" size={12}>
@@ -159,6 +164,10 @@ const RegisterScreen = () => {
                                             <Text style={styles.socialTextButtons}>FACEBOOK</Text>
                                         </Block>
                                     </Button>
+                                    <Toast isShow={isShowRegisterErr} positionIndicator="top" round={true}
+                                           color="warning"> Register failed, this email already taken  </Toast>
+                                    <Toast isShow={isShowRegistersucess} round={true} positionIndicator="top"
+                                           color="success"> Register successfully </Toast>
                                     <Button style={styles.socialButtons}>
                                         <Block row>
                                             <Icon
@@ -251,6 +260,25 @@ const RegisterScreen = () => {
                                                     {` ${passwordStrength}`}
                                                 </Text>
                                             </Block>
+                                            <Input
+                                                password
+                                                viewPass={!retypePasswordVisible}
+                                                borderless
+                                                placeholder="Retype password"
+                                                iconContent={
+                                                    <Icon
+                                                        size={16}
+                                                        color={theme.COLORS?.ICON}
+                                                        name='lock'
+                                                        family="AntDesign"
+                                                        style={styles.inputIcons}
+                                                        onPress={() => setRetypePasswordVisible(!retypePasswordVisible)}
+                                                    />
+                                                }
+                                                value={values.retypePassword}
+                                                onChangeText={handleChange('retypePassword')}
+                                            />
+                                            {errors.retypePassword && <Text size={12} color={'red'}>{errors.retypePassword}</Text>}
                                         </Block>
                                         <Block row width={width * 0.75}>
                                             <Checkbox

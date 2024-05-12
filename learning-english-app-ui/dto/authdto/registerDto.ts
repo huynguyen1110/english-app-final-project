@@ -3,4 +3,5 @@ export default interface RegisterDto {
     password: string;
     name: string;
     phoneNumber: string;
+    retypePassword: string;
 }
