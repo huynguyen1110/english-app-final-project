@@ -87,7 +87,6 @@ const RegisterScreen = () => {
         onSubmit: (data: RegisterDto) => {
             dispatch(authReducer.actions.setStateIsSubmiting(false));
             dispatch(authReducer.actions.setStateIsSubmiting(true));
-            console.log(data.retypePassword)
             // @ts-ignore
             dispatch(register(data))
         },
