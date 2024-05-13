@@ -1,4 +1,4 @@
-import {createAsyncThunk, isRejectedWithValue} from "@reduxjs/toolkit";
+import {createAsyncThunk} from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {BASE_URL, LOGIN_URI, REGISTER_URI} from "../utils/API";
 import RegisterDto from "../dto/authdto/registerDto";
@@ -22,8 +22,6 @@ export const register = createAsyncThunk(
                 throw new Error('Network response was not ok');
             }
 
-            console.log(data);
-
             return data;
         } catch (err: any) {
             console.log(err)
@@ -44,15 +42,15 @@ export const login = createAsyncThunk(
                 body: JSON.stringify(loginDto)
             });
 
+
             if (!response.ok) {
-                throw new Error('login failed with error');
+                throw new Error('Login failed account is not exested');
             }
 
-            const data = await response.json();
-            addToken(data);
-            return data;
+            return await response.json();
         } catch (err) {
-            return rejectedWithValue(err);
+            console.log(err);
+            return null;
         }
     }
 )
@@ -60,6 +58,7 @@ export const login = createAsyncThunk(
 export const addToken = createAsyncThunk(
     'addToken',
     async (token: string) => {
+        await AsyncStorage.removeItem('jwt');
         await AsyncStorage.setItem('jwt', token);
     }
 )

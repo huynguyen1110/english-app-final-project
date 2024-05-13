@@ -4,7 +4,7 @@ import {login, register} from "../../services/AuthenticationService";
 
 interface AuthState {
     isAuthenticated: boolean;
-    jwtToken: string;
+    jwtToken: string | any;
     error: string;
     userInfo: any;
     registerSuccess: boolean;
@@ -35,6 +35,9 @@ export const authReducer = createSlice({
         setErrorMessage: (state, action) => {
             state.error = action.payload;
         },
+        setIsAuthenticatedState: (state, action) => {
+            state.isAuthenticated = action.payload;
+        },
         resetAllInitialState: (state) => {
             state.jwtToken = '';
             state.isSubmitting = false;
@@ -49,12 +52,10 @@ export const authReducer = createSlice({
             .addCase(register.fulfilled, (state, action) => {
                 if (action.payload) {
                     state.userInfo = action.payload;
-                    state.jwtToken = "";
                     state.isAuthenticated = false;
                     state.registerSuccess = true;
                 } else {
                     state.userInfo = action.payload;
-                    state.jwtToken = "";
                     state.isAuthenticated = false;
                     state.registerSuccess = false;
                 }
@@ -66,11 +67,9 @@ export const authReducer = createSlice({
                 }
             })
             .addCase(login.fulfilled, (state, action) => {
-                state.jwtToken = action.payload;
                 state.isAuthenticated = true;
             })
             .addCase(login.rejected, (state, action) => {
-                state.jwtToken = "";
                 state.isAuthenticated = false;
             })
     }
