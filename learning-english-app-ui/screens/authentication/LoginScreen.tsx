@@ -87,6 +87,7 @@ const LoginScreen = () => {
         },
     });
 
+    // set displaying alert for 3 seconds
     useEffect(() => {
         if (isSubmitClickedState) {
             let timer: any;
