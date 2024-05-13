@@ -1,6 +1,7 @@
 package com.example.api.services.impservices;
 
 import com.example.api.config.JwtUtilities;
+import com.example.api.dtos.BearerToken;
 import com.example.api.dtos.LoginDto;
 import com.example.api.dtos.RegisterDto;
 import com.example.api.entities.Users;
@@ -51,7 +52,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public String authenticate(LoginDto loginDto) throws Exception {
+    public BearerToken authenticate(LoginDto loginDto) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getEmail(),
@@ -66,6 +67,12 @@ public class UserService implements IUserService {
             roles.add(role.name());
         }
         String token = jwtUtilities.generateToken(user.getEmail(), roles);
-        return token;
+
+        BearerToken bearerToken = BearerToken.builder()
+                .accessToken(token)
+                .tokenType("access token")
+                .build();
+
+        return bearerToken;
     }
 }
