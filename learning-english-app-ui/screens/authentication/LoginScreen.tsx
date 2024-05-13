@@ -28,6 +28,8 @@ import * as Yup from "yup";
 import LoginDto from "../../dto/authdto/loginDto";
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../utils/Store";
+import {useNavigation} from "@react-navigation/native";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const {width, height} = Dimensions.get("screen");
 
@@ -39,6 +41,10 @@ const LoginScreen = () => {
     const [isShowLoginErr, setShowLoginErr] = useState<boolean>(false);
 
     const [isShowLoginsucess, setShowLoginsucess] = useState<boolean>(false);
+
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const navigation: any = useNavigation();
 
     const loginState = useSelector((state: RootState) => state.authentication.isAuthenticated);
 
@@ -63,18 +69,17 @@ const LoginScreen = () => {
         },
         validationSchema: signinSchema,
         onSubmit: (data: LoginDto) => {
+            dispatch(authReducer.actions.resetAllInitialState());
             dispatch(authReducer.actions.setStateIsSubmiting(true));
             // @ts-ignore
             dispatch(login(data)).then((response) => {
                 try {
                     if (response.payload) {
                         if (response.payload.accessToken) {
+                            dispatch(authReducer.actions.setIsAuthenticatedState(true));
                             // @ts-ignore
                             dispatch(addToken(response.payload.accessToken));
-                            dispatch(authReducer.actions.setIsAuthenticatedState(true));
-                            console.log(1)
                         } else {
-                            console.log(2);
                             dispatch(authReducer.actions.setIsAuthenticatedState(false));
                         }
                     } else {
@@ -89,23 +94,42 @@ const LoginScreen = () => {
 
     useEffect(() => {
         if (isSubmitClickedState) {
-            let timer: any;
-            if (loginState) {
-                setShowLoginErr(false);
-                setShowLoginsucess(true);
-                timer = setTimeout(() => {
-                    setShowLoginsucess(false);
-                }, 3000);
-            } else {
-                setShowLoginsucess(false);
-                setShowLoginErr(true);
-                timer = setTimeout(() => {
+            let timer1: any, timer2: any;
+
+            if (loginState !== null) {
+                if (loginState) {
                     setShowLoginErr(false);
-                }, 3000);
+                    setLoading(true);
+                    timer1 = setTimeout(() => {
+                        setLoading(false);
+                        setShowLoginsucess(true);
+
+                        timer2 = setTimeout(() => {
+                            setShowLoginsucess(false);
+                            navigation.navigate('HomeScreen');
+                        }, 1000);
+                    }, 2000);
+                } else {
+                    setShowLoginsucess(false);
+
+                    setLoading(true);
+                    timer1 = setTimeout(() => {
+                        setLoading(false);
+                        setShowLoginErr(true);
+
+                        timer2 = setTimeout(() => {
+                            setShowLoginErr(false);
+                        }, 1000);
+                    }, 2000);
+                }
+
+                return () => {
+                    clearTimeout(timer1);
+                    clearTimeout(timer2);
+                };
             }
-            return () => clearTimeout(timer);
         }
-    }, [loginState, isSubmitClickedState]);
+    }, [loginState]);
 
     return (
         <SafeAreaView style={
@@ -113,6 +137,7 @@ const LoginScreen = () => {
                 GlobalStyles.AndroidSafeArea
             ]
         }>
+            <Spinner visible={loading} textContent={'Loading...'} textStyle={{color: '#FFF'}}/>
             <Block flex middle>
                 <StatusBar hidden/>
                 <ImageBackground
@@ -141,7 +166,7 @@ const LoginScreen = () => {
                                     <Toast isShow={isShowLoginErr} positionIndicator="top" round={true}
                                            color="warning"> Login failed, this account is not existed </Toast>
                                     <Toast isShow={isShowLoginsucess} round={true} positionIndicator="top"
-                                           color="success"> Register successfully </Toast>
+                                           color="success"> Login successfully </Toast>
                                     <Button style={styles.socialButtons}>
                                         <Block row>
                                             <Icon

@@ -1,8 +1,9 @@
 package com.example.api.services.impservices;
 
 import com.example.api.config.JwtUtilities;
-import com.example.api.dtos.LoginDto;
-import com.example.api.dtos.RegisterDto;
+import com.example.api.dtos.authentication.BearerToken;
+import com.example.api.dtos.authentication.LoginDto;
+import com.example.api.dtos.authentication.RegisterDto;
 import com.example.api.entities.Users;
 import com.example.api.entities.enums.UserRole;
 import com.example.api.repositories.UserRepository;
@@ -13,7 +14,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +34,7 @@ public class UserService implements IUserService {
 
     private AuthenticationManager authenticationManager;
 
+    // handle register
     @Override
     public Users register(RegisterDto registerDto) throws Exception {
         if (userRepository.existsByEmail(registerDto.getEmail())) {
@@ -50,8 +51,9 @@ public class UserService implements IUserService {
         }
     }
 
+    // handle login, then return token
     @Override
-    public String authenticate(LoginDto loginDto) throws Exception {
+    public BearerToken authenticate(LoginDto loginDto) throws Exception {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginDto.getEmail(),
@@ -66,6 +68,12 @@ public class UserService implements IUserService {
             roles.add(role.name());
         }
         String token = jwtUtilities.generateToken(user.getEmail(), roles);
-        return token;
+
+        BearerToken bearerToken = BearerToken.builder()
+                .accessToken(token)
+                .tokenType("access token")
+                .build();
+
+        return bearerToken;
     }
 }

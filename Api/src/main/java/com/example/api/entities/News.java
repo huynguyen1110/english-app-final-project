@@ -28,9 +28,19 @@ public class News {
 
     private String topicName;
 
+    private String author;
+
+    private String imageUrl;
+
+    private String sourceUrl;
+
+    private LocalDateTime publishedAt;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+
+    private LocalDateTime deletedAt;
 
     private Boolean isDeleted;
 

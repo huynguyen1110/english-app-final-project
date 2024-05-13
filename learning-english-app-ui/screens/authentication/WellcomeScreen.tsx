@@ -33,6 +33,7 @@ const WellcomeScreen = () => {
     }
 
     const handleNavigateToLogin = () => {
+        dispatch(authReducer.actions.resetAllInitialState());
         navigation.navigate('LoginScreen');
     }
 
