@@ -92,35 +92,10 @@ const LoginScreen = () => {
         },
     });
 
-    // set displaying alert for 3 seconds
-    // useEffect(() => {
-    //     if (isSubmitClickedState) {
-    //         let timer: any;
-    //         if (loginState) {
-    //             setShowLoginErr(false);
-    //             setShowLoginsucess(true);
-    //             setLoading(true);
-    //             timer = setTimeout(() => {
-    //                 setShowLoginsucess(false);
-    //                 navigation.navigate('HomeScreen');
-    //                 setLoading(false);
-    //             }, 3000);
-    //         } else {
-    //             setShowLoginsucess(false);
-    //             setShowLoginErr(true);
-    //             setLoading(true);
-    //             timer = setTimeout(() => {
-    //                 setShowLoginErr(false);
-    //                 setLoading(false);
-    //             }, 3000);
-    //         }
-    //         return () => clearTimeout(timer);
-    //     }
-    // }, [loginState]);
-
     useEffect(() => {
         if (isSubmitClickedState) {
             let timer1: any, timer2: any;
+
             if (loginState !== null) {
                 if (loginState) {
                     setShowLoginErr(false);
