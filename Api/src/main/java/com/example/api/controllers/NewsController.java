@@ -26,4 +26,16 @@ public class NewsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }
     }
+
+    @GetMapping("/get-by-category")
+    public ResponseEntity<?> getNewsByCategory(@RequestParam(defaultValue = "") String category
+            , @RequestParam(defaultValue = "") String keyWord
+            , @RequestParam(defaultValue = "") String sources) {
+        try {
+            var response = newsService.getNewsByCategory(category, keyWord, sources);
+            return ResponseEntity.ok(response);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
 }

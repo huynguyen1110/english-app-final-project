@@ -1,7 +1,7 @@
 package com.example.api.controllers;
 
-import com.example.api.dtos.LoginDto;
-import com.example.api.dtos.RegisterDto;
+import com.example.api.dtos.authentication.LoginDto;
+import com.example.api.dtos.authentication.RegisterDto;
 import com.example.api.services.impservices.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

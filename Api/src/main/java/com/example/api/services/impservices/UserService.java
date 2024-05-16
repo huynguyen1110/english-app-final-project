@@ -1,9 +1,9 @@
 package com.example.api.services.impservices;
 
 import com.example.api.config.JwtUtilities;
-import com.example.api.dtos.BearerToken;
-import com.example.api.dtos.LoginDto;
-import com.example.api.dtos.RegisterDto;
+import com.example.api.dtos.authentication.BearerToken;
+import com.example.api.dtos.authentication.LoginDto;
+import com.example.api.dtos.authentication.RegisterDto;
 import com.example.api.entities.Users;
 import com.example.api.entities.enums.UserRole;
 import com.example.api.repositories.UserRepository;

@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -39,4 +40,7 @@ public class Stories {
 
     @Enumerated(EnumType.STRING)
     private StoryStatus status;
+
+    @OneToMany(mappedBy = "stories", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserStory> userStories;
 }
