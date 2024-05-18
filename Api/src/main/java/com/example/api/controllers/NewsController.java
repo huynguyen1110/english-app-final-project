@@ -1,5 +1,6 @@
 package com.example.api.controllers;
 
+import com.example.api.dtos.news.NewsDto;
 import com.example.api.services.impservices.NewsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,49 @@ public class NewsController {
         try {
             var response = newsService.getNewsByCategory(category, keyWord, sources);
             return ResponseEntity.ok(response);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createNews(@RequestBody NewsDto newsDto) {
+        try {
+            newsService.createNews(newsDto);
+            return ResponseEntity.ok("Add news successfully");
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
+
+    @GetMapping("/get-news")
+    public ResponseEntity<?> getNewsFromDatabase(@RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "10") int size,
+                                                 @RequestParam(defaultValue = "title") String sortField,
+                                                 @RequestParam(required = false) Boolean sortDirection) {
+        try {
+            var response =  newsService.getNewsFromDatabase(page - 1, size, sortField, sortDirection);
+            return ResponseEntity.ok(response);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<?> updateNews(@RequestParam long newsId, @RequestBody NewsDto newsDto) {
+        try {
+            newsService.updateNews(newsDto, newsId);
+            return ResponseEntity.ok("Updated successfully");
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
+
+    @PutMapping("/delete")
+    public ResponseEntity<?> deleteNews(@RequestParam long id) {
+        try {
+            newsService.deleteNews(id);
+            return ResponseEntity.ok("deleted successfully");
         } catch (Exception erException) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }

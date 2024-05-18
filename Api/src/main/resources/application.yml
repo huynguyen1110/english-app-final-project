@@ -2,7 +2,7 @@ spring:
   application:
     name: Api
   datasource:
-    url: jdbc:mysql://localhost:3306/learning-english-app
+    url: jdbc:mysql://localhost:3306/learning-english-app-1
     username: root
     password: Huynguyen11102002
     driver-class-name: com.mysql.cj.jdbc.Driver
