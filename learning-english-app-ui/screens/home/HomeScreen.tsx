@@ -1,9 +1,10 @@
-import {SafeAreaView} from "react-native";
+import {SafeAreaView, StatusBar} from "react-native";
 import {GlobalStyles} from "../../styles/GlobalStyles";
 import {
     Block,
-    Text
+    Text,
 } from "galio-framework";
+import HeaderComponent from "../../components/HeaderComponent";
 
 const HomeScreen = () => {
     return (
@@ -12,6 +13,8 @@ const HomeScreen = () => {
                 GlobalStyles.AndroidSafeArea
             ]
         }>
+            <StatusBar hidden/>
+            <HeaderComponent/>
             <Block>
                 <Text>Home screen</Text>
             </Block>

@@ -12,7 +12,7 @@ const Navigation = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName='WellcomeScreen'
+                initialRouteName='HomeScreen'
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true
