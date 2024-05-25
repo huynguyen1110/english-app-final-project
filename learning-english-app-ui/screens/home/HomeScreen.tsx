@@ -10,6 +10,7 @@ import {
 } from "galio-framework";
 import HeaderComponent from "../../components/HeaderComponent";
 import CarouselCards from "../../components/carousel/CarouselCards";
+import ResourcesComponent from "../../components/resources/ResourcesComponent";
 
 const HomeScreen = () => {
     return (
@@ -49,7 +50,7 @@ const HomeScreen = () => {
                 <Block height={12}></Block>
                 <Block style={[GlobalStyles.gray_background]} height={12}></Block>
 
-                <Block>
+                <Block height={320} >
                     <Block height={4}></Block>
                     <Block style={[GlobalStyles.main_container]}>
                         <Text bold size={20}>Resources</Text>
@@ -57,6 +58,12 @@ const HomeScreen = () => {
                     <Block height={4}></Block>
                     <Block center>
                         <CarouselCards/>
+                    </Block>
+                </Block>
+
+                <Block>
+                    <Block style={ [ GlobalStyles.main_container ] }>
+                        <ResourcesComponent/>
                     </Block>
                 </Block>
 

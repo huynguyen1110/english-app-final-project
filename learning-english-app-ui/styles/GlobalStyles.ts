@@ -23,5 +23,6 @@ export const GlobalStyles = StyleSheet.create({
     },
     gray_background: {
         backgroundColor: theme.COLORS?.NAVBAR,
+        // backgroundColor: "red",
     }
 });
