@@ -11,6 +11,7 @@ import {
 import HeaderComponent from "../../components/HeaderComponent";
 import CarouselCards from "../../components/carousel/CarouselCards";
 import ResourcesComponent from "../../components/resources/ResourcesComponent";
+import FooterComponent from "../../components/FooterComponent";
 
 const HomeScreen = () => {
     return (
@@ -68,6 +69,7 @@ const HomeScreen = () => {
                 </Block>
 
             </ScrollView>
+            <FooterComponent/>
         </SafeAreaView>
     );
 }

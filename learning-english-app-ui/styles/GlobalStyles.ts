@@ -24,5 +24,12 @@ export const GlobalStyles = StyleSheet.create({
     gray_background: {
         backgroundColor: theme.COLORS?.NAVBAR,
         // backgroundColor: "red",
+    },
+    icon_button: {
+        width: 40,
+        height: 40,
+        borderRadius: 10,
+        alignItems: "center",
+        justifyContent: "center",
     }
 });
