@@ -9,8 +9,17 @@ import Icon1 from "react-native-vector-icons/MaterialCommunityIcons";
 import Octicons from "react-native-vector-icons/Octicons";
 import {TouchableOpacity, View, Image} from "react-native";
 import {GlobalStyles} from "../../styles/GlobalStyles";
+import {useNavigation} from "@react-navigation/native";
 
 const ResourcesComponent = () => {
+
+    const navigation = useNavigation();
+
+    const naviateToNewsScreen = () => {
+        // @ts-ignore
+        navigation.navigate('NewsScreen')
+    }
+
     return (
         <View>
             <Block flexDirection="row" justifyContent="space-around">
@@ -21,7 +30,7 @@ const ResourcesComponent = () => {
                     <Text bold size={14}>ChatGPT</Text>
                 </Block>
                 <Block flexDirection="column" justifyContent="center" alignItems="center">
-                    <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#04b551"}]}>
+                    <TouchableOpacity onPress={naviateToNewsScreen} style={[GlobalStyles.icon_button, {backgroundColor: "#04b551"}]}>
                         <Icon name="newspaper" family="FontAwesome5" size={30} color="white"/>
                     </TouchableOpacity>
                     <Text bold size={14}>News</Text>

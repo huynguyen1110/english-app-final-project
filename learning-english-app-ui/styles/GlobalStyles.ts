@@ -31,5 +31,9 @@ export const GlobalStyles = StyleSheet.create({
         borderRadius: 10,
         alignItems: "center",
         justifyContent: "center",
+    },
+    sand_dollar_bg: {
+        color: "#726d68",
+        backgroundColor: "#DFCFBE",
     }
 });

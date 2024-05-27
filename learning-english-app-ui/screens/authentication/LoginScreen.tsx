@@ -241,7 +241,9 @@ const LoginScreen = () => {
 
                                         </Block>
                                         <Block middle>
-                                            <Button color="primary" style={styles.createButton} onPress={handleSubmit}>
+                                            <Button color="primary" style={styles.createButton}
+                                                // @ts-ignore
+                                                    onPress={handleSubmit}>
                                                 <Text size={12} color={theme.COLORS?.WHITE}>
                                                     LOGIN
                                                 </Text>

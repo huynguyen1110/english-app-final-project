@@ -14,6 +14,7 @@ import ResourcesComponent from "../../components/resources/ResourcesComponent";
 import FooterComponent from "../../components/FooterComponent";
 
 const HomeScreen = () => {
+
     return (
         <SafeAreaView style={
             [
@@ -51,7 +52,7 @@ const HomeScreen = () => {
                 <Block height={12}></Block>
                 <Block style={[GlobalStyles.gray_background]} height={12}></Block>
 
-                <Block height={320} >
+                <Block height={320}>
                     <Block height={4}></Block>
                     <Block style={[GlobalStyles.main_container]}>
                         <Text bold size={20}>Resources</Text>
@@ -63,7 +64,7 @@ const HomeScreen = () => {
                 </Block>
 
                 <Block>
-                    <Block style={ [ GlobalStyles.main_container ] }>
+                    <Block style={[GlobalStyles.main_container]}>
                         <ResourcesComponent/>
                     </Block>
                 </Block>

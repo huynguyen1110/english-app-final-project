@@ -1,4 +1,4 @@
-import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {createSlice} from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {login, register} from "../../services/AuthenticationService";
 
@@ -77,4 +77,4 @@ export const authReducer = createSlice({
 
 export const {logout, resetAllInitialState} = authReducer.actions;
 
-export default authReducer.reducer;
+    export default authReducer.reducer;

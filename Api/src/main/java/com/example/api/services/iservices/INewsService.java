@@ -6,6 +6,8 @@ import com.kwabenaberko.newsapilib.models.response.ArticleResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public interface INewsService {
 
@@ -16,7 +18,9 @@ public interface INewsService {
 
     void createNews(NewsDto newsDto) throws Exception;
 
-    Page<News> getNewsFromDatabase(int page, int size, String sortField, Boolean sortDirection);
+    Page<News> getNewsFromDatabase(int page, int size, String sortField, Boolean sortDirection, Long topicId);
+
+    News getNewsById(Long newsId) throws Exception;
 
     void updateNews(NewsDto newsDto, long id) throws Exception;
 

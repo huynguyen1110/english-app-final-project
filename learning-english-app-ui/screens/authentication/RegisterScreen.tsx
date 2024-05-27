@@ -300,6 +300,7 @@ const RegisterScreen = () => {
                                         </Block>
                                         <Block middle>
                                             <Button color="primary" style={styles.createButton}
+                                                    // @ts-ignore
                                                     onPress={handleSubmit}>
                                                 <Text bold size={14} color={theme.COLORS?.WHITE}>
                                                     CREATE ACCOUNT

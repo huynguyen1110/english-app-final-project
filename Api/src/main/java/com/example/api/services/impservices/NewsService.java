@@ -141,7 +141,7 @@ public class NewsService implements INewsService {
     }
 
     @Override
-    public Page<News> getNewsFromDatabase(int page, int size, String sortField, Boolean sortDirection) {
+    public Page<News> getNewsFromDatabase(int page, int size, String sortField, Boolean sortDirection, Long topicId) {
         boolean isValidField = Arrays.stream(News.class.getDeclaredFields())
                 .map(Field::getName)
                 .anyMatch(fieldName -> fieldName.equals(sortField));
@@ -154,7 +154,14 @@ public class NewsService implements INewsService {
         Sort.Direction direction = (sortDirection != null && sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return newsRepository.findAllNews(pageable);
+        return newsRepository.findAllNews(topicId, pageable);
+    }
+
+    @Override
+    public News getNewsById(Long newsId) throws Exception {
+        Optional<News> newsOptional = newsRepository.findNewsById(newsId);
+        News news = newsOptional.orElseThrow(() -> new Exception("This newsId is not existed"));
+        return news;
     }
 
     @Override

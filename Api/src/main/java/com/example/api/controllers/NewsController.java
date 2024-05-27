@@ -54,10 +54,21 @@ public class NewsController {
     public ResponseEntity<?> getNewsFromDatabase(@RequestParam(defaultValue = "0") int page,
                                                  @RequestParam(defaultValue = "10") int size,
                                                  @RequestParam(defaultValue = "title") String sortField,
-                                                 @RequestParam(required = false) Boolean sortDirection) {
+                                                 @RequestParam(required = false) Boolean sortDirection,
+                                                 @RequestParam(required = false) Long topicId) {
         try {
-            var response =  newsService.getNewsFromDatabase(page - 1, size, sortField, sortDirection);
+            var response = newsService.getNewsFromDatabase(page - 1, size, sortField, sortDirection, topicId);
             return ResponseEntity.ok(response);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
+
+    @GetMapping("/get-news-id")
+    public ResponseEntity<?> getNewsById(@RequestParam Long newsId) {
+        try {
+            var news = newsService.getNewsById(newsId);
+            return ResponseEntity.ok(news);
         } catch (Exception erException) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }
