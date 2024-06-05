@@ -7,6 +7,10 @@ export const GlobalStyles = StyleSheet.create({
         backgroundColor: "white",
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     },
+    container: {
+      flex: 1,
+      height: "100%",
+    },
     main_container: {
         width: "95%",
         marginLeft: "auto",
