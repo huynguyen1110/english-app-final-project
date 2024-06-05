@@ -8,6 +8,7 @@ import {RootState} from "../../../utils/Store";
 import {useEffect, useState} from "react";
 import {getNewsFromDb} from "../../../services/NewsService";
 import {useNavigation} from "@react-navigation/native";
+import {getNewsById} from "../../../services/NewsService";
 
 const ByTopicsScreen = () => {
 
@@ -65,7 +66,9 @@ const ByTopicsScreen = () => {
     const renderItem = ({item}: { item: any }) => (
         <TouchableOpacity style={styles.itemContainer} onPress={() => {
             // @ts-ignore
-            navigation.navigate("NewsDetailScreen", {newsId: item.newsId})
+            dispatch(getNewsById(item.newsId))
+            // @ts-ignore
+            navigation.navigate("NewsDetailScreen")
         }} >
             <Image source={{uri: item.imageUrl}} style={styles.image}/>
             <Text style={styles.title}>{item.title}</Text>

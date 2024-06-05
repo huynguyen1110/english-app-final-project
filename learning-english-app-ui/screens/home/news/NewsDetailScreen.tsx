@@ -1,24 +1,21 @@
-import {SafeAreaView, StyleSheet, TouchableOpacity, View, Button, ScrollView} from "react-native";
+import {SafeAreaView, StyleSheet, TouchableOpacity, View, Button, ScrollView, Image} from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import Slider from '@react-native-community/slider';
-import {Block, Text, theme} from "galio-framework";
+import {Block, Text} from "galio-framework";
 // @ts-ignore
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 // @ts-ignore
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import {useNavigation} from "@react-navigation/native";
+import {useNavigation, useRoute} from "@react-navigation/native";
 import {useEffect, useState} from "react";
 import Modal from 'react-native-modal';
-import {useDispatch} from "react-redux";
-import {getNewsById} from "../../../services/NewsService";
+import {useDispatch, useSelector} from "react-redux";
+import {RootState} from "../../../utils/Store";
+import {blackColor, charcoalColor, sandDollarColor, textSandColor, whiteColor} from "../../../utils/constant";
 
-const NewsDetailScreen = ( {route}: {route: any} ) => {
+const NewsDetailScreen = () => {
 
     const navigation = useNavigation();
-
-    const dispatch = useDispatch();
-
-    const newsId = route.params.newsId;
 
     const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
 
@@ -28,10 +25,24 @@ const NewsDetailScreen = ( {route}: {route: any} ) => {
 
     const [isVisible, setIsVisible] = useState<boolean>(false);
 
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const newsData = useSelector((state: RootState) => state.newsReducer.newsData);
+
+    const [newsTitle, setNewsTitle] = useState<string []>([]);
+
+    const [imageUrl, setImageUrl] = useState<string>("");
+
+    const [newsContent, setNewsContent] = useState<string[]>([]);
+
+    const errImageUrl = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3ANo-Image-Placeholder.svg&psig=AOvVaw0pPj2xc6josQ23zzQIeG_1&ust=1718120275254000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCOCClfiu0YYDFQAAAAAdAAAAABAJ";
+
+    // open modal handler
     const openDrawer = () => {
         setIsVisible(true);
     };
 
+    // close modal handler
     const closeDrawer = () => {
         setIsVisible(false);
     };
@@ -40,31 +51,36 @@ const NewsDetailScreen = ( {route}: {route: any} ) => {
         navigation.goBack();
     }
 
-    const getNewsData = () => {
-        if (newsId) {
-            // @ts-ignore
-            dispatch(getNewsById(newsId))
-        }
-    }
+    // handle when press on word
+    const handleWordPress = (word: string) => {
+        setModalVisible(true);
+    };
 
+    // set background color and text color
     useEffect(() => {
-        if (backgroundColor === "#FFFFFF") {
-            setTextColor("#000000");
+        if (backgroundColor === whiteColor) {
+            setTextColor(blackColor);
         }
-        if (backgroundColor === "#DFCFBE") {
-            setTextColor("#726d68")
+        if (backgroundColor === sandDollarColor) {
+            setTextColor(textSandColor)
         }
-        if (backgroundColor === "#161748") {
-            setTextColor("#FFFFFF");
+        if (backgroundColor === charcoalColor) {
+            setTextColor(whiteColor);
         }
     }, [backgroundColor]);
 
+    // set news data
     useEffect(() => {
-        getNewsData();
-    }, [newsId]);
+        if (newsData) {
+            setNewsTitle(newsData.title.split(" "));
+            setImageUrl(newsData.imageUrl);
+            setNewsContent(newsData.content.split(" "));
+        }
+    }, [newsData]);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
+            {/* header area */}
             <Block style={[GlobalStyles.main_container]} flexDirection="row" justifyContent="space-between"
                    alignItems="center">
                 <TouchableOpacity onPress={backButton}>
@@ -82,15 +98,38 @@ const NewsDetailScreen = ( {route}: {route: any} ) => {
                     </TouchableOpacity>
                 </Block>
             </Block>
+            {/* header area */}
             <Block height={12}></Block>
             <Block style={GlobalStyles.under_line}></Block>
 
             <ScrollView style={[{backgroundColor}]}>
                 {/*content view*/}
-                <Block style={ GlobalStyles.main_container }>
+                <Block style={GlobalStyles.main_container}>
                     <Block height={4}></Block>
-                    <Text size={fontSize} color={textColor}>Hello</Text>
+                    <Block style={styles.textContainer}>
+                        {newsTitle.map((word: any, index: any) => (
+                            <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
+                                <Text style={{fontSize, color: textColor}}>{word} </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </Block>
+
+                    <Block height={4}></Block>
+
+                    <Image source={{uri: imageUrl || errImageUrl}} style={styles.image}/>
+
+                    <Block style={styles.textContainer}>
+                        {newsContent.map((word: any, index: any) => (
+                            <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
+                                <Text style={{fontSize, color: textColor}}>{word} </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </Block>
+
                 </Block>
+                {/*content view*/}
+
+                {/* setting modal */}
                 <Modal
                     // @ts-ignore
                     isVisible={isVisible}
@@ -109,17 +148,17 @@ const NewsDetailScreen = ( {route}: {route: any} ) => {
                                 <Text size={16}>Viewing theme</Text>
                                 <Block height={12}></Block>
                                 <Block flexDirection="row" justifyContent="space-between">
-                                    <TouchableOpacity style={[styles.viewing_button, {backgroundColor: "#FFFFFF"}]}
+                                    <TouchableOpacity style={[styles.viewing_button, {backgroundColor: whiteColor}]}
                                                       onPress={() => {
-                                                          setBackgroundColor("#FFFFFF");
+                                                          setBackgroundColor(whiteColor);
                                                       }}></TouchableOpacity>
                                     <TouchableOpacity
-                                        style={[styles.viewing_button, {backgroundColor: "#DFCFBE"}]} onPress={() => {
-                                        setBackgroundColor("#DFCFBE");
+                                        style={[styles.viewing_button, {backgroundColor: sandDollarColor}]} onPress={() => {
+                                        setBackgroundColor(sandDollarColor);
                                     }}></TouchableOpacity>
-                                    <TouchableOpacity style={[styles.viewing_button, {backgroundColor: "#161748"}]}
+                                    <TouchableOpacity style={[styles.viewing_button, {backgroundColor: charcoalColor}]}
                                                       onPress={() => {
-                                                          setBackgroundColor("#161748")
+                                                          setBackgroundColor(charcoalColor)
                                                       }}></TouchableOpacity>
                                 </Block>
 
@@ -144,17 +183,30 @@ const NewsDetailScreen = ( {route}: {route: any} ) => {
                         </Block>
                     </View>
                 </Modal>
+                {/* setting modal*/}
+
+                {/* dictionary modal */}
+                <Modal
+                    style={styles.modal}
+                    swipeDirection="down"
+                    // @ts-ignore
+                    transparent={true}
+                    visible={modalVisible}
+                    onSwipeComplete={() => setModalVisible(false)}
+                    onBackdropPress={() => setModalVisible(false)}
+                    onRequestClose={() => setModalVisible(false)}
+                >
+                    <View style={styles.drawer_dictionary}>
+                        <Text>hello</Text>
+                    </View>
+                </Modal>
+                {/* dictionary modal */}
             </ScrollView>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-    },
     modal: {
         justifyContent: 'flex-end',
         margin: 0,
@@ -171,12 +223,34 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
     },
+    drawer_dictionary: {
+        backgroundColor: 'gray',
+        padding: 20,
+        height: "35%",
+        width: '100%',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+    },
+    image: {
+        width: '100%',
+        height: 200,
+        resizeMode: 'cover',
+    },
+    // style for viewbtn
     viewing_button: {
         width: '32%',
         height: 50,
         borderRadius: 5,
         borderWidth: 1
-    }
+    },
+    textContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+    },
 });
 
 

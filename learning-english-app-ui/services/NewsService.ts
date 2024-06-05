@@ -29,6 +29,7 @@ export const getNewsById = createAsyncThunk(
     'news/get-news-id', // action name
     async (newsId: number, {rejectedWithValue}: any) => {
         try {
+
             const response = await fetch(BASE_URL.concat(GET_NEWS_BY_ID + "?newsId=" + newsId), {
                 method: 'GET'
             });
