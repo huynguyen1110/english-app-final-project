@@ -1,4 +1,5 @@
-import {SafeAreaView, StyleSheet, TouchableOpacity, View, Button, ScrollView, Image} from "react-native";
+import {SafeAreaView, StyleSheet, TouchableOpacity, View, ScrollView, Image} from "react-native";
+import {SegmentedButtons} from 'react-native-paper';
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import Slider from '@react-native-community/slider';
 import {Block, Text} from "galio-framework";
@@ -35,6 +36,11 @@ const NewsDetailScreen = () => {
 
     const [newsContent, setNewsContent] = useState<string[]>([]);
 
+    // word need to translate
+    const [translateWord, setTranslateWord] = useState<string>("");
+
+    const [segmentButtonValue, setSegmentButtonValue] = useState<string>("VI");
+
     const errImageUrl = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3ANo-Image-Placeholder.svg&psig=AOvVaw0pPj2xc6josQ23zzQIeG_1&ust=1718120275254000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCOCClfiu0YYDFQAAAAAdAAAAABAJ";
 
     // open modal handler
@@ -53,6 +59,8 @@ const NewsDetailScreen = () => {
 
     // handle when press on word
     const handleWordPress = (word: string) => {
+        // remove white space or dot, comma from word
+        setTranslateWord(word.replace(/[.,]$/, ''));
         setModalVisible(true);
     };
 
@@ -109,7 +117,7 @@ const NewsDetailScreen = () => {
                     <Block style={styles.textContainer}>
                         {newsTitle.map((word: any, index: any) => (
                             <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
-                                <Text style={{fontSize, color: textColor}}>{word} </Text>
+                                <Text bold style={{fontSize: fontSize + 4, color: textColor}}>{word} </Text>
                             </TouchableOpacity>
                         ))}
                     </Block>
@@ -128,6 +136,54 @@ const NewsDetailScreen = () => {
 
                 </Block>
                 {/*content view*/}
+
+                {/* dictionary modal */}
+                <Modal
+                    // @ts-ignore
+                    isVisible={modalVisible}
+                    onBackdropPress={() => setModalVisible(false)}
+                    style={styles.modal}
+                    swipeDirection="down"
+                    onSwipeComplete={() => setModalVisible(false)}
+                >
+                    <View style={styles.drawer_dictionary}>
+                        <Block>
+                            <Block row justifyContent="space-between">
+                                <Text size={18} bold> {translateWord}</Text>
+                                <TouchableOpacity>
+                                    <Text size={18} bold color={"#1d77f5"}>Save</Text>
+                                </TouchableOpacity>
+                            </Block>
+
+                            <Block>
+                                <Block height={8}></Block>
+                                <Block style={GlobalStyles.under_line}></Block>
+                                <Block height={8}></Block>
+                                <SegmentedButtons
+                                    value={segmentButtonValue}
+                                    onValueChange={setSegmentButtonValue}
+                                    buttons={[
+                                        {
+                                            value: 'VI',
+                                            label: 'VI',
+                                        },
+                                        {
+                                            value: 'EN',
+                                            label: 'EN',
+                                        },
+                                        {
+                                            value: 'ChatGPT',
+                                            label: 'ChatGPT'
+                                        },
+                                    ]}
+                                />
+                            </Block>
+                        </Block>
+
+
+                    </View>
+                </Modal>
+                {/* dictionary modal */}
 
                 {/* setting modal */}
                 <Modal
@@ -153,9 +209,10 @@ const NewsDetailScreen = () => {
                                                           setBackgroundColor(whiteColor);
                                                       }}></TouchableOpacity>
                                     <TouchableOpacity
-                                        style={[styles.viewing_button, {backgroundColor: sandDollarColor}]} onPress={() => {
-                                        setBackgroundColor(sandDollarColor);
-                                    }}></TouchableOpacity>
+                                        style={[styles.viewing_button, {backgroundColor: sandDollarColor}]}
+                                        onPress={() => {
+                                            setBackgroundColor(sandDollarColor);
+                                        }}></TouchableOpacity>
                                     <TouchableOpacity style={[styles.viewing_button, {backgroundColor: charcoalColor}]}
                                                       onPress={() => {
                                                           setBackgroundColor(charcoalColor)
@@ -184,23 +241,6 @@ const NewsDetailScreen = () => {
                     </View>
                 </Modal>
                 {/* setting modal*/}
-
-                {/* dictionary modal */}
-                <Modal
-                    style={styles.modal}
-                    swipeDirection="down"
-                    // @ts-ignore
-                    transparent={true}
-                    visible={modalVisible}
-                    onSwipeComplete={() => setModalVisible(false)}
-                    onBackdropPress={() => setModalVisible(false)}
-                    onRequestClose={() => setModalVisible(false)}
-                >
-                    <View style={styles.drawer_dictionary}>
-                        <Text>hello</Text>
-                    </View>
-                </Modal>
-                {/* dictionary modal */}
             </ScrollView>
         </SafeAreaView>
     );
@@ -224,9 +264,8 @@ const styles = StyleSheet.create({
         right: 0,
     },
     drawer_dictionary: {
-        backgroundColor: 'gray',
+        backgroundColor: 'white',
         padding: 20,
-        height: "35%",
         width: '100%',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
