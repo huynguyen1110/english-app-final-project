@@ -49,7 +49,7 @@ const ByTopicsScreen = () => {
                 sortDirection: true
             };
             // @ts-ignore
-            dispatch(getNewsFromDb(params, param.key));
+            dispatch(getNewsFromDb(params, param.npm));
         });
     };
 

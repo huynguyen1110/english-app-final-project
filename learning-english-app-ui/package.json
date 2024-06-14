@@ -16,7 +16,7 @@
     "@react-navigation/native-stack": "^6.9.26",
     "@reduxjs/toolkit": "^2.2.3",
     "@types/react-native-snap-carousel": "^3.8.11",
-    "axios": "^1.6.8",
+    "axios": "^1.7.2",
     "expo": "^51.0.2",
     "expo-status-bar": "^1.12.1",
     "formik": "^2.4.6",

@@ -13,6 +13,8 @@ import Modal from 'react-native-modal';
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../utils/Store";
 import {blackColor, charcoalColor, sandDollarColor, textSandColor, whiteColor} from "../../../utils/constant";
+import axios from 'axios';
+import {ENGLISH_DIC_API} from "../../../utils/API";
 
 const NewsDetailScreen = () => {
 
@@ -43,6 +45,8 @@ const NewsDetailScreen = () => {
 
     const errImageUrl = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3ANo-Image-Placeholder.svg&psig=AOvVaw0pPj2xc6josQ23zzQIeG_1&ust=1718120275254000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCOCClfiu0YYDFQAAAAAdAAAAABAJ";
 
+    const [engDicResponse, setEngDicResponse] = useState<string>("");
+
     // open modal handler
     const openDrawer = () => {
         setIsVisible(true);
@@ -62,6 +66,7 @@ const NewsDetailScreen = () => {
         // remove white space or dot, comma from word
         setTranslateWord(word.replace(/[.,]$/, ''));
         setModalVisible(true);
+        fetchEngDicResponse(translateWord);
     };
 
     // set background color and text color
@@ -85,6 +90,16 @@ const NewsDetailScreen = () => {
             setNewsContent(newsData.content.split(" "));
         }
     }, [newsData]);
+
+    const fetchEngDicResponse = async (word: string) => {
+        try {
+            const response = await axios.get(ENGLISH_DIC_API.concat("/" + word));
+            const { data } = response;
+            console.log(data);
+        } catch (error) {
+            console.log("err while fetching free dic api" + error);
+        }
+    }
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
