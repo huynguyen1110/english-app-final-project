@@ -30,6 +30,7 @@ const ByTopicsScreen = () => {
 
     const [refreshing, setRefreshing] = useState(false);
 
+    // important
     const fetchNews = () => {
         const newsParams = [
             { topicId: 2, key: 'scienceNews' },

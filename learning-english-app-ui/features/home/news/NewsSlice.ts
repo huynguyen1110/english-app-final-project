@@ -49,19 +49,19 @@ export const newsReducer = createSlice({
                             state.TechnologyData = null;
                             state.TechnologyData = data;
                             break;
-                        case 'Business':
+                        case 'Business': // 4
                             state.BusinessData = null;
                             state.BusinessData = data;
                             break;
-                        case 'Education':
+                        case 'Education': // 1
                             state.EducationData = null;
                             state.EducationData = data;
                             break;
-                        case 'Travel':
+                        case 'Travel': // 5
                             state.TravelData = null;
                             state.TravelData = data;
                             break;
-                        case 'Sport':
+                        case 'Sport': // 6
                             state.SportData = null;
                             state.SportData = data;
                             break;

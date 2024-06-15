@@ -41,11 +41,15 @@ const NewsDetailScreen = () => {
     // word need to translate
     const [translateWord, setTranslateWord] = useState<string>("");
 
+    // error when translated word is not valid
+    const [translateErr, setTranslateErr] = useState<string>("");
+
     const [segmentButtonValue, setSegmentButtonValue] = useState<string>("VI");
 
     const errImageUrl = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3ANo-Image-Placeholder.svg&psig=AOvVaw0pPj2xc6josQ23zzQIeG_1&ust=1718120275254000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCOCClfiu0YYDFQAAAAAdAAAAABAJ";
 
-    const [engDicResponse, setEngDicResponse] = useState<string>("");
+    // this is a field in free dic response
+    const [phonetic, setPhonetic] = useState(null);
 
     // open modal handler
     const openDrawer = () => {
@@ -66,7 +70,6 @@ const NewsDetailScreen = () => {
         // remove white space or dot, comma from word
         setTranslateWord(word.replace(/[.,]$/, ''));
         setModalVisible(true);
-        fetchEngDicResponse(translateWord);
     };
 
     // set background color and text color
@@ -91,15 +94,51 @@ const NewsDetailScreen = () => {
         }
     }, [newsData]);
 
+    // get english word meaning
     const fetchEngDicResponse = async (word: string) => {
         try {
             const response = await axios.get(ENGLISH_DIC_API.concat("/" + word));
             const { data } = response;
-            console.log(data);
+
+            getPhoneticField(data);
         } catch (error) {
+            setTranslateErr("The word is invalid")
             console.log("err while fetching free dic api" + error);
         }
     }
+
+    const getPhoneticField = (data: any) => {
+        let selectedPhonetic = null;
+        if (data[0].phonetics && data[0].phonetics.length > 0) {
+            for (let item of data[0].phonetics) {
+                if (item.text && item.audio) {
+                    selectedPhonetic = item;
+                    setPhonetic(selectedPhonetic);
+                    break;
+                } else if (item.text && !selectedPhonetic) {
+                    selectedPhonetic = item;
+                    setPhonetic(selectedPhonetic);
+                }
+            }
+        }
+        console.log(data[0].word)
+    }
+
+    useEffect(() => {
+        if (segmentButtonValue === "VI") {
+
+        } else if (segmentButtonValue === "EN") {
+            fetchEngDicResponse(translateWord);
+        }
+    }, [segmentButtonValue]);
+
+    // update phonetic
+    // useEffect(() => {
+    //     if (phonetic) {
+    //         console.log(phonetic);
+    //     }
+    // }, [phonetic]);
+
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -156,10 +195,16 @@ const NewsDetailScreen = () => {
                 <Modal
                     // @ts-ignore
                     isVisible={modalVisible}
-                    onBackdropPress={() => setModalVisible(false)}
+                    onBackdropPress={() => {
+                        setModalVisible(false);
+                        setSegmentButtonValue("VI");
+                    }}
                     style={styles.modal}
                     swipeDirection="down"
-                    onSwipeComplete={() => setModalVisible(false)}
+                    onSwipeComplete={() => {
+                        setModalVisible(false);
+                        setSegmentButtonValue("VI");
+                    }}
                 >
                     <View style={styles.drawer_dictionary}>
                         <Block>
@@ -194,8 +239,6 @@ const NewsDetailScreen = () => {
                                 />
                             </Block>
                         </Block>
-
-
                     </View>
                 </Modal>
                 {/* dictionary modal */}
