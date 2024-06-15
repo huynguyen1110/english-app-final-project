@@ -15,19 +15,26 @@ import {RootState} from "../../../utils/Store";
 import {blackColor, charcoalColor, sandDollarColor, textSandColor, whiteColor} from "../../../utils/constant";
 import axios from 'axios';
 import {ENGLISH_DIC_API} from "../../../utils/API";
+import {Audio} from 'expo-av';
+import {array} from "yup";
 
 const NewsDetailScreen = () => {
 
     const navigation = useNavigation();
 
+    // background color of reading news screen
     const [backgroundColor, setBackgroundColor] = useState('#FFFFFF');
 
+    // text color of reading news screen
     const [textColor, setTextColor] = useState('#000000');
 
+    // text size of reading news screen
     const [fontSize, setFontSize] = useState(16);
 
+    // state of setting modal
     const [isVisible, setIsVisible] = useState<boolean>(false);
 
+    // state of dictionary modal
     const [modalVisible, setModalVisible] = useState(false);
 
     const newsData = useSelector((state: RootState) => state.newsReducer.newsData);
@@ -42,14 +49,19 @@ const NewsDetailScreen = () => {
     const [translateWord, setTranslateWord] = useState<string>("");
 
     // error when translated word is not valid
-    const [translateErr, setTranslateErr] = useState<string>("");
+    const [translateErr, setTranslateErr] = useState<any>(null);
 
     const [segmentButtonValue, setSegmentButtonValue] = useState<string>("VI");
 
     const errImageUrl = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fcommons.wikimedia.org%2Fwiki%2FFile%3ANo-Image-Placeholder.svg&psig=AOvVaw0pPj2xc6josQ23zzQIeG_1&ust=1718120275254000&source=images&cd=vfe&opi=89978449&ved=0CBIQjRxqFwoTCOCClfiu0YYDFQAAAAAdAAAAABAJ";
 
     // this is a field in free dic response
-    const [phonetic, setPhonetic] = useState(null);
+    const [phonetic, setPhonetic] = useState<any>(null);
+
+    // this is a field in free dic response
+    const [englishMeaning, setEnglishMeaning] = useState<any>(null);
+
+    const [sound, setSound] = useState<any>();
 
     // open modal handler
     const openDrawer = () => {
@@ -97,18 +109,25 @@ const NewsDetailScreen = () => {
     // get english word meaning
     const fetchEngDicResponse = async (word: string) => {
         try {
+
+            setTranslateErr("")
+
             const response = await axios.get(ENGLISH_DIC_API.concat("/" + word));
-            const { data } = response;
+            const {data} = response;
+
+            setEnglishMeaning(data[0].meanings);
 
             getPhoneticField(data);
         } catch (error) {
-            setTranslateErr("The word is invalid")
+            setTranslateErr("No translation data");
+            console.log(translateErr)
             console.log("err while fetching free dic api" + error);
         }
     }
 
     const getPhoneticField = (data: any) => {
         let selectedPhonetic = null;
+        setPhonetic(null);
         if (data[0].phonetics && data[0].phonetics.length > 0) {
             for (let item of data[0].phonetics) {
                 if (item.text && item.audio) {
@@ -121,24 +140,35 @@ const NewsDetailScreen = () => {
                 }
             }
         }
-        console.log(data[0].word)
+    }
+
+    // handle play sound
+    const playAudioBtn = async () => {
+        if (phonetic.audio !== "") {
+            const {sound} = await Audio.Sound.createAsync({ uri: phonetic.audio });
+            setSound(sound);
+            await sound.playAsync();
+        }
     }
 
     useEffect(() => {
-        if (segmentButtonValue === "VI") {
+        return sound
+            ? () => {
+                console.log('Unloading Sound');
+                sound.unloadAsync();
+            }
+            : undefined;
+    }, [sound]);
+    // handle play sound
 
-        } else if (segmentButtonValue === "EN") {
-            fetchEngDicResponse(translateWord);
-        }
-    }, [segmentButtonValue]);
+    useEffect(() => {
+        fetchEngDicResponse(translateWord);
+    }, [translateWord]);
 
-    // update phonetic
-    // useEffect(() => {
-    //     if (phonetic) {
-    //         console.log(phonetic);
-    //     }
-    // }, [phonetic]);
-
+    // update phonetic state if not null call play sound btn
+    useEffect(() => {
+        playAudioBtn();
+    }, [phonetic]);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -155,7 +185,8 @@ const NewsDetailScreen = () => {
                         <Text size={20}> <FontAwesome name="heart-o" size={24}/> </Text>
                     </TouchableOpacity>
                     <Block width={8}></Block>
-                    <TouchableOpacity onPress={openDrawer}>
+                    <TouchableOpacity onPress={
+                        openDrawer}>
                         <Text size={20}> <SimpleLineIcons name="settings" size={24}/> </Text>
                     </TouchableOpacity>
                 </Block>
@@ -198,12 +229,14 @@ const NewsDetailScreen = () => {
                     onBackdropPress={() => {
                         setModalVisible(false);
                         setSegmentButtonValue("VI");
+                        setPhonetic(null);
                     }}
                     style={styles.modal}
                     swipeDirection="down"
                     onSwipeComplete={() => {
                         setModalVisible(false);
                         setSegmentButtonValue("VI");
+                        setPhonetic(null);
                     }}
                 >
                     <View style={styles.drawer_dictionary}>
@@ -237,6 +270,17 @@ const NewsDetailScreen = () => {
                                         },
                                     ]}
                                 />
+
+                                <Block>
+                                    {/*{phonetic?.audio && (*/}
+                                    {/*    <Block>*/}
+                                    {/*        <audio src={phonetic.audio} controls />*/}
+                                    {/*    </Block>*/}
+                                    {/*)}*/}
+                                    <Text>
+                                        {translateErr ? translateErr : phonetic?.text}
+                                    </Text>
+                                </Block>
                             </Block>
                         </Block>
                     </View>
@@ -349,6 +393,5 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
 });
-
 
 export default NewsDetailScreen;

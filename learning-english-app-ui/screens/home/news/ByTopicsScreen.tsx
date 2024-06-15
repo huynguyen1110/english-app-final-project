@@ -77,7 +77,6 @@ const ByTopicsScreen = () => {
         </TouchableOpacity>
     );
 
-
     return (
         <View style={[GlobalStyles.main_container]}>
             <ScrollView refreshControl={
