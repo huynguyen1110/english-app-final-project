@@ -2,7 +2,7 @@ import {SafeAreaView, StyleSheet, TouchableOpacity, View, ScrollView, Image} fro
 import {SegmentedButtons} from 'react-native-paper';
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import Slider from '@react-native-community/slider';
-import {Block, Text} from "galio-framework";
+import {Block, Button, Text, Toast} from "galio-framework";
 // @ts-ignore
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 // @ts-ignore
@@ -60,6 +60,9 @@ const NewsDetailScreen = () => {
 
     // this is a field in free dic response
     const [englishMeaning, setEnglishMeaning] = useState<any>(null);
+
+    // state of showing toast or not
+    const [isShowToast, setIsShowToast] = useState<boolean>(false);
 
     const [sound, setSound] = useState<any>();
 
@@ -144,17 +147,19 @@ const NewsDetailScreen = () => {
 
     // handle play sound
     const playAudioBtn = async () => {
-        if (phonetic.audio !== "") {
-            const {sound} = await Audio.Sound.createAsync({ uri: phonetic.audio });
+        if (phonetic.audio !== "" && phonetic.audio !== undefined && phonetic.audio != null) {
+            setIsShowToast(false);
+            const {sound} = await Audio.Sound.createAsync({uri: phonetic.audio});
             setSound(sound);
             await sound.playAsync();
+        } else {
+            setIsShowToast(true);
         }
     }
 
     useEffect(() => {
         return sound
             ? () => {
-                console.log('Unloading Sound');
                 sound.unloadAsync();
             }
             : undefined;
@@ -170,8 +175,19 @@ const NewsDetailScreen = () => {
         playAudioBtn();
     }, [phonetic]);
 
+    useEffect(() => {
+        let timer: any;
+        if (isShowToast) {
+            timer = setTimeout(() => {
+                setIsShowToast(false);
+            }, 2000); // 2000ms = 2 seconds
+        }
+        return () => clearTimeout(timer);
+    }, [isShowToast]);
+
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
+            <Toast isShow={isShowToast} positionIndicator="top" color="warning"> No audio found </Toast>
             {/* header area */}
             <Block style={[GlobalStyles.main_container]} flexDirection="row" justifyContent="space-between"
                    alignItems="center">
@@ -218,7 +234,6 @@ const NewsDetailScreen = () => {
                             </TouchableOpacity>
                         ))}
                     </Block>
-
                 </Block>
                 {/*content view*/}
 
@@ -271,13 +286,13 @@ const NewsDetailScreen = () => {
                                     ]}
                                 />
 
-                                <Block>
-                                    {/*{phonetic?.audio && (*/}
-                                    {/*    <Block>*/}
-                                    {/*        <audio src={phonetic.audio} controls />*/}
-                                    {/*    </Block>*/}
-                                    {/*)}*/}
-                                    <Text>
+                                <Block height={4}></Block>
+                                <Block row alignItems="center">
+                                    <TouchableOpacity onPress={playAudioBtn}>
+                                        <Text size={18}><FontAwesome size={20} name="volume-up"/></Text>
+                                    </TouchableOpacity>
+                                    <Block width={12}></Block>
+                                    <Text size={18}>
                                         {translateErr ? translateErr : phonetic?.text}
                                     </Text>
                                 </Block>
