@@ -1,4 +1,4 @@
-import {SafeAreaView, StyleSheet, TouchableOpacity, View, ScrollView, Image} from "react-native";
+import {SafeAreaView, StyleSheet, TouchableOpacity, View, ScrollView, Image, FlatList, SectionList} from "react-native";
 import {SegmentedButtons} from 'react-native-paper';
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import Slider from '@react-native-community/slider';
@@ -16,7 +16,6 @@ import {blackColor, charcoalColor, sandDollarColor, textSandColor, whiteColor} f
 import axios from 'axios';
 import {ENGLISH_DIC_API} from "../../../utils/API";
 import {Audio} from 'expo-av';
-import {array} from "yup";
 
 const NewsDetailScreen = () => {
 
@@ -59,7 +58,7 @@ const NewsDetailScreen = () => {
     const [phonetic, setPhonetic] = useState<any>(null);
 
     // this is a field in free dic response
-    const [englishMeaning, setEnglishMeaning] = useState<any>(null);
+    const [englishMeaning, setEnglishMeaning] = useState<any []>([]);
 
     // state of showing toast or not
     const [isShowToast, setIsShowToast] = useState<boolean>(false);
@@ -119,7 +118,6 @@ const NewsDetailScreen = () => {
             const {data} = response;
 
             setEnglishMeaning(data[0].meanings);
-
             getPhoneticField(data);
         } catch (error) {
             setTranslateErr("No translation data");
@@ -175,6 +173,7 @@ const NewsDetailScreen = () => {
         playAudioBtn();
     }, [phonetic]);
 
+    // hide toast after 2 second
     useEffect(() => {
         let timer: any;
         if (isShowToast) {
@@ -184,6 +183,26 @@ const NewsDetailScreen = () => {
         }
         return () => clearTimeout(timer);
     }, [isShowToast]);
+
+    // render definitions of english word when click on EN
+    const renderEnglishDefinitions = ({ item } : { item: any }) => (
+        <View>
+            <Block height={2}></Block>
+            <Text size={16}>- {item.definition}</Text>
+            <Block height={2}></Block>
+        </View>
+    );
+
+    // render part of speech of english word when click on EN
+    const renderPartOfSpeechEnglish = ({ item } : { item: any }) => (
+        <View>
+            <Block height={4}></Block>
+            <Text size={16}><Text bold size={16}>Part of Speech:</Text> {item.partOfSpeech}</Text>
+            <Block height={4}></Block>
+
+            <Text size={16} bold>Definition: </Text>
+        </View>
+    );
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -287,6 +306,7 @@ const NewsDetailScreen = () => {
                                 />
 
                                 <Block height={4}></Block>
+
                                 <Block row alignItems="center">
                                     <TouchableOpacity onPress={playAudioBtn}>
                                         <Text size={18}><FontAwesome size={20} name="volume-up"/></Text>
@@ -296,6 +316,122 @@ const NewsDetailScreen = () => {
                                         {translateErr ? translateErr : phonetic?.text}
                                     </Text>
                                 </Block>
+
+                                {/*<Block>*/}
+                                {/*        <SectionList*/}
+                                {/*            sections={englishMeaning}*/}
+                                {/*            renderItem={renderEnglishDefinitions}*/}
+                                {/*            // @ts-ignore*/}
+                                {/*            renderSectionHeader={renderPartOfSpeechEnglish}*/}
+                                {/*            keyExtractor={(item, index) => item.definition + index}*/}
+                                {/*        />*/}
+                                {/*</Block>*/}
+
+                                <ScrollView style={ {  } }>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                    <Text>dsfsdfsdf</Text>
+                                </ScrollView>
                             </Block>
                         </Block>
                     </View>
@@ -384,6 +520,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         padding: 20,
         width: '100%',
+        height: '45%',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         position: 'absolute',
