@@ -8,7 +8,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 // @ts-ignore
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {useNavigation, useRoute} from "@react-navigation/native";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import Modal from 'react-native-modal';
 import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../utils/Store";
@@ -16,6 +16,7 @@ import {blackColor, charcoalColor, sandDollarColor, textSandColor, whiteColor} f
 import axios from 'axios';
 import {ENGLISH_DIC_API} from "../../../utils/API";
 import {Audio} from 'expo-av';
+import {Modalize} from "react-native-modalize";
 
 const NewsDetailScreen = () => {
 
@@ -65,6 +66,11 @@ const NewsDetailScreen = () => {
 
     const [sound, setSound] = useState<any>();
 
+    const modalRef = useRef<Modalize>(null)
+
+    // use for opening Modalize (handle scroll view in modal)
+    const openModal = () => modalRef?.current?.open();
+
     // open modal handler
     const openDrawer = () => {
         setIsVisible(true);
@@ -84,6 +90,7 @@ const NewsDetailScreen = () => {
         // remove white space or dot, comma from word
         setTranslateWord(word.replace(/[.,]$/, ''));
         setModalVisible(true);
+        openModal();
     };
 
     // set background color and text color
@@ -184,25 +191,9 @@ const NewsDetailScreen = () => {
         return () => clearTimeout(timer);
     }, [isShowToast]);
 
-    // render definitions of english word when click on EN
-    const renderEnglishDefinitions = ({ item } : { item: any }) => (
-        <View>
-            <Block height={2}></Block>
-            <Text size={16}>- {item.definition}</Text>
-            <Block height={2}></Block>
-        </View>
-    );
-
-    // render part of speech of english word when click on EN
-    const renderPartOfSpeechEnglish = ({ item } : { item: any }) => (
-        <View>
-            <Block height={4}></Block>
-            <Text size={16}><Text bold size={16}>Part of Speech:</Text> {item.partOfSpeech}</Text>
-            <Block height={4}></Block>
-
-            <Text size={16} bold>Definition: </Text>
-        </View>
-    );
+    useEffect(() => {
+        console.log(englishMeaning);
+    }, [englishMeaning]);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -230,7 +221,7 @@ const NewsDetailScreen = () => {
             <Block height={12}></Block>
             <Block style={GlobalStyles.under_line}></Block>
 
-            <ScrollView style={[{backgroundColor}]}>
+            <ScrollView style={[{backgroundColor}, GlobalStyles.container]}>
                 {/*content view*/}
                 <Block style={GlobalStyles.main_container}>
                     <Block height={4}></Block>
@@ -255,188 +246,6 @@ const NewsDetailScreen = () => {
                     </Block>
                 </Block>
                 {/*content view*/}
-
-                {/* dictionary modal */}
-                <Modal
-                    // @ts-ignore
-                    isVisible={modalVisible}
-                    onBackdropPress={() => {
-                        setModalVisible(false);
-                        setSegmentButtonValue("VI");
-                        setPhonetic(null);
-                    }}
-                    style={styles.modal}
-                    swipeDirection="down"
-                    onSwipeComplete={() => {
-                        setModalVisible(false);
-                        setSegmentButtonValue("VI");
-                        setPhonetic(null);
-                    }}
-                >
-                    <View style={styles.drawer_dictionary}>
-                        <Block>
-                            <Block row justifyContent="space-between">
-                                <Text size={18} bold> {translateWord}</Text>
-                                <TouchableOpacity>
-                                    <Text size={18} bold color={"#1d77f5"}>Save</Text>
-                                </TouchableOpacity>
-                            </Block>
-
-                            <Block>
-                                <Block height={8}></Block>
-                                <Block style={GlobalStyles.under_line}></Block>
-                                <Block height={8}></Block>
-                                <SegmentedButtons
-                                    value={segmentButtonValue}
-                                    onValueChange={setSegmentButtonValue}
-                                    buttons={[
-                                        {
-                                            value: 'VI',
-                                            label: 'VI',
-                                        },
-                                        {
-                                            value: 'EN',
-                                            label: 'EN',
-                                        },
-                                        {
-                                            value: 'ChatGPT',
-                                            label: 'ChatGPT'
-                                        },
-                                    ]}
-                                />
-
-                                <Block height={4}></Block>
-
-                                <Block row alignItems="center">
-                                    <TouchableOpacity onPress={playAudioBtn}>
-                                        <Text size={18}><FontAwesome size={20} name="volume-up"/></Text>
-                                    </TouchableOpacity>
-                                    <Block width={12}></Block>
-                                    <Text size={18}>
-                                        {translateErr ? translateErr : phonetic?.text}
-                                    </Text>
-                                </Block>
-
-                                {/*<Block>*/}
-                                {/*        <SectionList*/}
-                                {/*            sections={englishMeaning}*/}
-                                {/*            renderItem={renderEnglishDefinitions}*/}
-                                {/*            // @ts-ignore*/}
-                                {/*            renderSectionHeader={renderPartOfSpeechEnglish}*/}
-                                {/*            keyExtractor={(item, index) => item.definition + index}*/}
-                                {/*        />*/}
-                                {/*</Block>*/}
-
-                                <ScrollView style={ {  } }>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                    <Text>dsfsdfsdf</Text>
-                                </ScrollView>
-                            </Block>
-                        </Block>
-                    </View>
-                </Modal>
-                {/* dictionary modal */}
 
                 {/* setting modal */}
                 <Modal
@@ -494,7 +303,93 @@ const NewsDetailScreen = () => {
                     </View>
                 </Modal>
                 {/* setting modal*/}
+
             </ScrollView>
+
+            {/* dictionary modal */}
+            <Modalize
+                ref={modalRef}
+                modalHeight={400}
+                // adjustToContentHeight
+                // childrenStyle={{ height: 400 }}
+                scrollViewProps={{showsVerticalScrollIndicator: false}}
+            >
+                <View style={{padding: 20}}>
+                    <Block row justifyContent="space-between">
+                        <Text size={18} bold> {translateWord}</Text>
+                        <TouchableOpacity>
+                            <Text size={18} bold color={"#1d77f5"}>Save</Text>
+                        </TouchableOpacity>
+                    </Block>
+
+                    <Block>
+                        <Block height={8}></Block>
+                        <Block style={GlobalStyles.under_line}></Block>
+                        <Block height={8}></Block>
+                        <SegmentedButtons
+                            value={segmentButtonValue}
+                            onValueChange={setSegmentButtonValue}
+                            buttons={[
+                                {
+                                    value: 'VI',
+                                    label: 'VI',
+                                },
+                                {
+                                    value: 'EN',
+                                    label: 'EN',
+                                },
+                                {
+                                    value: 'ChatGPT',
+                                    label: 'ChatGPT'
+                                },
+                            ]}
+                        />
+                    </Block>
+
+                    <Block height={4}></Block>
+
+                    <Block row alignItems="center">
+                        <TouchableOpacity onPress={playAudioBtn}>
+                            <Text size={18}><FontAwesome size={20} name="volume-up"/></Text>
+                        </TouchableOpacity>
+                        <Block width={12}></Block>
+                        <Text size={18}>
+                            {translateErr ? translateErr : phonetic?.text}
+                        </Text>
+                    </Block>
+
+                    <Block>
+                        {englishMeaning.length > 0 ? (
+                            <SectionList
+                                sections={englishMeaning.map(meaning => ({
+                                    partOfSpeech: meaning.partOfSpeech,
+                                    data: meaning.definitions.map((def: any) => def.definition)
+                                }))}
+                                renderItem={({ item }: { item: string }) => (
+                                    <View>
+                                        <Text size={16}>- {item}</Text>
+                                        <Block height={4}></Block>
+                                    </View>
+                                )}
+                                renderSectionHeader={( {section: {partOfSpeech}}) => (
+                                    <View>
+                                        <Block height={4}></Block>
+                                        <Text size={16}><Text bold size={16}>Part of Speech:</Text> {partOfSpeech}</Text>
+                                        <Block height={4}></Block>
+
+                                        <Text size={16} bold>Definition: </Text>
+                                    </View>
+                                )}
+                                keyExtractor={(item, index) => item + index}
+                            />
+                        ) : (
+                            <Text>No definitions available.</Text>
+                        )}
+                    </Block>
+
+                </View>
+            </Modalize>
+            {/* dictionary modal */}
         </SafeAreaView>
     );
 }
