@@ -7,6 +7,8 @@ import {Block, Button, Text, Toast} from "galio-framework";
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 // @ts-ignore
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+// @ts-ignore
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation, useRoute} from "@react-navigation/native";
 import {useEffect, useRef, useState} from "react";
 import Modal from 'react-native-modal';
@@ -365,16 +367,23 @@ const NewsDetailScreen = () => {
                                     partOfSpeech: meaning.partOfSpeech,
                                     data: meaning.definitions.map((def: any) => def.definition)
                                 }))}
-                                renderItem={({ item }: { item: string }) => (
+                                renderItem={({item}: { item: string }) => (
                                     <View>
-                                        <Text size={16}>- {item}</Text>
-                                        <Block height={4}></Block>
+                                        <Block row justifyContent="space-between" alignItems="center">
+                                            <Block width={300}><Text size={16}>- {item}</Text></Block>
+
+                                            <TouchableOpacity style={{padding: 10}}>
+                                                <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
+                                            </TouchableOpacity>
+                                        </Block>
+                                        <Block height={4} style={ GlobalStyles.under_line } ></Block>
                                     </View>
                                 )}
-                                renderSectionHeader={( {section: {partOfSpeech}}) => (
+                                renderSectionHeader={({section: {partOfSpeech}}) => (
                                     <View>
                                         <Block height={4}></Block>
-                                        <Text size={16}><Text bold size={16}>Part of Speech:</Text> {partOfSpeech}</Text>
+                                        <Text size={16}><Text bold size={16}>Part of Speech:</Text> {partOfSpeech}
+                                        </Text>
                                         <Block height={4}></Block>
 
                                         <Text size={16} bold>Definition: </Text>
