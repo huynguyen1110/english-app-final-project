@@ -16,7 +16,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../../../utils/Store";
 import {blackColor, charcoalColor, sandDollarColor, textSandColor, whiteColor} from "../../../utils/constant";
 import axios from 'axios';
-import {ENGLISH_DIC_API} from "../../../utils/API";
+import {ENGLISH_DIC_API, TRANSLATION_API} from "../../../utils/API";
 import {Audio} from 'expo-av';
 import {Modalize} from "react-native-modalize";
 
@@ -62,6 +62,9 @@ const NewsDetailScreen = () => {
 
     // this is a field in free dic response
     const [englishMeaning, setEnglishMeaning] = useState<any []>([]);
+
+    // translation of field meaning in free dic
+    const [vietnameseMeaning, setVietnameseMeaning] = useState<any []>([])
 
     // state of showing toast or not
     const [isShowToast, setIsShowToast] = useState<boolean>(false);
@@ -123,10 +126,19 @@ const NewsDetailScreen = () => {
 
             setTranslateErr("")
 
+            setEnglishMeaning([]);
+
             const response = await axios.get(ENGLISH_DIC_API.concat("/" + word));
             const {data} = response;
 
-            setEnglishMeaning(data[0].meanings);
+
+            const englishMeaningTransformed = data[0].meanings.map((meaning: any) => ({
+                partOfSpeech: meaning.partOfSpeech,
+                data: meaning.definitions.map((def: any) => def.definition)
+            }))
+
+            setEnglishMeaning(englishMeaningTransformed);
+
             getPhoneticField(data);
         } catch (error) {
             setTranslateErr("No translation data");
@@ -173,8 +185,12 @@ const NewsDetailScreen = () => {
     }, [sound]);
     // handle play sound
 
+    // fetch data whenever click on word
     useEffect(() => {
         fetchEngDicResponse(translateWord);
+        if (englishMeaning) {
+            transformAndTranslate(englishMeaning, "en", "vi");
+        }
     }, [translateWord]);
 
     // update phonetic state if not null call play sound btn
@@ -193,9 +209,68 @@ const NewsDetailScreen = () => {
         return () => clearTimeout(timer);
     }, [isShowToast]);
 
+    const translateFunction = async (text: string, sourceLanguage: string, targetLanguage: string) => {
+        try {
+            const response = await axios.post(TRANSLATION_API.concat("?text=" + text, "&sourceLanguage=" + sourceLanguage + "&targetLanguage=" + targetLanguage));
+            const {data} = response;
+            return data;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    // const transformAndTranslate = (data: any, sourceLanguage: string, targetLanguage: string) => {
+    //     try {
+    //
+    //         const result = data.map((item: any) => {
+    //             console.log(item.partOfSpeech);
+    //             const translatedPartOfSpeech = translateFunction(item.partOfSpeech, sourceLanguage, targetLanguage);
+    //             const translatedDefinitions = item.data.map((def: any) => {
+    //                 return translateFunction(def, sourceLanguage, targetLanguage);
+    //             })
+    //             return {
+    //                 partOfSpeech: translatedPartOfSpeech,
+    //                 data: translatedDefinitions
+    //             }
+    //         });
+    //
+    //         console.log("trnaslated data", result[0].data[0]);
+    //     } catch (err) {
+    //         console.log(err);
+    //         return null;
+    //     }
+    // }
+
+    const transformAndTranslate = async (data: any, sourceLanguage: string, targetLanguage: string) => {
+        try {
+            const result = await Promise.all(
+                data.map(async (item: any) => {
+                    const translatedPartOfSpeech = await translateFunction(item.partOfSpeech, sourceLanguage, targetLanguage);
+
+                    const translatedDefinitions = await Promise.all(
+                        item.data.map(async (def: any) => {
+                            return await translateFunction(def, sourceLanguage, targetLanguage);
+                        })
+                    );
+
+                    return {
+                        partOfSpeech: translatedPartOfSpeech,
+                        data: translatedDefinitions
+                    };
+                })
+            );
+
+            setVietnameseMeaning(result);
+            return result;
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
     useEffect(() => {
-        console.log(englishMeaning);
-    }, [englishMeaning]);
+        console.log(vietnameseMeaning)
+    }, [vietnameseMeaning]);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -363,10 +438,7 @@ const NewsDetailScreen = () => {
                     <Block>
                         {englishMeaning.length > 0 ? (
                             <SectionList
-                                sections={englishMeaning.map(meaning => ({
-                                    partOfSpeech: meaning.partOfSpeech,
-                                    data: meaning.definitions.map((def: any) => def.definition)
-                                }))}
+                                sections={englishMeaning}
                                 renderItem={({item}: { item: string }) => (
                                     <View>
                                         <Block row justifyContent="space-between" alignItems="center">
@@ -376,7 +448,7 @@ const NewsDetailScreen = () => {
                                                 <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
                                             </TouchableOpacity>
                                         </Block>
-                                        <Block height={4} style={ GlobalStyles.under_line } ></Block>
+                                        <Block height={4} style={GlobalStyles.under_line}></Block>
                                     </View>
                                 )}
                                 renderSectionHeader={({section: {partOfSpeech}}) => (

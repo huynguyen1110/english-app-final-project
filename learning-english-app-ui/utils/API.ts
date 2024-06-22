@@ -10,3 +10,7 @@ export const GET_NEWS_BY_ID = "/api/v1/news/get-news-id";
 
 // dictionary api
 export const ENGLISH_DIC_API = "https://api.dictionaryapi.dev/api/v2/entries/en";
+
+// translation api
+export const TRANSLATION_API = "https://script.google.com/macros/s/AKfycbzEji5bqs0jJ9JJsDkMvYKEItUAV24WHHy0b_4NzWykOlLKrZp9YRB7mSKLNxIMTxtqig/exec";
+
