@@ -147,6 +147,7 @@ const NewsDetailScreen = () => {
         }
     }
 
+    // get phonetic field in free dic response
     const getPhoneticField = (data: any) => {
         let selectedPhonetic = null;
         setPhonetic(null);
@@ -188,10 +189,14 @@ const NewsDetailScreen = () => {
     // fetch data whenever click on word
     useEffect(() => {
         fetchEngDicResponse(translateWord);
+    }, [translateWord]);
+
+    // translate dic's response
+    useEffect(() => {
         if (englishMeaning) {
             transformAndTranslate(englishMeaning, "en", "vi");
         }
-    }, [translateWord]);
+    }, [englishMeaning]);
 
     // update phonetic state if not null call play sound btn
     useEffect(() => {
@@ -209,6 +214,7 @@ const NewsDetailScreen = () => {
         return () => clearTimeout(timer);
     }, [isShowToast]);
 
+    // call translation api
     const translateFunction = async (text: string, sourceLanguage: string, targetLanguage: string) => {
         try {
             const response = await axios.post(TRANSLATION_API.concat("?text=" + text, "&sourceLanguage=" + sourceLanguage + "&targetLanguage=" + targetLanguage));
@@ -219,28 +225,7 @@ const NewsDetailScreen = () => {
         }
     }
 
-    // const transformAndTranslate = (data: any, sourceLanguage: string, targetLanguage: string) => {
-    //     try {
-    //
-    //         const result = data.map((item: any) => {
-    //             console.log(item.partOfSpeech);
-    //             const translatedPartOfSpeech = translateFunction(item.partOfSpeech, sourceLanguage, targetLanguage);
-    //             const translatedDefinitions = item.data.map((def: any) => {
-    //                 return translateFunction(def, sourceLanguage, targetLanguage);
-    //             })
-    //             return {
-    //                 partOfSpeech: translatedPartOfSpeech,
-    //                 data: translatedDefinitions
-    //             }
-    //         });
-    //
-    //         console.log("trnaslated data", result[0].data[0]);
-    //     } catch (err) {
-    //         console.log(err);
-    //         return null;
-    //     }
-    // }
-
+    // handle data and translate it into Vietnamese
     const transformAndTranslate = async (data: any, sourceLanguage: string, targetLanguage: string) => {
         try {
             const result = await Promise.all(
@@ -252,14 +237,12 @@ const NewsDetailScreen = () => {
                             return await translateFunction(def, sourceLanguage, targetLanguage);
                         })
                     );
-
                     return {
                         partOfSpeech: translatedPartOfSpeech,
                         data: translatedDefinitions
                     };
                 })
             );
-
             setVietnameseMeaning(result);
             return result;
         } catch (err) {
@@ -267,10 +250,6 @@ const NewsDetailScreen = () => {
             return null;
         }
     }
-
-    useEffect(() => {
-        console.log(vietnameseMeaning)
-    }, [vietnameseMeaning]);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
