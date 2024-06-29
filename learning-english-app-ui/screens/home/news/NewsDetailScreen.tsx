@@ -9,10 +9,10 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 // @ts-ignore
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {useNavigation, useRoute} from "@react-navigation/native";
+import {useNavigation} from "@react-navigation/native";
 import {useEffect, useRef, useState} from "react";
 import Modal from 'react-native-modal';
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 import {RootState} from "../../../utils/Store";
 import {blackColor, charcoalColor, sandDollarColor, textSandColor, whiteColor} from "../../../utils/constant";
 import axios from 'axios';
@@ -228,6 +228,7 @@ const NewsDetailScreen = () => {
     // handle data and translate it into Vietnamese
     const transformAndTranslate = async (data: any, sourceLanguage: string, targetLanguage: string) => {
         try {
+            setVietnameseMeaning([]);
             const result = await Promise.all(
                 data.map(async (item: any) => {
                     const translatedPartOfSpeech = await translateFunction(item.partOfSpeech, sourceLanguage, targetLanguage);
@@ -243,13 +244,21 @@ const NewsDetailScreen = () => {
                     };
                 })
             );
-            setVietnameseMeaning(result);
+            if (result) {
+                setVietnameseMeaning(result);
+            }
             return result;
         } catch (err) {
             console.log(err);
             return null;
         }
     }
+
+    // useEffect(() => {
+    //     if (vietnameseMeaning.length >= 1) {
+    //         console.log(vietnameseMeaning);
+    //     }
+    // }, [vietnameseMeaning]);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -366,8 +375,6 @@ const NewsDetailScreen = () => {
             <Modalize
                 ref={modalRef}
                 modalHeight={400}
-                // adjustToContentHeight
-                // childrenStyle={{ height: 400 }}
                 scrollViewProps={{showsVerticalScrollIndicator: false}}
             >
                 <View style={{padding: 20}}>
@@ -414,38 +421,88 @@ const NewsDetailScreen = () => {
                         </Text>
                     </Block>
 
-                    <Block>
-                        {englishMeaning.length > 0 ? (
-                            <SectionList
-                                sections={englishMeaning}
-                                renderItem={({item}: { item: string }) => (
-                                    <View>
-                                        <Block row justifyContent="space-between" alignItems="center">
-                                            <Block width={300}><Text size={16}>- {item}</Text></Block>
 
-                                            <TouchableOpacity style={{padding: 10}}>
-                                                <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
-                                            </TouchableOpacity>
-                                        </Block>
-                                        <Block height={4} style={GlobalStyles.under_line}></Block>
-                                    </View>
-                                )}
-                                renderSectionHeader={({section: {partOfSpeech}}) => (
-                                    <View>
-                                        <Block height={4}></Block>
-                                        <Text size={16}><Text bold size={16}>Part of Speech:</Text> {partOfSpeech}
-                                        </Text>
-                                        <Block height={4}></Block>
+                    {
+                        segmentButtonValue === "EN" ? (
+                            <Block>
+                                {englishMeaning.length > 0 ? (
+                                    <SectionList
+                                        sections={englishMeaning}
+                                        renderItem={({item}: { item: string }) => (
+                                            <View>
+                                                <Block row justifyContent="space-between" alignItems="center">
+                                                    <Block width={300}><Text size={16}>- {item}</Text></Block>
 
-                                        <Text size={16} bold>Definition: </Text>
-                                    </View>
+                                                    <TouchableOpacity style={{padding: 10}}>
+                                                        <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
+                                                    </TouchableOpacity>
+                                                </Block>
+                                                <Block height={4} style={GlobalStyles.under_line}></Block>
+                                            </View>
+                                        )}
+                                        renderSectionHeader={({section: {partOfSpeech}}) => (
+                                            <View>
+                                                <Block height={4}></Block>
+                                                <Text size={16}><Text bold size={16}>Part of Speech:</Text> {partOfSpeech}
+                                                </Text>
+                                                <Block height={4}></Block>
+
+                                                <Text size={16} bold>Definition: </Text>
+                                            </View>
+                                        )}
+                                        keyExtractor={(item, index) => item + index}
+                                    />
+                                ) : (
+                                    <Text></Text>
                                 )}
-                                keyExtractor={(item, index) => item + index}
-                            />
+                            </Block>
                         ) : (
-                            <Text>No definitions available.</Text>
-                        )}
-                    </Block>
+                            <Block>
+                                {/*<Text>No definitions available.</Text>*/}
+                            </Block>
+                        )
+                    }
+
+                    {
+                        segmentButtonValue === "VI" ? (
+                            <Block>
+                                {vietnameseMeaning.length > 0 ? (
+                                    <SectionList
+                                        sections={vietnameseMeaning}
+                                        renderItem={({item}: { item: string }) => (
+                                            <View>
+                                                <Block row justifyContent="space-between" alignItems="center">
+                                                    <Block width={300}><Text size={16}>- {item}</Text></Block>
+
+                                                    <TouchableOpacity style={{padding: 10}}>
+                                                        <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
+                                                    </TouchableOpacity>
+                                                </Block>
+                                                <Block height={4} style={GlobalStyles.under_line}></Block>
+                                            </View>
+                                        )}
+                                        renderSectionHeader={({section: {partOfSpeech}}) => (
+                                            <View>
+                                                <Block height={4}></Block>
+                                                <Text size={16}><Text bold size={16}>Part of Speech:</Text> {partOfSpeech}
+                                                </Text>
+                                                <Block height={4}></Block>
+
+                                                <Text size={16} bold>Definition: </Text>
+                                            </View>
+                                        )}
+                                        keyExtractor={(item, index) => item + index}
+                                    />
+                                ) : (
+                                    <Text></Text>
+                                )}
+                            </Block>
+                        ) : (
+                            <Block>
+                                {/*<Text>No definitions available.</Text>*/}
+                            </Block>
+                        )
+                    }
 
                 </View>
             </Modalize>
