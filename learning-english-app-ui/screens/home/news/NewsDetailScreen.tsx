@@ -1,4 +1,14 @@
-import {SafeAreaView, StyleSheet, TouchableOpacity, View, ScrollView, Image, FlatList, SectionList} from "react-native";
+import {
+    SafeAreaView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+    ScrollView,
+    Image,
+    FlatList,
+    SectionList,
+    ActivityIndicator
+} from "react-native";
 import {SegmentedButtons} from 'react-native-paper';
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import Slider from '@react-native-community/slider';
@@ -254,12 +264,6 @@ const NewsDetailScreen = () => {
         }
     }
 
-    // useEffect(() => {
-    //     if (vietnameseMeaning.length >= 1) {
-    //         console.log(vietnameseMeaning);
-    //     }
-    // }, [vietnameseMeaning]);
-
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             <Toast isShow={isShowToast} positionIndicator="top" color="warning"> No audio found </Toast>
@@ -368,7 +372,6 @@ const NewsDetailScreen = () => {
                     </View>
                 </Modal>
                 {/* setting modal*/}
-
             </ScrollView>
 
             {/* dictionary modal */}
@@ -453,12 +456,11 @@ const NewsDetailScreen = () => {
                                         keyExtractor={(item, index) => item + index}
                                     />
                                 ) : (
-                                    <Text></Text>
+                                    <ActivityIndicator size="large" color="#0000ff"/>
                                 )}
                             </Block>
                         ) : (
                             <Block>
-                                {/*<Text>No definitions available.</Text>*/}
                             </Block>
                         )
                     }
@@ -473,10 +475,6 @@ const NewsDetailScreen = () => {
                                             <View>
                                                 <Block row justifyContent="space-between" alignItems="center">
                                                     <Block width={300}><Text size={16}>- {item}</Text></Block>
-
-                                                    <TouchableOpacity style={{padding: 10}}>
-                                                        <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
-                                                    </TouchableOpacity>
                                                 </Block>
                                                 <Block height={4} style={GlobalStyles.under_line}></Block>
                                             </View>
@@ -494,13 +492,11 @@ const NewsDetailScreen = () => {
                                         keyExtractor={(item, index) => item + index}
                                     />
                                 ) : (
-                                    <Text></Text>
+                                    <ActivityIndicator size="large" color="#0000ff"/>
                                 )}
                             </Block>
                         ) : (
-                            <Block>
-                                {/*<Text>No definitions available.</Text>*/}
-                            </Block>
+                            <Block></Block>
                         )
                     }
 
