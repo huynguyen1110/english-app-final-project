@@ -32,6 +32,10 @@ public class Packages {
 
     private Boolean isDeleted;
 
+    private String createBy;
+
+    private Boolean isPublished;
+
     @ManyToOne
     @JoinColumn(name = "topic_id", referencedColumnName = "id")
     private Topic topic;
