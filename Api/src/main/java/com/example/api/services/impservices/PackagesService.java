@@ -76,6 +76,7 @@ public class PackagesService implements IPackagesService {
 
     @Override
     public Page<Packages> getAllPackages(int page, int size, String sortField, Boolean sortDirection) {
+        // check is field valid or not
         boolean isValidField = Arrays.stream(Packages.class.getDeclaredFields())
                 .map(Field::getName)
                 .anyMatch(fieldName -> fieldName.equals(sortField));
