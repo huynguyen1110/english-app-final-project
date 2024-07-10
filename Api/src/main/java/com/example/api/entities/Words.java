@@ -36,7 +36,7 @@ public class Words {
 
     private LocalDateTime deletedAt;
 
-    @ManyToMany
+    @ManyToMany()
     @JoinTable(
             name = "words_packages",
             joinColumns = @JoinColumn(name = "word_id"),

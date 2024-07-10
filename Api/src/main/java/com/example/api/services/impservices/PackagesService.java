@@ -39,7 +39,6 @@ public class PackagesService implements IPackagesService {
                 .description(packagesDto.getDescription())
                 .numOfDownloaded(0)
                 .isPublished(packagesDto.getIsPublished())
-                .words(new ArrayList<>())
                 .createdAt(LocalDateTime.now())
                 .build();
         packagesRepository.save(packages);

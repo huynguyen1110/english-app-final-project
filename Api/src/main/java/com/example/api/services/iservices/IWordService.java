@@ -13,4 +13,8 @@ public interface IWordService {
     void deleteWord(Long id) throws Exception;
 
     Page<Words> getAllWords(int page, int size, String sortField, Boolean sortDirection);
+
+    void addwordToPackage(Long wordId, Long packageId) throws Exception;
+
+    void removeWordFromPackage(Long wordId, Long packageId) throws Exception;
 }

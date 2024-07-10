@@ -3,6 +3,7 @@ package com.example.api.services.impservices;
 import com.example.api.dtos.words.WordDto;
 import com.example.api.entities.Packages;
 import com.example.api.entities.Words;
+import com.example.api.repositories.PackagesRepository;
 import com.example.api.repositories.WordsRepository;
 import com.example.api.services.iservices.IWordService;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -23,6 +25,9 @@ public class WordSerivce implements IWordService {
 
     @Autowired
     private final WordsRepository wordsRepository;
+
+    @Autowired
+    private final PackagesRepository packagesRepository;
 
     @Override
     public Words createWord(WordDto wordDto) {
@@ -88,6 +93,44 @@ public class WordSerivce implements IWordService {
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
         return wordsRepository.findAllByIsDeletedFalse(pageable);
+    }
+
+    @Override
+    public void addwordToPackage(Long wordId, Long packageId) throws Exception {
+        Optional<Words> wordOptional = wordsRepository.findWordsByWordId(wordId);
+        Optional<Packages> packageOptional = packagesRepository.findPackagesById(packageId);
+
+        if (wordOptional.isPresent() && packageOptional.isPresent()) {
+            Words word = wordOptional.get();
+            Packages pack = packageOptional.get();
+
+            word.getPackages().add(pack);
+            pack.getWords().add(word);
+
+            wordsRepository.save(word);
+            packagesRepository.save(pack);
+        } else {
+            throw new Exception("Word or Package not found");
+        }
+    }
+
+    @Override
+    public void removeWordFromPackage(Long wordId, Long packageId) throws Exception {
+        Optional<Words> wordOptional = wordsRepository.findWordsByWordId(wordId);
+        Optional<Packages> packageOptional = packagesRepository.findPackagesById(packageId);
+
+        if (wordOptional.isPresent() && packageOptional.isPresent()) {
+            Words word = wordOptional.get();
+            Packages pack = packageOptional.get();
+
+            word.getPackages().remove(pack);
+            pack.getWords().remove(word);
+
+            wordsRepository.save(word);
+            packagesRepository.save(pack);
+        } else {
+            throw new Exception("Word or Package not found");
+        }
     }
 
     private void validateWordDto(WordDto wordDto) {

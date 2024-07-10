@@ -59,4 +59,26 @@ public class WordController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @PostMapping("/add-word-to-package")
+    public ResponseEntity<?> addWordToPackage(
+            @RequestParam Long wordId, @RequestParam Long packageId) {
+        try {
+            wordSerivce.addwordToPackage(wordId, packageId);
+            return ResponseEntity.ok("added word to package");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/remove-word-from-package")
+    public ResponseEntity<?> removeWordFromPackage(
+            @RequestParam Long wordId, @RequestParam Long packageId) {
+        try {
+            wordSerivce.removeWordFromPackage(wordId, packageId);
+            return ResponseEntity.ok("removed word to package");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }
