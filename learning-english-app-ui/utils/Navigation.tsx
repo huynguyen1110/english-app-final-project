@@ -8,6 +8,7 @@ import NewsScreen from "../screens/home/news/NewsScreen";
 import ByTopicsScreen from "../screens/home/news/ByTopicsScreen";
 import ByNewsWebSiteScreen from "../screens/home/news/ByNewsWebSiteScreen";
 import NewsDetailScreen from "../screens/home/news/NewsDetailScreen";
+import SaveNewWordScreen from "../screens/home/news/SaveNewWordScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -16,7 +17,7 @@ const Navigation = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName='HomeScreen'
+                initialRouteName='SaveNewWordScreen'
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true
@@ -29,6 +30,7 @@ const Navigation = () => {
                 <Stack.Screen name="ByTopicsScreen" component={ByTopicsScreen} />
                 <Stack.Screen name="ByNewsWebSiteScreen" component={ByNewsWebSiteScreen} />
                 <Stack.Screen name="NewsDetailScreen" component={NewsDetailScreen} />
+                <Stack.Screen name="SaveNewWordScreen" component={SaveNewWordScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

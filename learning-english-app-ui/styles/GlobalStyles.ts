@@ -39,5 +39,30 @@ export const GlobalStyles = StyleSheet.create({
     sand_dollar_bg: {
         color: "#726d68",
         backgroundColor: "#DFCFBE",
+    },
+    rounded_input: {
+        width: "100%",
+        height: 40,
+        borderRadius: 50,
+        borderWidth: 2,
+        borderColor: "gray"
+    },
+    non_rounded_input: {
+        width: "100%",
+        height: 40,
+        borderWidth: 2,
+        borderColor: "gray",
+        borderRadius: 5
+    },
+    input_container: {
+        width: "95%",
+        height: 40,
+    },
+    large_btn: {
+        width: "100%",
+        height: 40,
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: "gray"
     }
 });
