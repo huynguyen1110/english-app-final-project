@@ -42,21 +42,19 @@ export const GlobalStyles = StyleSheet.create({
     },
     rounded_input: {
         width: "100%",
-        height: 40,
+        height: 50,
         borderRadius: 50,
         borderWidth: 2,
-        borderColor: "gray"
+        borderColor: "gray",
+        padding: 12
     },
     non_rounded_input: {
         width: "100%",
-        height: 40,
-        borderWidth: 2,
+        borderRadius: 5,
         borderColor: "gray",
-        borderRadius: 5
-    },
-    input_container: {
-        width: "95%",
-        height: 40,
+        borderWidth: 2,
+        padding: 12,
+        fontSize: 16,
     },
     large_btn: {
         width: "100%",

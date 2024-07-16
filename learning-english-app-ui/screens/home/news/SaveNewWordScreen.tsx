@@ -13,9 +13,14 @@ import {Block, Text} from "galio-framework";
 // @ts-ignore
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 // @ts-ignore
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+// @ts-ignore
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+// @ts-ignore
 import Entypo from 'react-native-vector-icons/Entypo';
 import React, {useRef, useState} from "react";
 import {Modalize} from "react-native-modalize";
+import {fileManagerColor, themeAppColor} from "../../../utils/constant";
 
 const SaveNewWordScreen = () => {
     // ignore warning
@@ -24,6 +29,8 @@ const SaveNewWordScreen = () => {
     const modalRef = useRef<Modalize>(null);
 
     const [inputHeight, setInputHeight] = useState(50);
+
+    const [inputExampleHeight, setInputExampleHeight] = useState(50);
 
     // use for opening Modalize (handle scroll view in modal)
     const openModal = () => modalRef?.current?.open();
@@ -47,9 +54,7 @@ const SaveNewWordScreen = () => {
                 <Block>
                     <Text size={18} bold>Word</Text>
                     <Block height={8}></Block>
-                    <Block style={GlobalStyles.rounded_input} justifyContent="center" alignItems="center">
-                        <TextInput style={[GlobalStyles.input_container]}></TextInput>
-                    </Block>
+                    <TextInput style={[GlobalStyles.rounded_input]}></TextInput>
                 </Block>
 
                 <Block height={12}></Block>
@@ -58,11 +63,9 @@ const SaveNewWordScreen = () => {
                     <Text size={18} bold>Folder</Text>
                     <Block height={8}></Block>
                     <TouchableOpacity onPress={openModal} style={[GlobalStyles.non_rounded_input]}>
-                        <Block style={GlobalStyles.input_container} justifyContent="center" alignItems="center">
-                            <Block flexDirection="row" height={30} justifyContent="center" alignItems="center">
-                                <Text size={16}>Folder Name</Text>
-                                <Entypo name="triangle-down" color="gray" size={24}></Entypo>
-                            </Block>
+                        <Block flexDirection="row" justifyContent="space-between" alignItems="center">
+                            <Text size={16}>Folder Name</Text>
+                            <Entypo name="triangle-down" color="gray" size={24}></Entypo>
                         </Block>
                     </TouchableOpacity>
                 </Block>
@@ -74,17 +77,26 @@ const SaveNewWordScreen = () => {
                     <Block height={8}></Block>
                     <TextInput
                         style={[
-                            {
-                                width: "100%",
-                                borderRadius: 5,
-                                borderColor: "gray",
-                                borderWidth: 2,
-                                padding: 10,
-                                fontSize: 16
-                            },
+                            GlobalStyles.non_rounded_input,
                             {height: inputHeight}]}
                         multiline={true}
                         onContentSizeChange={(e) => setInputHeight(e.nativeEvent.contentSize.height)}
+                        numberOfLines={5}
+                    />
+                </Block>
+
+                <Block height={12}></Block>
+
+                <Block>
+                    <Text size={18} bold>Example</Text>
+                    <Block height={8}></Block>
+                    <TextInput
+                        style={[
+                            GlobalStyles.non_rounded_input,
+                            { height: inputExampleHeight }
+                            ]}
+                        multiline={true}
+                        onContentSizeChange={(e) => setInputExampleHeight(e.nativeEvent.contentSize.height)}
                         numberOfLines={5}
                     />
                 </Block>
@@ -94,8 +106,29 @@ const SaveNewWordScreen = () => {
                 modalHeight={400}
                 scrollViewProps={{showsVerticalScrollIndicator: false}}
             >
-                <ScrollView>
 
+                <View style={[ {backgroundColor: "#c6cfcd"} ]}>
+                    <Block style={GlobalStyles.main_container} height={50} row justifyContent="space-between" alignItems="center">
+                        <Text size={18}>Folder</Text>
+                        <TouchableOpacity style={{padding: 5}}>
+                            <FontAwesome5 name="folder-plus" color={themeAppColor}
+                                          size={24}></FontAwesome5>
+                        </TouchableOpacity>
+                    </Block>
+                </View>
+
+                <Block style={GlobalStyles.under_line}></Block>
+
+                <ScrollView>
+                    <TouchableOpacity style={GlobalStyles.main_container}>
+                        <Block row alignItems="center"  height={50}>
+                            <MaterialIcons name="folder" color={fileManagerColor} bold
+                                           size={30}></MaterialIcons>
+                            <Block width={4}></Block>
+                            <Text size={18}>Test folder</Text>
+                        </Block>
+                    </TouchableOpacity>
+                    <Block style={GlobalStyles.under_line}></Block>
                 </ScrollView>
             </Modalize>
         </SafeAreaView>
