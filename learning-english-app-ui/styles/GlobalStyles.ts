@@ -16,6 +16,18 @@ export const GlobalStyles = StyleSheet.create({
         marginLeft: "auto",
         marginRight: "auto",
     },
+    flex_collum: {
+      flexDirection: "column",
+    },
+    flex_row: {
+      flexDirection: "row",
+    },
+    align_item_center: {
+        alignItems: "center"
+    },
+    justify_content_center: {
+        justifyContent: "center"
+    },
     under_line: {
         borderBottomWidth: 1,
         width: "100%",
