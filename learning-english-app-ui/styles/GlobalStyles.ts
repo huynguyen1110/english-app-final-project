@@ -1,4 +1,4 @@
-import { StyleSheet, Platform, StatusBar } from "react-native";
+import {StyleSheet, Platform, StatusBar} from "react-native";
 import {theme} from "galio-framework";
 
 export const GlobalStyles = StyleSheet.create({
@@ -8,8 +8,8 @@ export const GlobalStyles = StyleSheet.create({
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     },
     container: {
-      flex: 1,
-      height: "100%",
+        flex: 1,
+        height: "100%",
     },
     main_container: {
         width: "95%",
@@ -17,16 +17,19 @@ export const GlobalStyles = StyleSheet.create({
         marginRight: "auto",
     },
     flex_collum: {
-      flexDirection: "column",
+        flexDirection: "column",
     },
     flex_row: {
-      flexDirection: "row",
+        flexDirection: "row",
     },
     align_item_center: {
         alignItems: "center"
     },
     justify_content_center: {
         justifyContent: "center"
+    },
+    justify_content_space_between: {
+        justifyContent: "space-between"
     },
     under_line: {
         borderBottomWidth: 1,

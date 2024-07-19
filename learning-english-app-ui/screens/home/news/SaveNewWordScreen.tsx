@@ -172,12 +172,17 @@ const SaveNewWordScreen = () => {
                         </TouchableOpacity>
                     </Block>
 
+                    <Block height={8}></Block>
+
                     {Object.entries(WORD_TYPES).map(([key, value]) => (
-                        <TouchableOpacity style={[ GlobalStyles.flex_row, GlobalStyles.justify_content_center, GlobalStyles.align_item_center ]} key={key}>
-                            <Text>{value}</Text>
-                            <TouchableOpacity>
-                                <Text>Select</Text>
-                            </TouchableOpacity>
+                        <TouchableOpacity style={{ height: 50 }}  key={key}>
+                            <Block height={50}
+                                style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
+                                <Text size={16}>{value}</Text>
+                                <Block style={styles.select_btn}>
+                                    <Text size={16}>Select</Text>
+                                </Block>
+                            </Block>
                         </TouchableOpacity>
                     ))}
                 </View>
@@ -196,7 +201,7 @@ const styles = StyleSheet.create({
     drawer: {
         backgroundColor: 'white',
         padding: 20,
-        height: "70%",
+        height: "90%",
         width: '100%',
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
