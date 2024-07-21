@@ -5,14 +5,13 @@ import {
     View,
     ScrollView,
     Image,
-    FlatList,
     SectionList,
     ActivityIndicator
 } from "react-native";
 import {SegmentedButtons} from 'react-native-paper';
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import Slider from '@react-native-community/slider';
-import {Block, Button, Text, Toast} from "galio-framework";
+import {Block, Text, Toast} from "galio-framework";
 // @ts-ignore
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 // @ts-ignore
@@ -82,6 +81,9 @@ const NewsDetailScreen = () => {
     const [isShowToast, setIsShowToast] = useState<boolean>(false);
 
     const [chatGptResponse, setChatGptResponse] = useState<string>("");
+
+    // data pass to save word screen
+    const [saveWordData, setSaveWordData] = useState(null);
 
     const [sound, setSound] = useState<any>();
 
@@ -197,7 +199,7 @@ const NewsDetailScreen = () => {
             const prompt = getDefinitionInVietnamesePrompt(translateWord);
             const response = await askChatGpt(prompt);
             const {data}: any = response;
-            setChatGptResponse(data.choices[0].message.content)
+            setChatGptResponse(data.choices[0].message.content);
         }
     };
 
@@ -229,7 +231,7 @@ const NewsDetailScreen = () => {
     }, [phonetic]);
 
     // ask chatGpt for definition of the word. call askChatgpt funct
-    useEffect( () => {
+    useEffect(() => {
         fetchChatGptResponse();
     }, [segmentButtonValue]);
 
@@ -402,8 +404,19 @@ const NewsDetailScreen = () => {
             >
                 <View style={{padding: 20}}>
                     <Block row justifyContent="space-between">
-                        <Text size={18} bold> {translateWord}</Text>
-                        <TouchableOpacity>
+                        <Text style={{padding: 2}} size={18} bold> {translateWord}</Text>
+                        <TouchableOpacity style={{padding: 2}} onPress={() => {
+                            // @ts-ignore
+                            const saveWordData = {
+                                // @ts-ignore
+                                word: translateWord,
+                                partOfSpeech: null,
+                                definition: null,
+                                example: null
+                            }
+                            // @ts-ignore
+                            navigation.navigate("SaveNewWordScreen", saveWordData);
+                        }}>
                             <Text size={18} bold color={"#1d77f5"}>Save</Text>
                         </TouchableOpacity>
                     </Block>
@@ -451,12 +464,25 @@ const NewsDetailScreen = () => {
                                 {englishMeaning.length > 0 ? (
                                     <SectionList
                                         sections={englishMeaning}
-                                        renderItem={({item}: { item: string }) => (
+                                        renderItem={({ item, section: { partOfSpeech } }) => (
                                             <View>
                                                 <Block row justifyContent="space-between" alignItems="center">
                                                     <Block width={300}><Text size={16}>- {item}</Text></Block>
 
-                                                    <TouchableOpacity style={{padding: 10}}>
+                                                    <TouchableOpacity style={{padding: 10}}
+                                                    onPress={() => {
+                                                        // @ts-ignore
+                                                        const saveWordData = {
+                                                            // @ts-ignore
+                                                            word: translateWord,
+                                                            partOfSpeech: partOfSpeech,
+                                                            definition: item,
+                                                            example: null
+                                                        }
+                                                        // @ts-ignore
+                                                        navigation.navigate("SaveNewWordScreen", saveWordData)
+                                                    }}
+                                                    >
                                                         <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
                                                     </TouchableOpacity>
                                                 </Block>
@@ -466,7 +492,8 @@ const NewsDetailScreen = () => {
                                         renderSectionHeader={({section: {partOfSpeech}}) => (
                                             <View>
                                                 <Block height={4}></Block>
-                                                <Text size={16}><Text bold size={16}>Part of Speech:</Text> {partOfSpeech}
+                                                <Text size={16}><Text bold size={16}>Part of
+                                                    Speech:</Text> {partOfSpeech}
                                                 </Text>
                                                 <Block height={4}></Block>
 
@@ -505,7 +532,8 @@ const NewsDetailScreen = () => {
                                         renderSectionHeader={({section: {partOfSpeech}}) => (
                                             <View>
                                                 <Block height={4}></Block>
-                                                <Text size={16}><Text bold size={16}>Part of Speech:</Text> {partOfSpeech}
+                                                <Text size={16}><Text bold size={16}>Part of
+                                                    Speech:</Text> {partOfSpeech}
                                                 </Text>
                                                 <Block height={4}></Block>
 
@@ -527,7 +555,7 @@ const NewsDetailScreen = () => {
                         segmentButtonValue === "ChatGPT" ? (
                             <Block>
                                 {chatGptResponse != "" ? (
-                                    <Text size={16}>{ chatGptResponse }</Text>
+                                    <Text size={16}>{chatGptResponse}</Text>
                                 ) : (
                                     <ActivityIndicator size="large" color="#0000ff"/>
                                 )}

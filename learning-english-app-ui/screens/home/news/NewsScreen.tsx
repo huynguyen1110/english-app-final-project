@@ -1,6 +1,6 @@
 import NewsTopTabsComponent from "../../../components/news/NewsTopTabsComponent";
 import {Block, Text} from "galio-framework";
-import {SafeAreaView, TouchableOpacity, View} from "react-native";
+import {LogBox, SafeAreaView, TouchableOpacity, View} from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 // @ts-ignore
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
@@ -9,6 +9,9 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {useNavigation} from "@react-navigation/native";
 
 const NewsScreen = () => {
+
+    // ignore warning
+    LogBox.ignoreAllLogs();
 
     const navigation = useNavigation();
 

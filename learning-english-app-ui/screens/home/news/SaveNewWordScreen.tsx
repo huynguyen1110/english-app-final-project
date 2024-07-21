@@ -18,7 +18,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 // @ts-ignore
 import Entypo from 'react-native-vector-icons/Entypo';
-import React, {useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {Modalize} from "react-native-modalize";
 import {
     charcoalColor,
@@ -30,10 +30,30 @@ import {
 } from "../../../utils/constant";
 import Modal from "react-native-modal";
 import WORD_TYPES from "../../../utils/wordType.constant";
+import {useNavigation, useRoute} from "@react-navigation/native";
+import {getDefinitionInVietnamesePrompt, getExamplePrompt} from "../../../utils/GptPrompts";
+import {askChatGpt} from "../../../services/GptService";
 
 const SaveNewWordScreen = () => {
     // ignore warning
     LogBox.ignoreAllLogs();
+
+    const navigation = useNavigation();
+
+    const route = useRoute();
+
+    // @ts-ignore
+    const {word, partOfSpeech, definition, example} = route.params;
+
+    const [wordInput, setWordInput] = useState(word);
+
+    const [partOfSpeechInput, setPartOfSpeechInput] = useState(partOfSpeech);
+
+    const [definitionInput, setDefinitionInput] = useState(definition);
+
+    const [exampleInput, setExampleInput] = useState(example);
+
+    const [chatGptResponse, setChatGptResponse] = useState<string>("");
 
     // state of showing modal
     const [modalVisible, setModalVisible] = useState(false);
@@ -47,13 +67,31 @@ const SaveNewWordScreen = () => {
     // use for opening Modalize (handle scroll view in modal)
     const openModal = () => modalRef?.current?.open();
 
+    const fetchExampleUsingChatGpt = async () => {
+        if (partOfSpeech != null && definition != null) {
+            const prompt = getExamplePrompt(word, partOfSpeech, definition);
+            const response = await askChatGpt(prompt);
+            const {data}: any = response;
+            setChatGptResponse(data.choices[0].message.content);
+            console.log(data.choices[0].message.content)
+        }
+    };
+
+    useEffect(() => {
+        if (partOfSpeech != null && definition != null) {
+            fetchExampleUsingChatGpt();
+        }
+    }, [partOfSpeech, definition],);
+
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             <View>
                 <Block style={[GlobalStyles.main_container]} flexDirection="row" height={50}
                        justifyContent="space-between"
                        alignItems="center">
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                        navigation.goBack()
+                    }}>
                         <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                     </TouchableOpacity>
                     <TouchableOpacity>
@@ -66,7 +104,8 @@ const SaveNewWordScreen = () => {
                 <Block>
                     <Text size={18} bold>Word</Text>
                     <Block height={8}></Block>
-                    <TextInput style={[GlobalStyles.rounded_input]}></TextInput>
+                    <TextInput value={wordInput} onChangeText={text => setWordInput(text)}
+                               style={[GlobalStyles.rounded_input]}></TextInput>
                 </Block>
 
                 <Block height={12}></Block>
@@ -117,6 +156,19 @@ const SaveNewWordScreen = () => {
                         onContentSizeChange={(e) => setInputExampleHeight(e.nativeEvent.contentSize.height)}
                         numberOfLines={5}
                     />
+                </Block>
+
+                <Block height={12}></Block>
+
+                <Block>
+                    <Text size={18} bold>Select Image</Text>
+
+                    <Block height={8}></Block>
+
+                    <Block height={200} style={{backgroundColor: lightGrayColor}} row justifyContent="center"
+                           alignItems="center">
+                        <FontAwesome5 name="images" size={50}/>
+                    </Block>
                 </Block>
             </ScrollView>
             <Modalize
@@ -175,9 +227,9 @@ const SaveNewWordScreen = () => {
                     <Block height={8}></Block>
 
                     {Object.entries(WORD_TYPES).map(([key, value]) => (
-                        <TouchableOpacity style={{ height: 50 }}  key={key}>
+                        <TouchableOpacity style={{height: 50}} key={key}>
                             <Block height={50}
-                                style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
+                                   style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
                                 <Text size={16}>{value}</Text>
                                 <Block style={styles.select_btn}>
                                     <Text size={16}>Select</Text>

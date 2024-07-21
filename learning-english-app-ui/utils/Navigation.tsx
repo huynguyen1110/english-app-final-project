@@ -17,7 +17,7 @@ const Navigation = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName='SaveNewWordScreen'
+                initialRouteName='NewsScreen'
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true
