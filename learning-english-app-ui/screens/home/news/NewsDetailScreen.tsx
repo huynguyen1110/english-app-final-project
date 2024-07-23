@@ -518,11 +518,25 @@ const NewsDetailScreen = () => {
                                 {vietnameseMeaning.length > 0 ? (
                                     <SectionList
                                         sections={vietnameseMeaning}
-                                        renderItem={({item}: { item: string }) => (
+                                        renderItem={({ item, section: { partOfSpeech } }) => (
                                             <View>
                                                 <Block row justifyContent="space-between" alignItems="center">
                                                     <Block width={300}><Text size={16}>- {item}</Text></Block>
-                                                    <TouchableOpacity style={{padding: 10}}>
+
+                                                    <TouchableOpacity style={{padding: 10}}
+                                                                      onPress={() => {
+                                                                          // @ts-ignore
+                                                                          const saveWordData = {
+                                                                              // @ts-ignore
+                                                                              word: translateWord,
+                                                                              partOfSpeech: partOfSpeech,
+                                                                              definition: item,
+                                                                              example: null
+                                                                          }
+                                                                          // @ts-ignore
+                                                                          navigation.navigate("SaveNewWordScreen", saveWordData)
+                                                                      }}
+                                                    >
                                                         <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
                                                     </TouchableOpacity>
                                                 </Block>

@@ -40,7 +40,6 @@ export const getNewsById = createAsyncThunk(
                 throw new Error('Network response was not ok');
             }
 
-            console.log(data);
             return data;
         } catch (err: any) {
             console.log(err)

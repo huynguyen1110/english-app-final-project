@@ -24,9 +24,7 @@ import {
     charcoalColor,
     fileManagerColor,
     lightGrayColor,
-    sandDollarColor,
     themeAppColor,
-    whiteColor
 } from "../../../utils/constant";
 import Modal from "react-native-modal";
 import WORD_TYPES from "../../../utils/wordType.constant";
@@ -47,7 +45,7 @@ const SaveNewWordScreen = () => {
 
     const [wordInput, setWordInput] = useState(word);
 
-    const [partOfSpeechInput, setPartOfSpeechInput] = useState(partOfSpeech);
+    const [partOfSpeechInput, setPartOfSpeechInput] = useState("");
 
     const [definitionInput, setDefinitionInput] = useState(definition);
 
@@ -68,20 +66,30 @@ const SaveNewWordScreen = () => {
     const openModal = () => modalRef?.current?.open();
 
     const fetchExampleUsingChatGpt = async () => {
+        setChatGptResponse("")
         if (partOfSpeech != null && definition != null) {
             const prompt = getExamplePrompt(word, partOfSpeech, definition);
             const response = await askChatGpt(prompt);
             const {data}: any = response;
             setChatGptResponse(data.choices[0].message.content);
-            console.log(data.choices[0].message.content)
         }
     };
 
     useEffect(() => {
+        setDefinitionInput("");
+        setPartOfSpeechInput("");
         if (partOfSpeech != null && definition != null) {
+            setDefinitionInput(definition);
+            setPartOfSpeechInput(partOfSpeech);
+            console.log(partOfSpeech)
             fetchExampleUsingChatGpt();
         }
-    }, [partOfSpeech, definition],);
+    }, [partOfSpeech, definition]);
+
+    useEffect(() => {
+        setExampleInput("");
+        setExampleInput(chatGptResponse);
+    }, [chatGptResponse]);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -128,7 +136,11 @@ const SaveNewWordScreen = () => {
                         <Text size={18} bold>Definition</Text>
                         <Block width={8}></Block>
                         <TouchableOpacity style={styles.select_btn} onPress={() => setModalVisible(true)}>
-                            <Text color={themeAppColor}>+ type</Text>
+                            {partOfSpeechInput == "" ? (
+                                <Text color={themeAppColor}>+ type</Text>
+                            ) : (
+                                <Text color={themeAppColor}> {partOfSpeechInput} </Text>
+                            )}
                         </TouchableOpacity>
                     </Block>
                     <Block height={8}></Block>
@@ -139,6 +151,8 @@ const SaveNewWordScreen = () => {
                         multiline={true}
                         onContentSizeChange={(e) => setInputHeight(e.nativeEvent.contentSize.height)}
                         numberOfLines={5}
+                        value={definitionInput}
+                        onChangeText={text => setDefinitionInput(text)}
                     />
                 </View>
 
@@ -155,6 +169,8 @@ const SaveNewWordScreen = () => {
                         multiline={true}
                         onContentSizeChange={(e) => setInputExampleHeight(e.nativeEvent.contentSize.height)}
                         numberOfLines={5}
+                        value={exampleInput}
+                        onChangeText={text => setExampleInput(text)}
                     />
                 </Block>
 
@@ -219,7 +235,9 @@ const SaveNewWordScreen = () => {
                 <View style={[styles.drawer]}>
                     <Block row justifyContent="space-between" alignItems="center">
                         <Text size={18} bold>Select word's type</Text>
-                        <TouchableOpacity style={styles.large_select_btn}>
+                        <TouchableOpacity style={styles.large_select_btn} onPress={() => {
+                            setPartOfSpeechInput("");
+                        }}>
                             <Text size={18} bold color={themeAppColor}>Delete</Text>
                         </TouchableOpacity>
                     </Block>
@@ -227,7 +245,9 @@ const SaveNewWordScreen = () => {
                     <Block height={8}></Block>
 
                     {Object.entries(WORD_TYPES).map(([key, value]) => (
-                        <TouchableOpacity style={{height: 50}} key={key}>
+                        <TouchableOpacity style={{height: 50}} key={key} onPress={() => {
+                            setPartOfSpeechInput(value);
+                        }}>
                             <Block height={50}
                                    style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
                                 <Text size={16}>{value}</Text>
@@ -266,7 +286,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 20,
         backgroundColor: lightGrayColor,
-        width: 60,
+        width: 100,
         height: 25,
         flexDirection: "row",
         justifyContent: "center",
