@@ -6,7 +6,7 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    LogBox, StyleSheet
+    LogBox, StyleSheet, Image
 } from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Block, Text} from "galio-framework";
@@ -31,6 +31,7 @@ import WORD_TYPES from "../../../utils/wordType.constant";
 import {useNavigation, useRoute} from "@react-navigation/native";
 import {getDefinitionInVietnamesePrompt, getExamplePrompt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
+import {getImageResult} from "../../../services/SerperService";
 
 const SaveNewWordScreen = () => {
     // ignore warning
@@ -53,6 +54,9 @@ const SaveNewWordScreen = () => {
 
     const [chatGptResponse, setChatGptResponse] = useState<string>("");
 
+    // image responst search by keyword
+    const [imageResult, setImageResult] = useState<[]>([]);
+
     // state of showing modal
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -65,6 +69,7 @@ const SaveNewWordScreen = () => {
     // use for opening Modalize (handle scroll view in modal)
     const openModal = () => modalRef?.current?.open();
 
+    // fetch examples for a word
     const fetchExampleUsingChatGpt = async () => {
         setChatGptResponse("")
         if (partOfSpeech != null && definition != null) {
@@ -75,13 +80,54 @@ const SaveNewWordScreen = () => {
         }
     };
 
+    // search word image
+    const fetchImageResult = async () => {
+        setImageResult([]);
+        if (wordInput != null) {
+            const response = await getImageResult(wordInput);
+            const {data}: any = response;
+            let imagesWithAddButton: any = [];
+            if (data.images.length >= 1) {
+                imagesWithAddButton = [{isAddButton: true}, ...data.images];
+            } else {
+                imagesWithAddButton = [{isAddButton: true}];
+            }
+            setImageResult(imagesWithAddButton);
+        }
+
+    }
+
+    const renderImage = () => {
+        const rows = [];
+        for (let i = 0; i < imageResult.length; i += 3) {
+            const rowItems = imageResult.slice(i, i + 3);
+            rows.push(
+                <Block key={1} height={80} row alignItems="center">
+                    {rowItems.map((item: any, index: any) => (
+                        <TouchableOpacity key={i}
+                                          style={[item.isAddButton ? styles.add_image_btn : styles.example_image_container, index === 0 ? {} : {marginLeft: 29.5}]}>
+                            {item.isAddButton ? (
+                                <Block color="white" collum justifyContent="space-between" alignItems="center">
+                                    <FontAwesome5 size={30} name="file-upload"/>
+                                    <Text>Your image</Text>
+                                </Block>
+                            ) : (
+                                <Image source={{uri: item.imageUrl}} style={styles.example_image}/>
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </Block>
+            );
+        }
+        return rows;
+    };
+
     useEffect(() => {
         setDefinitionInput("");
         setPartOfSpeechInput("");
         if (partOfSpeech != null && definition != null) {
             setDefinitionInput(definition);
             setPartOfSpeechInput(partOfSpeech);
-            console.log(partOfSpeech)
             fetchExampleUsingChatGpt();
         }
     }, [partOfSpeech, definition]);
@@ -90,6 +136,13 @@ const SaveNewWordScreen = () => {
         setExampleInput("");
         setExampleInput(chatGptResponse);
     }, [chatGptResponse]);
+
+    useEffect(() => {
+        if (wordInput != null) {
+            fetchImageResult();
+        }
+    }, [word])
+
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -186,6 +239,11 @@ const SaveNewWordScreen = () => {
                         <FontAwesome5 name="images" size={50}/>
                     </Block>
                 </Block>
+
+                <Block height={24}></Block>
+
+                {renderImage()}
+
             </ScrollView>
             <Modalize
                 ref={modalRef}
@@ -301,6 +359,34 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: 'center'
+    },
+    add_image_btn: {
+        width: "28%",
+        height: 60,
+        borderWidth: 1,
+        borderRadius: 5,
+        backgroundColor: themeAppColor,
+    },
+    example_image_container: {
+        width: "28%",
+        height: 60,
+        borderRadius: 5,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5, // for Android
+        backgroundColor: "#fff",
+    },
+    example_image: {
+        width: "100%",
+        height: 60,
+        borderWidth: 1,
+        borderRadius: 5,
+        resizeMode: "cover"
     }
 });
 
