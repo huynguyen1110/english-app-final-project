@@ -21,7 +21,6 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import React, {useEffect, useRef, useState} from "react";
 import {Modalize} from "react-native-modalize";
 import {
-    charcoalColor,
     fileManagerColor,
     lightGrayColor,
     themeAppColor,
@@ -29,9 +28,10 @@ import {
 import Modal from "react-native-modal";
 import WORD_TYPES from "../../../utils/wordType.constant";
 import {useNavigation, useRoute} from "@react-navigation/native";
-import {getDefinitionInVietnamesePrompt, getExamplePrompt} from "../../../utils/GptPrompts";
+import {getExamplePrompt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
 import {getImageResult} from "../../../services/SerperService";
+import * as ImagePicker from 'expo-image-picker';
 
 const SaveNewWordScreen = () => {
     // ignore warning
@@ -57,13 +57,20 @@ const SaveNewWordScreen = () => {
     // image responst search by keyword
     const [imageResult, setImageResult] = useState<[]>([]);
 
+    // selected example image
+    const [selectedImage, setSelectedImage] = useState<any>(null);
+
     // state of showing modal
     const [modalVisible, setModalVisible] = useState(false);
 
+    const [image, setImage] = useState<any>(null);
+
     const modalRef = useRef<Modalize>(null);
 
+    // definition input height
     const [inputHeight, setInputHeight] = useState(50);
 
+    // example input height
     const [inputExampleHeight, setInputExampleHeight] = useState(50);
 
     // use for opening Modalize (handle scroll view in modal)
@@ -97,15 +104,39 @@ const SaveNewWordScreen = () => {
 
     }
 
+    const pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+
+        console.log(result);
+
+        if (!result.canceled) {
+            setSelectedImage(result.assets[0].uri)
+        }
+    };
+
+    // render example image
     const renderImage = () => {
         const rows = [];
         for (let i = 0; i < imageResult.length; i += 3) {
             const rowItems = imageResult.slice(i, i + 3);
             rows.push(
-                <Block key={1} height={80} row alignItems="center">
+                <Block key={i} height={80} row alignItems="center">
                     {rowItems.map((item: any, index: any) => (
                         <TouchableOpacity key={i}
-                                          style={[item.isAddButton ? styles.add_image_btn : styles.example_image_container, index === 0 ? {} : {marginLeft: 29.5}]}>
+                                          style={[item.isAddButton ? styles.add_image_btn : styles.example_image_container, index === 0 ? {} : {marginLeft: 29.5}]}
+                                          onPress={() => {
+                                              if (item.isAddButton) {
+                                                  pickImage()
+                                              } else {
+                                                  setSelectedImage(item.imageUrl)
+                                              }
+                                          }}
+                        >
                             {item.isAddButton ? (
                                 <Block color="white" collum justifyContent="space-between" alignItems="center">
                                     <FontAwesome5 size={30} name="file-upload"/>
@@ -229,20 +260,28 @@ const SaveNewWordScreen = () => {
 
                 <Block height={12}></Block>
 
+                {/*select example images section*/}
                 <Block>
                     <Text size={18} bold>Select Image</Text>
 
                     <Block height={8}></Block>
 
-                    <Block height={200} style={{backgroundColor: lightGrayColor}} row justifyContent="center"
-                           alignItems="center">
-                        <FontAwesome5 name="images" size={50}/>
-                    </Block>
+                    {selectedImage == null ? (
+                            <Block height={200} style={{backgroundColor: lightGrayColor}} row justifyContent="center"
+                                   alignItems="center">
+                                <FontAwesome5 name="images" size={50}/>
+                            </Block>) :
+                        (<Image source={{uri: selectedImage}}
+                                style={{width: '100%', height: 200, resizeMode: "cover"}}/>)
+                    }
+
                 </Block>
 
                 <Block height={24}></Block>
 
                 {renderImage()}
+                {/*select example images section*/}
+
 
             </ScrollView>
             <Modalize
