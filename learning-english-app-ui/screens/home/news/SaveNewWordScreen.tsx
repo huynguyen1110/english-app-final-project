@@ -1,12 +1,10 @@
 import {
-    ActivityIndicator,
     SafeAreaView,
     ScrollView,
-    SectionList,
     TextInput,
     TouchableOpacity,
     View,
-    LogBox, StyleSheet, Image
+    LogBox, StyleSheet, Image, Pressable
 } from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Block, Text} from "galio-framework";
@@ -54,7 +52,7 @@ const SaveNewWordScreen = () => {
 
     const [chatGptResponse, setChatGptResponse] = useState<string>("");
 
-    // image responst search by keyword
+    // image response search by keyword
     const [imageResult, setImageResult] = useState<[]>([]);
 
     // selected example image
@@ -63,7 +61,8 @@ const SaveNewWordScreen = () => {
     // state of showing modal
     const [modalVisible, setModalVisible] = useState(false);
 
-    const [image, setImage] = useState<any>(null);
+    // state of create package modal
+    const [createPakageModalVisible, setCreatePakageModalVisible] = useState(false);
 
     const modalRef = useRef<Modalize>(null);
 
@@ -186,7 +185,8 @@ const SaveNewWordScreen = () => {
                     }}>
                         <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                    }}>
                         <Text size={20} color="#1d77f5" bold>SAVE</Text>
                     </TouchableOpacity>
                 </Block>
@@ -294,7 +294,9 @@ const SaveNewWordScreen = () => {
                     <Block style={GlobalStyles.main_container} height={50} row justifyContent="space-between"
                            alignItems="center">
                         <Text size={18}>Folder</Text>
-                        <TouchableOpacity style={{padding: 5}}>
+                        <TouchableOpacity style={{padding: 5}} onPress={() => {
+                            setCreatePakageModalVisible(true)
+                        }}>
                             <FontAwesome5 name="folder-plus" color={themeAppColor}
                                           size={24}></FontAwesome5>
                         </TouchableOpacity>
@@ -358,6 +360,38 @@ const SaveNewWordScreen = () => {
             </Modal>
             {/* select word's type modal */}
 
+            {/* create package modal section */}
+            <Modal
+                // @ts-ignore
+                animationType="slide"
+                transparent={true}
+                visible={createPakageModalVisible}
+                onRequestClose={() => {
+                    setCreatePakageModalVisible(!createPakageModalVisible);
+                }}>
+                <View style={GlobalStyles.centered_view}>
+                    <View style={styles.package_modal_view}>
+                        <Block style={{
+                            backgroundColor: lightGrayColor,
+                            borderTopLeftRadius: 20,
+                            borderTopRightRadius: 20,
+                            height: 50,
+                            width: "100%"
+                        }}
+                               row alignItems="center" justifyContent="space-between">
+                            <Block style={GlobalStyles.main_container} row alignItems="center"
+                                   justifyContent="space-between">
+                                <View></View>
+                                <TouchableOpacity style={{padding: 10}} onPress={() => { setCreatePakageModalVisible(false); }} >
+                                    <Text bold size={24}>X</Text>
+                                </TouchableOpacity>
+                            </Block>
+                        </Block>
+                    </View>
+                </View>
+            </Modal>
+            {/* create package modal section */}
+
         </SafeAreaView>
     );
 }
@@ -366,6 +400,21 @@ const styles = StyleSheet.create({
     modal: {
         justifyContent: 'flex-end',
         margin: 0,
+    },
+    package_modal_view: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        width: "90%",
+        height: 150
     },
     drawer: {
         backgroundColor: 'white',

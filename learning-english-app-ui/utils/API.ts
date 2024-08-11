@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.233.173:9000';
+export const BASE_URL = 'http://192.168.239.173:9000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -19,3 +19,7 @@ export const CHAT_GPT_API = "https://chatgpt-best-price.p.rapidapi.com/v1/chat/c
 
 // api to search result from google
 export const SERPER_DEV_API = "https://google.serper.dev";
+
+export const PACAKGE_ENPOINT = {
+    CREATE_PACKAGE: "/api/v1/package/create"
+}

@@ -7,6 +7,12 @@ export const GlobalStyles = StyleSheet.create({
         backgroundColor: "white",
         paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
     },
+    centered_view: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,
+    },
     container: {
         flex: 1,
         height: "100%",
