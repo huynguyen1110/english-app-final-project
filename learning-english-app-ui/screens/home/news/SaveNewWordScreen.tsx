@@ -4,7 +4,7 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    LogBox, StyleSheet, Image, Pressable
+    LogBox, StyleSheet, Image, Pressable, Alert
 } from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Block, Text} from "galio-framework";
@@ -30,6 +30,7 @@ import {getExamplePrompt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
 import {getImageResult} from "../../../services/SerperService";
 import * as ImagePicker from 'expo-image-picker';
+import {createPackageService} from "../../../services/VocabService";
 
 const SaveNewWordScreen = () => {
     // ignore warning
@@ -58,6 +59,12 @@ const SaveNewWordScreen = () => {
     // selected example image
     const [selectedImage, setSelectedImage] = useState<any>(null);
 
+    // state of package Name when create new package
+    const [packageName, setPackageName] = useState<string>("");
+
+    // state of save button in create package handling
+    const [isSaveDisabled, setIsSaveDisabled] = useState(true);
+
     // state of showing modal
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -74,6 +81,9 @@ const SaveNewWordScreen = () => {
 
     // use for opening Modalize (handle scroll view in modal)
     const openModal = () => modalRef?.current?.open();
+
+    // use for closing Modalize (handle scroll view in modal)
+    const closeModal = () => modalRef?.current?.close();
 
     // fetch examples for a word
     const fetchExampleUsingChatGpt = async () => {
@@ -152,6 +162,27 @@ const SaveNewWordScreen = () => {
         return rows;
     };
 
+    const fetchCreatePackageApi = async () => {
+        const data: any = {
+            name: packageName,
+            description: "",
+            isPublished: false
+        }
+        try {
+            const response = await createPackageService(data);
+            if (response) {
+                setCreatePakageModalVisible(false);
+                closeModal();
+            }
+        } catch (error) {
+            Alert.alert(
+                "Error",
+                "Failed to create the package. Please try again.",
+                [{ text: "OK" }]
+            );
+        }
+    }
+
     useEffect(() => {
         setDefinitionInput("");
         setPartOfSpeechInput("");
@@ -172,6 +203,11 @@ const SaveNewWordScreen = () => {
             fetchImageResult();
         }
     }, [word])
+
+    useEffect(() => {
+        // update state of save button whenever package name is changed
+        setIsSaveDisabled(packageName.trim() === '');
+    }, [packageName]);
 
 
     return (
@@ -382,10 +418,29 @@ const SaveNewWordScreen = () => {
                             <Block style={GlobalStyles.main_container} row alignItems="center"
                                    justifyContent="space-between">
                                 <View></View>
-                                <TouchableOpacity style={{padding: 10}} onPress={() => { setCreatePakageModalVisible(false); }} >
+                                <TouchableOpacity style={{padding: 10}} onPress={() => {
+                                    setCreatePakageModalVisible(false);
+                                }}>
                                     <Text bold size={24}>X</Text>
                                 </TouchableOpacity>
                             </Block>
+                        </Block>
+                        <Block height={18}></Block>
+                        <Block collum alignItems="center" justifyContent="space-around">
+                            <TextInput onChangeText={text => setPackageName(text)} style={{width: "90%", borderWidth: 1, height: 35, borderRadius: 10}}
+                                       placeholder="Enter pack name"/>
+                            <Block height={8}></Block>
+                            <TouchableOpacity style={{
+                                borderWidth: 1,
+                                width: 90,
+                                alignItems: "center",
+                                justifyContent: "center",
+                                borderRadius: 10,
+                                backgroundColor: isSaveDisabled ? "#d3d3d3" : "#9FA5AA",
+                                paddingLeft: 5
+                            }} onPress={fetchCreatePackageApi} disabled={isSaveDisabled}>
+                                <Text size={18} style={{ color: isSaveDisabled ? "#a9a9a9" : "#000" }}>SAVE</Text>
+                            </TouchableOpacity>
                         </Block>
                     </View>
                 </View>
