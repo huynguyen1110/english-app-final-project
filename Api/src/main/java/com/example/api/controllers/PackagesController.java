@@ -51,9 +51,10 @@ public class PackagesController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
-            @RequestParam(required = false) Boolean direction) {
+            @RequestParam(required = false) Boolean direction,
+            @RequestParam(required = false) String createBy) {
         try {
-            var response = packagesService.getAllPackages(page -1, size, sortBy, direction);
+            var response = packagesService.getAllPackages(page - 1, size, sortBy, direction, createBy);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
