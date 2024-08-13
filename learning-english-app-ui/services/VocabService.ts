@@ -1,7 +1,8 @@
 import axios from "axios";
 import {BASE_URL, PACAKGE_ENPOINT} from "../utils/API";
-import {decodeJwtToken, getJwtToken} from "./AuthenticationService";
+import {decodeJwtToken} from "./AuthenticationService";
 
+// create package service
 export const createPackageService = async (packageDto: any) => {
     const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
     // const token = getJwtToken();
@@ -17,6 +18,28 @@ export const createPackageService = async (packageDto: any) => {
             name: packageDto.name,
             description: packageDto.description,
             isPublished: packageDto.isPublished,
+        }
+    };
+
+    try {
+        const response = await axios.request(options);
+        return response;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+// get package service
+export const getPackageService = async (params: any) => {
+    const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
+    // const token = getJwtToken();
+    const decodedToken = decodeJwtToken(testToken);
+    const options = {
+        method: 'POST',
+        url: "",
+        headers: {
+            'Content-Type': 'application/json'
         }
     };
 
