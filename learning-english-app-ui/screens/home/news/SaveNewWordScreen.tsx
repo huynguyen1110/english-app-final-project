@@ -30,7 +30,8 @@ import {getExamplePrompt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
 import {getImageResult} from "../../../services/SerperService";
 import * as ImagePicker from 'expo-image-picker';
-import {createPackageService} from "../../../services/VocabService";
+import {createPackageService, getPackageService} from "../../../services/VocabService";
+import {decodeJwtToken} from "../../../services/AuthenticationService";
 
 const SaveNewWordScreen = () => {
     // ignore warning
@@ -70,6 +71,12 @@ const SaveNewWordScreen = () => {
 
     // state of create package modal
     const [createPakageModalVisible, setCreatePakageModalVisible] = useState(false);
+
+    // state storing packages info
+    const [listOfPackages, setListOfPackages] = useState<any []>([]);
+
+    // value of selected folder
+    const [selectedFoder, setSelectedFolder] = useState<any>(null);
 
     const modalRef = useRef<Modalize>(null);
 
@@ -111,6 +118,59 @@ const SaveNewWordScreen = () => {
             setImageResult(imagesWithAddButton);
         }
 
+    }
+
+    // fetch create package api
+    const fetchCreatePackageApi = async () => {
+        const data: any = {
+            name: packageName,
+            description: "",
+            isPublished: false
+        }
+        try {
+            const response = await createPackageService(data);
+            if (response) {
+                setCreatePakageModalVisible(false);
+                fetchGetPackagesApi();
+                closeModal();
+            }
+        } catch (error) {
+            Alert.alert(
+                "Error",
+                "Failed to create the package. Please try again.",
+                [{text: "OK"}]
+            );
+        }
+    }
+
+    // fetch create package api
+    const fetchGetPackagesApi = async () => {
+        setListOfPackages([]);
+        const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
+        // const token = getJwtToken();
+        const decodedToken = decodeJwtToken(testToken);
+        const params: any = {
+            page: 1,
+            size: 500,
+            sortBy: "createdAt",
+            direction: false,
+            createBy: decodedToken?.sub,
+        }
+        try {
+            const response: any = await getPackageService(params);
+            const {data} = response;
+            setListOfPackages(data.content);
+        } catch (e) {
+            setListOfPackages([])
+            console.error("err while fetching get package api ", e);
+        }
+    }
+
+    // handle select folder
+    const handleSelectFolder = (folderId: number) => {
+        setSelectedFolder(null);
+        const selectedFolder = listOfPackages.find((item: any) => item.id === folderId);
+        setSelectedFolder(selectedFolder);
     }
 
     const pickImage = async () => {
@@ -162,27 +222,6 @@ const SaveNewWordScreen = () => {
         return rows;
     };
 
-    const fetchCreatePackageApi = async () => {
-        const data: any = {
-            name: packageName,
-            description: "",
-            isPublished: false
-        }
-        try {
-            const response = await createPackageService(data);
-            if (response) {
-                setCreatePakageModalVisible(false);
-                closeModal();
-            }
-        } catch (error) {
-            Alert.alert(
-                "Error",
-                "Failed to create the package. Please try again.",
-                [{ text: "OK" }]
-            );
-        }
-    }
-
     useEffect(() => {
         setDefinitionInput("");
         setPartOfSpeechInput("");
@@ -209,6 +248,9 @@ const SaveNewWordScreen = () => {
         setIsSaveDisabled(packageName.trim() === '');
     }, [packageName]);
 
+    useEffect(() => {
+        fetchGetPackagesApi();
+    }, []);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -243,7 +285,8 @@ const SaveNewWordScreen = () => {
                     <Block height={8}></Block>
                     <TouchableOpacity onPress={openModal} style={[GlobalStyles.non_rounded_input]}>
                         <Block flexDirection="row" justifyContent="space-between" alignItems="center">
-                            <Text size={16}>Folder Name</Text>
+                            {selectedFoder == null ? (<Text size={16}>{listOfPackages[0]?.name}</Text>) : (
+                                <Text size={16}>{selectedFoder?.name}</Text>)}
                             <Entypo name="triangle-down" color="gray" size={24}></Entypo>
                         </Block>
                     </TouchableOpacity>
@@ -342,14 +385,22 @@ const SaveNewWordScreen = () => {
                 <Block style={GlobalStyles.under_line}></Block>
 
                 <ScrollView>
-                    <TouchableOpacity style={GlobalStyles.main_container}>
-                        <Block row alignItems="center" height={50}>
-                            <MaterialIcons name="folder" color={fileManagerColor} bold
-                                           size={30}></MaterialIcons>
-                            <Block width={4}></Block>
-                            <Text size={18}>Test folder</Text>
-                        </Block>
-                    </TouchableOpacity>
+                    {listOfPackages.length > 0 ? (
+                        listOfPackages.map((packageItem, index) => (
+                            <TouchableOpacity key={index} style={GlobalStyles.main_container} onPress={() => {
+                                handleSelectFolder(packageItem.id)
+                            }}>
+                                <Block row alignItems="center" height={50}>
+                                    <MaterialIcons name="folder" color={fileManagerColor} bold size={30}/>
+                                    <Block width={4}></Block>
+                                    <Text size={18}>{packageItem.name}</Text>
+                                </Block>
+                            </TouchableOpacity>
+                        ))
+                    ) : (
+                        <Text>No packages available</Text>
+                    )}
+
                     <Block style={GlobalStyles.under_line}></Block>
                 </ScrollView>
             </Modalize>
@@ -427,7 +478,8 @@ const SaveNewWordScreen = () => {
                         </Block>
                         <Block height={18}></Block>
                         <Block collum alignItems="center" justifyContent="space-around">
-                            <TextInput onChangeText={text => setPackageName(text)} style={{width: "90%", borderWidth: 1, height: 35, borderRadius: 10}}
+                            <TextInput onChangeText={text => setPackageName(text)}
+                                       style={{width: "90%", borderWidth: 1, height: 35, borderRadius: 10}}
                                        placeholder="Enter pack name"/>
                             <Block height={8}></Block>
                             <TouchableOpacity style={{
@@ -439,7 +491,7 @@ const SaveNewWordScreen = () => {
                                 backgroundColor: isSaveDisabled ? "#d3d3d3" : "#9FA5AA",
                                 paddingLeft: 5
                             }} onPress={fetchCreatePackageApi} disabled={isSaveDisabled}>
-                                <Text size={18} style={{ color: isSaveDisabled ? "#a9a9a9" : "#000" }}>SAVE</Text>
+                                <Text size={18} style={{color: isSaveDisabled ? "#a9a9a9" : "#000"}}>SAVE</Text>
                             </TouchableOpacity>
                         </Block>
                     </View>
