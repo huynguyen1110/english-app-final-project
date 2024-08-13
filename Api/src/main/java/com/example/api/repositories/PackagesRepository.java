@@ -16,6 +16,6 @@ public interface PackagesRepository extends JpaRepository<Packages, Long> {
     @Query("SELECT p FROM Packages p WHERE p.id = :packageId and p.isDeleted = false ")
     Optional<Packages> findPackagesById(@Param("packageId") Long packageId);
 
-    @Query("SELECT p FROM Packages p WHERE p.isDeleted = false")
-    Page<Packages> findAllByIsDeletedFalse(Pageable pageable);
+    @Query("SELECT p FROM Packages p WHERE p.isDeleted = false AND (:createBy IS NULL OR :createBy = '' OR p.createBy = :createBy)")
+    Page<Packages> findAllByIsDeletedFalse(@Param("createBy") String createBy, Pageable pageable);
 }

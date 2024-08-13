@@ -74,8 +74,8 @@ public class PackagesService implements IPackagesService {
     }
 
     @Override
-    public Page<Packages> getAllPackages(int page, int size, String sortField, Boolean sortDirection) {
-        // check is field valid or not
+    public Page<Packages> getAllPackages(int page, int size, String sortField, Boolean sortDirection, String createBy) {
+        // check if the field is valid or not
         boolean isValidField = Arrays.stream(Packages.class.getDeclaredFields())
                 .map(Field::getName)
                 .anyMatch(fieldName -> fieldName.equals(sortField));
@@ -88,6 +88,8 @@ public class PackagesService implements IPackagesService {
         Sort.Direction direction = (sortDirection != null && sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
-        return packagesRepository.findAllByIsDeletedFalse(pageable);
+
+        return packagesRepository.findAllByIsDeletedFalse(createBy, pageable);
     }
+
 }
