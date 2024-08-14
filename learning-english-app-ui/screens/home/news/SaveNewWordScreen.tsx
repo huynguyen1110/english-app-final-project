@@ -30,7 +30,7 @@ import {getExamplePrompt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
 import {getImageResult} from "../../../services/SerperService";
 import * as ImagePicker from 'expo-image-picker';
-import {createPackageService, getPackageService} from "../../../services/VocabService";
+import {createPackageService, createWord, getPackageService} from "../../../services/VocabService";
 import {decodeJwtToken} from "../../../services/AuthenticationService";
 
 const SaveNewWordScreen = () => {
@@ -58,7 +58,7 @@ const SaveNewWordScreen = () => {
     const [imageResult, setImageResult] = useState<[]>([]);
 
     // selected example image
-    const [selectedImage, setSelectedImage] = useState<any>(null);
+    const [selectedImage, setSelectedImage] = useState<any>("");
 
     // state of package Name when create new package
     const [packageName, setPackageName] = useState<string>("");
@@ -169,6 +169,25 @@ const SaveNewWordScreen = () => {
         }
     }
 
+    // handle save word to db
+    const handleSaveWordButton = async () => {
+        try {
+            const wordDto: any = {
+                name: wordInput,
+                meaning: definitionInput,
+                description: "",
+                example: exampleInput,
+                image: selectedImage,
+                wordType: partOfSpeechInput
+            }
+            const response: any = await createWord(wordDto);
+            const { data } = response;
+            console.log(data);
+        } catch (e) {
+            console.log("err while creating word", e);
+        }
+    }
+
     // handle select folder
     const handleSelectFolder = (folderId: number) => {
         setSelectedFolder(null);
@@ -183,8 +202,6 @@ const SaveNewWordScreen = () => {
             aspect: [4, 3],
             quality: 1,
         });
-
-        console.log(result);
 
         if (!result.canceled) {
             setSelectedImage(result.assets[0].uri)
@@ -274,6 +291,7 @@ const SaveNewWordScreen = () => {
                         <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
+                        handleSaveWordButton();
                     }}>
                         <Text size={20} color="#1d77f5" bold>SAVE</Text>
                     </TouchableOpacity>
@@ -355,7 +373,7 @@ const SaveNewWordScreen = () => {
 
                     <Block height={8}></Block>
 
-                    {selectedImage == null ? (
+                    {selectedImage === "" ? (
                             <Block height={200} style={{backgroundColor: lightGrayColor}} row justifyContent="center"
                                    alignItems="center">
                                 <FontAwesome5 name="images" size={50}/>

@@ -62,6 +62,7 @@ export const createWord = async (wordDto: any) => {
             name: wordDto.name,
             description: wordDto.description,
             meaning: wordDto.meaning,
+            example: wordDto.example,
             wordType: wordDto.wordType,
             image: wordDto.image,
         }
