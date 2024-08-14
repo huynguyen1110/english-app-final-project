@@ -63,6 +63,9 @@ const SaveNewWordScreen = () => {
     // state of package Name when create new package
     const [packageName, setPackageName] = useState<string>("");
 
+    // state storing latest package was updated
+    const [latestPackage, setLatestPackage] = useState<any>(null);
+
     // state of save button in create package handling
     const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
@@ -252,6 +255,13 @@ const SaveNewWordScreen = () => {
         fetchGetPackagesApi();
     }, []);
 
+    useEffect(() => {
+        const latestPackage = listOfPackages.reduce((latest, current) => {
+            return new Date(latest.updatedAt) > new Date(current.updatedAt) ? latest : current;
+        }, listOfPackages[0]);
+        setLatestPackage(latestPackage);
+    }, [listOfPackages]);
+
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             <View>
@@ -285,7 +295,7 @@ const SaveNewWordScreen = () => {
                     <Block height={8}></Block>
                     <TouchableOpacity onPress={openModal} style={[GlobalStyles.non_rounded_input]}>
                         <Block flexDirection="row" justifyContent="space-between" alignItems="center">
-                            {selectedFoder == null ? (<Text size={16}>{listOfPackages[0]?.name}</Text>) : (
+                            {selectedFoder == null ? (<Text size={16}>{latestPackage?.name}</Text>) : (
                                 <Text size={16}>{selectedFoder?.name}</Text>)}
                             <Entypo name="triangle-down" color="gray" size={24}></Entypo>
                         </Block>

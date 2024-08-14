@@ -1,5 +1,5 @@
 import axios from "axios";
-import {BASE_URL, PACAKGE_ENPOINT} from "../utils/API";
+import {BASE_URL, PACAKGE_ENPOINT, WORD_ENPOINT} from "../utils/API";
 import {decodeJwtToken} from "./AuthenticationService";
 
 // create package service
@@ -40,6 +40,30 @@ export const getPackageService = async (params: any) => {
             .concat("&createBy=" + params.createBy),
         headers: {
             'Content-Type': 'application/json'
+        }
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// create word service
+export const createWord = async (wordDto: any) => {
+    const options = {
+        method: 'POST',
+        url: BASE_URL.concat(WORD_ENPOINT.CREATE_WORD),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: {
+            name: wordDto.name,
+            description: wordDto.description,
+            meaning: wordDto.meaning,
+            wordType: wordDto.wordType,
+            image: wordDto.image,
         }
     };
 

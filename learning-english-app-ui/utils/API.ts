@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.25.173:9000';
+export const BASE_URL = 'http://192.168.166.173:9000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -23,4 +23,8 @@ export const SERPER_DEV_API = "https://google.serper.dev";
 export const PACAKGE_ENPOINT = {
     CREATE_PACKAGE: "/api/v1/package/create",
     GET_PACKAGES: "/api/v1/package/get-all"
+}
+
+export const WORD_ENPOINT = {
+    CREATE_WORD: "/api/v1/word/create",
 }
