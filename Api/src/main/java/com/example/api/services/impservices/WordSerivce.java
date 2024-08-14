@@ -38,9 +38,11 @@ public class WordSerivce implements IWordService {
                 .wordType(wordDto.getWordType())
                 .description(wordDto.getDescription())
                 .meaning(wordDto.getMeaning())
+                .example(wordDto.getExample())
                 .image(wordDto.getImage())
                 .isDeleted(false)
                 .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
         return wordsRepository.save(newWord);
