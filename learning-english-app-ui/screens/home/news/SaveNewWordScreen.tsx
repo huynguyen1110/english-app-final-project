@@ -30,7 +30,7 @@ import {getExamplePrompt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
 import {getImageResult} from "../../../services/SerperService";
 import * as ImagePicker from 'expo-image-picker';
-import {createPackageService, createWord, getPackageService} from "../../../services/VocabService";
+import {addWordToPackage, createPackageService, createWord, getPackageService} from "../../../services/VocabService";
 import {decodeJwtToken} from "../../../services/AuthenticationService";
 
 const SaveNewWordScreen = () => {
@@ -63,9 +63,6 @@ const SaveNewWordScreen = () => {
     // state of package Name when create new package
     const [packageName, setPackageName] = useState<string>("");
 
-    // state storing latest package was updated
-    const [latestPackage, setLatestPackage] = useState<any>(null);
-
     // state of save button in create package handling
     const [isSaveDisabled, setIsSaveDisabled] = useState(true);
 
@@ -77,6 +74,8 @@ const SaveNewWordScreen = () => {
 
     // state storing packages info
     const [listOfPackages, setListOfPackages] = useState<any []>([]);
+
+    const [latestPackage, setLatestPackage] = useState<any>(null);
 
     // value of selected folder
     const [selectedFoder, setSelectedFolder] = useState<any>(null);
@@ -148,7 +147,6 @@ const SaveNewWordScreen = () => {
 
     // fetch create package api
     const fetchGetPackagesApi = async () => {
-        setListOfPackages([]);
         const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
         // const token = getJwtToken();
         const decodedToken = decodeJwtToken(testToken);
@@ -172,21 +170,53 @@ const SaveNewWordScreen = () => {
     // handle save word to db
     const handleSaveWordButton = async () => {
         try {
-            const wordDto: any = {
+            const wordDto = {
                 name: wordInput,
                 meaning: definitionInput,
                 description: "",
                 example: exampleInput,
                 image: selectedImage,
-                wordType: partOfSpeechInput
+                wordType: partOfSpeechInput,
+            };
+
+            const {data}: any = await createWord(wordDto);
+
+            if (data?.wordId) {
+                const addWordResponse = await addWordToPackage(data.wordId, selectedFoder.id);
+
+                if (addWordResponse) {
+                    Alert.alert(
+                        "Thành công",
+                        "Lưu từ vựng thành công!",
+                        [{text: "OK", onPress: () => console.log("User pressed OK")}]
+                    );
+                } else {
+                    // Thông báo khi thêm từ vào package thất bại
+                    Alert.alert(
+                        "Thất bại",
+                        "Lưu từ vào package thất bại.",
+                        [{text: "OK", onPress: () => console.log("User pressed OK")}]
+                    );
+                }
+            } else {
+                // Thông báo khi tạo từ thất bại
+                Alert.alert(
+                    "Thất bại",
+                    "Tạo từ vựng thất bại.",
+                    [{text: "OK", onPress: () => console.log("User pressed OK")}]
+                );
             }
-            const response: any = await createWord(wordDto);
-            const { data } = response;
-            console.log(data);
-        } catch (e) {
-            console.log("err while creating word", e);
+        } catch (error) {
+            console.error("Error while creating word:", error);
+            // Thông báo khi có lỗi xảy ra
+            Alert.alert(
+                "Lỗi",
+                "Có lỗi xảy ra khi lưu từ vựng.",
+                [{text: "OK", onPress: () => console.log("User pressed OK")}]
+            );
         }
-    }
+    };
+
 
     // handle select folder
     const handleSelectFolder = (folderId: number) => {
@@ -273,7 +303,7 @@ const SaveNewWordScreen = () => {
     }, []);
 
     useEffect(() => {
-        const latestPackage = listOfPackages.reduce((latest, current) => {
+        const latestPackage = listOfPackages?.reduce((latest, current) => {
             return new Date(latest.updatedAt) > new Date(current.updatedAt) ? latest : current;
         }, listOfPackages[0]);
         setLatestPackage(latestPackage);
@@ -413,7 +443,7 @@ const SaveNewWordScreen = () => {
                 <Block style={GlobalStyles.under_line}></Block>
 
                 <ScrollView>
-                    {listOfPackages.length > 0 ? (
+                    {listOfPackages?.length > 0 ? (
                         listOfPackages.map((packageItem, index) => (
                             <TouchableOpacity key={index} style={GlobalStyles.main_container} onPress={() => {
                                 handleSelectFolder(packageItem.id)

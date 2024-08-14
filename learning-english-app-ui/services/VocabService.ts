@@ -74,3 +74,22 @@ export const createWord = async (wordDto: any) => {
         console.error(error);
     }
 }
+
+// add word to package
+export const addWordToPackage = async (wordId: any, packageId: any) => {
+    const options = {
+        method: 'POST',
+        url: BASE_URL.concat(WORD_ENPOINT.ADD_WORD_TO_PACKAGE)
+            .concat("?wordId=" + wordId)
+            .concat("&packageId=" + packageId),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+    }
+}

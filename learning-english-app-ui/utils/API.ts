@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.166.173:9000';
+export const BASE_URL = 'http://192.168.139.173:9000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -27,4 +27,5 @@ export const PACAKGE_ENPOINT = {
 
 export const WORD_ENPOINT = {
     CREATE_WORD: "/api/v1/word/create",
+    ADD_WORD_TO_PACKAGE: "/api/v1/word/add-word-to-package",
 }
