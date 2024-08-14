@@ -16,6 +16,8 @@ public class WordDto {
 
     private String meaning;
 
+    private String example;
+
     private String wordType;
 
     private String image;
