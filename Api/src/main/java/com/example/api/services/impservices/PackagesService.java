@@ -40,6 +40,7 @@ public class PackagesService implements IPackagesService {
                 .numOfDownloaded(0)
                 .isPublished(packagesDto.getIsPublished())
                 .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
         packagesRepository.save(packages);
         return packages;
