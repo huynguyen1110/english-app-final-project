@@ -1,5 +1,6 @@
 package com.example.api.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -38,6 +39,7 @@ public class Words {
 
     private LocalDateTime deletedAt;
 
+    @JsonIgnore
     @ManyToMany()
     @JoinTable(
             name = "words_packages",
