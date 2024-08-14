@@ -108,6 +108,7 @@ public class WordSerivce implements IWordService {
 
             word.getPackages().add(pack);
             pack.getWords().add(word);
+            pack.setUpdatedAt(LocalDateTime.now());
 
             wordsRepository.save(word);
             packagesRepository.save(pack);
