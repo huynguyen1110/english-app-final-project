@@ -19,10 +19,10 @@ public class TopicController {
     private final TopicService topicService;
 
     @GetMapping("/get-all")
-    public ResponseEntity<?> getAllTopics(@RequestParam(defaultValue = "0") int page,
+    public ResponseEntity<?> getAllTopics(@RequestParam(defaultValue = "1") int page,
                                           @RequestParam(defaultValue = "10") int size) {
         try {
-            var respone = topicService.getAllTopics(page, size);
+            var respone = topicService.getAllTopics(page - 1, size);
             return ResponseEntity.ok(respone);
         } catch (Exception erException) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());

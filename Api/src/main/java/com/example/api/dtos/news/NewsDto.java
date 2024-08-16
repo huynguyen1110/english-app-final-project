@@ -18,6 +18,8 @@ public class NewsDto {
 
     private String content;
 
+    private String sourceName;
+
     private String description;
 
     private String author;

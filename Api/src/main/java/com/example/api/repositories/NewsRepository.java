@@ -18,4 +18,8 @@ public interface NewsRepository extends JpaRepository<News, Long> {
 
     @Query("SELECT n FROM News n WHERE n.newsId = :newsId AND n.isDeleted = false")
     Optional<News> findNewsById(@Param("newsId") Long newsId);
+
+    // Query to get paginated news where isDeleted is false and sourceName matches
+    @Query("SELECT n FROM News n WHERE n.isDeleted = false AND n.sourceName = :sourceName")
+    Page<News> findBySourceNameAndIsDeletedFalse(Pageable pageable, String sourceName);
 }

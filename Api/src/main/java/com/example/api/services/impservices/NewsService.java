@@ -123,6 +123,7 @@ public class NewsService implements INewsService {
         News news = News.builder()
                 .title(newsDto.getTitle())
                 .content(newsDto.getContent())
+                .sourceName(newsDto.getSourceName())
                 .description(newsDto.getDescription())
                 .author(newsDto.getAuthor())
                 .imageUrl(newsDto.getImageUrl())
@@ -158,6 +159,23 @@ public class NewsService implements INewsService {
     }
 
     @Override
+    public Page<News> getNewsFromDatabaseGroupBySourceName(int page, int size, String sortField, Boolean sortDirection, String sourceName) {
+        boolean isValidField = Arrays.stream(News.class.getDeclaredFields())
+                .map(Field::getName)
+                .anyMatch(fieldName -> fieldName.equals(sortField));
+
+        if (!isValidField) {
+            throw new IllegalArgumentException("Invalid sortField: " + sortField);
+        }
+
+        // If sortDirection == true then sort in ascending order, if false then sort in descending order
+        Sort.Direction direction = (sortDirection != null && sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return newsRepository.findBySourceNameAndIsDeletedFalse(pageable, sourceName);
+    }
+
+    @Override
     public News getNewsById(Long newsId) throws Exception {
         Optional<News> newsOptional = newsRepository.findNewsById(newsId);
         News news = newsOptional.orElseThrow(() -> new Exception("This newsId is not existed"));
@@ -177,6 +195,7 @@ public class NewsService implements INewsService {
 
         news.setTitle(newsDto.getTitle());
         news.setContent(newsDto.getContent());
+        news.setSourceName(newsDto.getSourceName());
         news.setDescription(newsDto.getDescription());
         news.setAuthor(newsDto.getAuthor());
         news.setImageUrl(newsDto.getImageUrl());

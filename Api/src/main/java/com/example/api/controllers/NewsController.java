@@ -28,6 +28,7 @@ public class NewsController {
         }
     }
 
+    // no-use
     @GetMapping("/get-by-category")
     public ResponseEntity<?> getNewsByCategory(@RequestParam(defaultValue = "") String category
             , @RequestParam(defaultValue = "") String keyWord
@@ -63,6 +64,21 @@ public class NewsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }
     }
+
+    @GetMapping("/get-news-source-name")
+    public ResponseEntity<?> getNewsFromDatabaseGroupBySourceName(@RequestParam(defaultValue = "0") int page,
+                                                 @RequestParam(defaultValue = "10") int size,
+                                                 @RequestParam(defaultValue = "title") String sortField,
+                                                 @RequestParam(required = false) Boolean sortDirection,
+                                                 @RequestParam(required = true) String sourceName) {
+        try {
+            var response = newsService.getNewsFromDatabaseGroupBySourceName(page - 1, size, sortField, sortDirection, sourceName);
+            return ResponseEntity.ok(response);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
+
 
     @GetMapping("/get-news-id")
     public ResponseEntity<?> getNewsById(@RequestParam Long newsId) {

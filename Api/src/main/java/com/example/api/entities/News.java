@@ -21,6 +21,8 @@ public class News {
 
     private String title;
 
+    private String sourceName;
+
     private String content;
 
     private String description;

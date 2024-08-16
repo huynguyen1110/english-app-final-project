@@ -20,6 +20,8 @@ public interface INewsService {
 
     Page<News> getNewsFromDatabase(int page, int size, String sortField, Boolean sortDirection, Long topicId);
 
+    Page<News> getNewsFromDatabaseGroupBySourceName(int page, int size, String sortField, Boolean sortDirection, String sourceName);
+
     News getNewsById(Long newsId) throws Exception;
 
     void updateNews(NewsDto newsDto, long id) throws Exception;
