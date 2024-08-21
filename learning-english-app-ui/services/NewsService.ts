@@ -1,6 +1,7 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
-import {BASE_URL, GET_NEWS_BY_ID, GET_NEWS_FROM_DB} from "../utils/API";
+import {BASE_URL, GET_NEWS_BY_ID, GET_NEWS_BY_SOURCE_NAME, GET_NEWS_FROM_DB, WORD_ENPOINT} from "../utils/API";
 import GetNewsParams from "../dto/news/GetNewsParams";
+import axios from "axios";
 
 export const getNewsFromDb = createAsyncThunk(
     'news/get-news', // action name
@@ -47,3 +48,25 @@ export const getNewsById = createAsyncThunk(
         }
     }
 )
+
+// get news by source name service
+export const getNewsBySourceNameService = async (params: any) => {
+    const options = {
+        method: 'GET',
+        url: BASE_URL.concat(GET_NEWS_BY_SOURCE_NAME)
+            .concat("?page=" + params.page)
+            .concat("&size=" + params.size)
+            .concat("&sortField=" + params.sortField)
+            .concat("&sortDirection=" + params.sortDirection)
+            .concat("&sourceName=" + params.sourceName),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+    }
+}

@@ -9,6 +9,7 @@ import ByTopicsScreen from "../screens/home/news/ByTopicsScreen";
 import ByNewsWebSiteScreen from "../screens/home/news/ByNewsWebSiteScreen";
 import NewsDetailScreen from "../screens/home/news/NewsDetailScreen";
 import SaveNewWordScreen from "../screens/home/news/SaveNewWordScreen";
+import ListNewsBySourceNameScreen from "../screens/home/news/ListNewsBySourceNameScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -31,6 +32,7 @@ const Navigation = () => {
                 <Stack.Screen name="ByNewsWebSiteScreen" component={ByNewsWebSiteScreen} />
                 <Stack.Screen name="NewsDetailScreen" component={NewsDetailScreen} />
                 <Stack.Screen name="SaveNewWordScreen" component={SaveNewWordScreen} />
+                <Stack.Screen name="ListNewsBySourceNameScreen" component={ListNewsBySourceNameScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

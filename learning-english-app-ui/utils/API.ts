@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.139.173:9000';
+export const BASE_URL = 'http://192.168.202.173:9000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -7,6 +7,7 @@ export const LOGIN_URI = '/api/v1/user/login';
 // news
 export const GET_NEWS_FROM_DB = "/api/v1/news/get-news";
 export const GET_NEWS_BY_ID = "/api/v1/news/get-news-id";
+export const GET_NEWS_BY_SOURCE_NAME = "/api/v1/news/get-news-source-name";
 
 // dictionary api
 export const ENGLISH_DIC_API = "https://api.dictionaryapi.dev/api/v2/entries/en";
