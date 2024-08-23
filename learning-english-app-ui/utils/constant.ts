@@ -19,7 +19,7 @@ export const SOURCE_NEWS_NAME = {
     CNN_COM: "CNN",
     BBC_NEWS: "BBC News",
     FOX_NEWS: "Fox News",
-    TECH_CRUNCH: "TechCrunch",
+    TECH_CRUNCH: "Tech Crunch",
     GLOBAL_NEWS: "Global News",
 }
 
@@ -38,6 +38,15 @@ export const LOGO_BACKGROUND_COLOR = {
     CNN_COLOR: "#1E1F22",
     TECH_CRUNCH: "#1E1F22",
     GLOBAL_NEWS: "#b0b4c2",
+}
+
+export const TOPIC_NAME = {
+    SCIENCE: "Science",
+    EDUCATION: "Education",
+    TECHNOLOGY: "Technology",
+    BUSINESS: "Business",
+    TRAVEL: "Travel",
+    SPORT: "Sport"
 }
 
 

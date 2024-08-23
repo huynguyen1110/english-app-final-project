@@ -2,7 +2,6 @@ import {Image, StyleSheet, TouchableOpacity, View} from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Block, Text} from "galio-framework";
 import {LOGO_BACKGROUND_COLOR, SOURCE_NEWS_NAME} from "../../../utils/constant";
-import {getNewsBySourceNameService} from "../../../services/NewsService";
 import {useNavigation} from "@react-navigation/native";
 
 const ByNewsWebSiteScreen = () => {
@@ -12,23 +11,6 @@ const ByNewsWebSiteScreen = () => {
     const handleNaviageToListNewsScreen = (sourceName: string) => {
         // @ts-ignore
         navigation.navigate("ListNewsBySourceNameScreen", {sourceName: sourceName});
-    }
-
-    const fetchNewsBySourceName = async (sourceName: string) => {
-        try  {
-            const params: any = {
-                page: 1,
-                size: 100,
-                sortField: "createdAt",
-                sortDirection: false,
-                sourceName: sourceName,
-            };
-            const respone: any = await getNewsBySourceNameService(params);
-            const {data} = respone;
-            console.log(data);
-        } catch(e) {
-            console.log("err while fetching news by source name", e);
-        }
     }
 
     return (
@@ -95,7 +77,6 @@ const ByNewsWebSiteScreen = () => {
                 <Text size={16}>CNN</Text>
             </TouchableOpacity>
 
-
             <Block height={8}></Block>
 
             <TouchableOpacity style={[GlobalStyles.flex_row, GlobalStyles.align_item_center]}
@@ -115,8 +96,6 @@ const ByNewsWebSiteScreen = () => {
                 <Block width={8}></Block>
                 <Text size={16}>Tech Crunch</Text>
             </TouchableOpacity>
-
-            <Block height={8}></Block>
 
             <Block height={8}></Block>
 

@@ -9,6 +9,7 @@ import {useEffect, useState} from "react";
 import {getNewsFromDb} from "../../../services/NewsService";
 import {useNavigation} from "@react-navigation/native";
 import {getNewsById} from "../../../services/NewsService";
+import {TOPIC_NAME} from "../../../utils/constant";
 
 const ByTopicsScreen = () => {
 
@@ -50,9 +51,14 @@ const ByTopicsScreen = () => {
                 sortDirection: true
             };
             // @ts-ignore
-            dispatch(getNewsFromDb(params, param.npm));
+            dispatch(getNewsFromDb(params));
         });
     };
+
+    const handleNavigateToListNewsScreen = (sourceName: any) => {
+        // @ts-ignore
+        navigation.navigate("ListNewsBySourceNameScreen", {sourceName: sourceName});
+    }
 
     useEffect(() => {
         fetchNews();
@@ -88,7 +94,9 @@ const ByTopicsScreen = () => {
                             <Block height={12}></Block>
                             <Block flexDirection="row" justifyContent="space-between" alignItems="center">
                                 <Text size={18} bold>Science</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    handleNavigateToListNewsScreen(TOPIC_NAME.SCIENCE)
+                                }}>
                                     <Block flexDirection="row" justifyContent="center" alignItems="center">
                                         <Text size={18}>See All</Text>
                                         <Text size={18}> <SimpleLineIcons name="arrow-right" size={18}/> </Text>
@@ -114,7 +122,9 @@ const ByTopicsScreen = () => {
                             <Block height={12}></Block>
                             <Block flexDirection="row" justifyContent="space-between" alignItems="center">
                                 <Text size={18} bold>Education</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    handleNavigateToListNewsScreen(TOPIC_NAME.EDUCATION);
+                                }} >
                                     <Block flexDirection="row" justifyContent="center" alignItems="center">
                                         <Text size={18}>See All</Text>
                                         <Text size={18}> <SimpleLineIcons name="arrow-right" size={18}/> </Text>
@@ -140,7 +150,9 @@ const ByTopicsScreen = () => {
                             <Block height={12}></Block>
                             <Block flexDirection="row" justifyContent="space-between" alignItems="center">
                                 <Text size={18} bold>Technology</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    handleNavigateToListNewsScreen(TOPIC_NAME.TECHNOLOGY);
+                                }} >
                                     <Block flexDirection="row" justifyContent="center" alignItems="center">
                                         <Text size={18}>See All</Text>
                                         <Text size={18}> <SimpleLineIcons name="arrow-right" size={18}/> </Text>
@@ -166,7 +178,9 @@ const ByTopicsScreen = () => {
                             <Block height={12}></Block>
                             <Block flexDirection="row" justifyContent="space-between" alignItems="center">
                                 <Text size={18} bold>Business</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    handleNavigateToListNewsScreen(TOPIC_NAME.BUSINESS);
+                                }} >
                                     <Block flexDirection="row" justifyContent="center" alignItems="center">
                                         <Text size={18}>See All</Text>
                                         <Text size={18}> <SimpleLineIcons name="arrow-right" size={18}/> </Text>
@@ -192,7 +206,9 @@ const ByTopicsScreen = () => {
                             <Block height={12}></Block>
                             <Block flexDirection="row" justifyContent="space-between" alignItems="center">
                                 <Text size={18} bold>Travel</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    handleNavigateToListNewsScreen(TOPIC_NAME.TRAVEL);
+                                }} >
                                     <Block flexDirection="row" justifyContent="center" alignItems="center">
                                         <Text size={18}>See All</Text>
                                         <Text size={18}> <SimpleLineIcons name="arrow-right" size={18}/> </Text>
@@ -218,7 +234,9 @@ const ByTopicsScreen = () => {
                             <Block height={12}></Block>
                             <Block flexDirection="row" justifyContent="space-between" alignItems="center">
                                 <Text size={18} bold>Sport</Text>
-                                <TouchableOpacity>
+                                <TouchableOpacity onPress={() => {
+                                    handleNavigateToListNewsScreen(TOPIC_NAME.SPORT);
+                                }}  >
                                     <Block flexDirection="row" justifyContent="center" alignItems="center">
                                         <Text size={18}>See All</Text>
                                         <Text size={18}> <SimpleLineIcons name="arrow-right" size={18}/> </Text>
