@@ -2,6 +2,7 @@ package com.example.api.entities;
 
 import com.example.api.entities.enums.UserRole;
 import com.example.api.entities.enums.UserStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -45,6 +46,7 @@ public class Users {
 
     private Boolean isDeleted;
 
+    @JsonIgnore
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "favorite_id", referencedColumnName = "favoriteId")
     private Favorites favorite;
