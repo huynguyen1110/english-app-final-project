@@ -36,4 +36,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }
     }
+
+    @GetMapping("/get-user")
+    public ResponseEntity<?> authenticate(@RequestParam String userEmail) {
+        try {
+            var respone = userService.findUserByEmail(userEmail);
+            return ResponseEntity.ok(respone);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.api.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,6 +18,7 @@ public class Favorites {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long favoriteId;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "favorite")
     private Users user;
 

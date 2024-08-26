@@ -5,9 +5,13 @@ import com.example.api.dtos.authentication.LoginDto;
 import com.example.api.dtos.authentication.RegisterDto;
 import com.example.api.entities.Users;
 
+import java.util.Optional;
+
 public interface IUserService {
 
     Users register (RegisterDto registerDto) throws Exception;
 
     BearerToken authenticate(LoginDto loginDto) throws Exception;
+
+    Users findUserByEmail(String userEmail) throws Exception;
 }

@@ -1,6 +1,7 @@
 package com.example.api.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -47,6 +48,7 @@ public class News {
     @JoinColumn(name = "topic_id", referencedColumnName = "id")
     private Topic topic;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
             name = "news_favorites",
