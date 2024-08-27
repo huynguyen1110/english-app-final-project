@@ -1,10 +1,11 @@
 import {RAPID_API_HOST, RAPID_API_KEY} from "../utils/constant";
 import axios from "axios";
+import {CHAT_GPT_API} from "../utils/API";
 
 export const askChatGpt = async (message: string) => {
     const options = {
         method: 'POST',
-        url: 'https://chatgpt-best-price.p.rapidapi.com/v1/chat/completions',
+        url: CHAT_GPT_API,
         headers: {
             'x-rapidapi-key': RAPID_API_KEY,
             'x-rapidapi-host': RAPID_API_HOST,

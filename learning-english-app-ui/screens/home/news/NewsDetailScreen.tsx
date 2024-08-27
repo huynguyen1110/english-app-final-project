@@ -6,12 +6,13 @@ import {
     ScrollView,
     Image,
     SectionList,
-    ActivityIndicator
+    ActivityIndicator,
+    StatusBar
 } from "react-native";
 import {SegmentedButtons} from 'react-native-paper';
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import Slider from '@react-native-community/slider';
-import {Block, Text, Toast} from "galio-framework";
+import {Block, Text, Toast as ToastGalio} from "galio-framework";
 // @ts-ignore
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 // @ts-ignore
@@ -19,7 +20,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 // @ts-ignore
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation} from "@react-navigation/native";
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import Modal from 'react-native-modal';
 import {useSelector} from "react-redux";
 import {RootState} from "../../../utils/Store";
@@ -30,6 +31,9 @@ import {Audio} from 'expo-av';
 import {Modalize} from "react-native-modalize";
 import {askChatGpt} from "../../../services/GptService";
 import {getDefinitionInVietnamesePrompt} from "../../../utils/GptPrompts";
+import {decodeJwtToken} from "../../../services/AuthenticationService";
+import {addNewsToFavoriteService} from "../../../services/FavoriteService";
+import Toast from 'react-native-toast-message';
 
 const NewsDetailScreen = () => {
 
@@ -193,6 +197,46 @@ const NewsDetailScreen = () => {
         }
     }
 
+    // function handle add news to favorite
+    const handleAddNewsToFavoriteBtn = async () => {
+        const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
+        // const token = getJwtToken();
+        const decodedToken = decodeJwtToken(testToken);
+
+        const userEmail = decodedToken?.sub;
+        const newsId = newsData.newsId;
+
+        try {
+            const response: any = await addNewsToFavoriteService(userEmail, newsId);
+            const {data} = response;
+
+            if (data) {
+                console.log(123123123123)
+                Toast.show({
+                    type: 'success',
+                    text1: 'Success',
+                    text2: 'News added to favorites successfully 👌',
+                    position: 'bottom',
+                    visibilityTime: 3000,
+                    text1Style: { fontSize: 20 },
+                    text2Style: { fontSize: 16 },
+                });
+            }
+        } catch (e) {
+            console.log("Show error toast"); // Debug log
+            console.error("err while adding news to favorite", e);
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Failed to add news to favorites 😞',
+                position: 'bottom',
+                visibilityTime: 3000,
+                text1Style: { fontSize: 20 },
+                text2Style: { fontSize: 16 },
+            });
+        }
+    }
+
     const fetchChatGptResponse = async () => {
         setChatGptResponse("");
         if (segmentButtonValue === "ChatGPT") {
@@ -288,7 +332,8 @@ const NewsDetailScreen = () => {
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
-            <Toast isShow={isShowToast} positionIndicator="top" color="warning"> No audio found </Toast>
+            <StatusBar hidden={true}/>
+            <ToastGalio isShow={isShowToast} positionIndicator="top" color="warning"> No audio found </ToastGalio>
             {/* header area */}
             <Block style={[GlobalStyles.main_container]} flexDirection="row" justifyContent="space-between"
                    alignItems="center">
@@ -298,7 +343,7 @@ const NewsDetailScreen = () => {
 
                 <Block flexDirection="row" justifyContent="space-between"
                        alignItems="center">
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={handleAddNewsToFavoriteBtn}>
                         <Text size={20}> <FontAwesome name="heart-o" size={24}/> </Text>
                     </TouchableOpacity>
                     <Block width={8}></Block>
@@ -464,24 +509,24 @@ const NewsDetailScreen = () => {
                                 {englishMeaning.length > 0 ? (
                                     <SectionList
                                         sections={englishMeaning}
-                                        renderItem={({ item, section: { partOfSpeech } }) => (
+                                        renderItem={({item, section: {partOfSpeech}}) => (
                                             <View>
                                                 <Block row justifyContent="space-between" alignItems="center">
                                                     <Block width={300}><Text size={16}>- {item}</Text></Block>
 
                                                     <TouchableOpacity style={{padding: 10}}
-                                                    onPress={() => {
-                                                        // @ts-ignore
-                                                        const saveWordData = {
-                                                            // @ts-ignore
-                                                            word: translateWord,
-                                                            partOfSpeech: partOfSpeech,
-                                                            definition: item,
-                                                            example: null
-                                                        }
-                                                        // @ts-ignore
-                                                        navigation.navigate("SaveNewWordScreen", saveWordData)
-                                                    }}
+                                                                      onPress={() => {
+                                                                          // @ts-ignore
+                                                                          const saveWordData = {
+                                                                              // @ts-ignore
+                                                                              word: translateWord,
+                                                                              partOfSpeech: partOfSpeech,
+                                                                              definition: item,
+                                                                              example: null
+                                                                          }
+                                                                          // @ts-ignore
+                                                                          navigation.navigate("SaveNewWordScreen", saveWordData)
+                                                                      }}
                                                     >
                                                         <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
                                                     </TouchableOpacity>
@@ -518,7 +563,7 @@ const NewsDetailScreen = () => {
                                 {vietnameseMeaning.length > 0 ? (
                                     <SectionList
                                         sections={vietnameseMeaning}
-                                        renderItem={({ item, section: { partOfSpeech } }) => (
+                                        renderItem={({item, section: {partOfSpeech}}) => (
                                             <View>
                                                 <Block row justifyContent="space-between" alignItems="center">
                                                     <Block width={300}><Text size={16}>- {item}</Text></Block>
@@ -583,6 +628,7 @@ const NewsDetailScreen = () => {
                 </View>
             </Modalize>
             {/* dictionary modal */}
+            <Toast />
         </SafeAreaView>
     );
 }
@@ -631,7 +677,7 @@ const styles = StyleSheet.create({
     textContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-    },
+    }
 });
 
 export default NewsDetailScreen;

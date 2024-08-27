@@ -1,10 +1,11 @@
 import axios from "axios";
 import {SERPSER_API_KEY} from "../utils/constant";
+import {SERPER_DEV_API} from "../utils/API";
 
 export const getImageResult = async (keyWord: string) => {
     const options = {
         method: 'POST',
-        url: 'https://google.serper.dev/images',
+        url: SERPER_DEV_API.concat("/images"),
         headers: {
             'X-API-KEY': SERPSER_API_KEY,
             'Content-Type': 'application/json'

@@ -4,7 +4,7 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    LogBox, StyleSheet, Image, Pressable, Alert
+    LogBox, StyleSheet, Image, Alert, StatusBar
 } from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Block, Text} from "galio-framework";
@@ -32,6 +32,7 @@ import {getImageResult} from "../../../services/SerperService";
 import * as ImagePicker from 'expo-image-picker';
 import {addWordToPackage, createPackageService, createWord, getPackageService} from "../../../services/VocabService";
 import {decodeJwtToken} from "../../../services/AuthenticationService";
+import Toast from 'react-native-toast-message';
 
 const SaveNewWordScreen = () => {
     // ignore warning
@@ -185,38 +186,55 @@ const SaveNewWordScreen = () => {
                 const addWordResponse = await addWordToPackage(data.wordId, selectedFoder.id);
 
                 if (addWordResponse) {
-                    Alert.alert(
-                        "Thành công",
-                        "Lưu từ vựng thành công!",
-                        [{text: "OK", onPress: () => console.log("User pressed OK")}]
-                    );
+                    Toast.show({
+                        type: 'success',
+                        text1: 'Success',
+                        text2: 'Saved word successfully 👌',
+                        position: 'bottom',
+                        visibilityTime: 3000,
+                        text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
+                        text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
+                    });
+
                 } else {
                     // Thông báo khi thêm từ vào package thất bại
-                    Alert.alert(
-                        "Thất bại",
-                        "Lưu từ vào package thất bại.",
-                        [{text: "OK", onPress: () => console.log("User pressed OK")}]
-                    );
+                    Toast.show({
+                        type: 'error',
+                        text1: 'Error',
+                        text2: 'Failed to save word 😞',
+                        position: 'bottom',
+                        visibilityTime: 3000,
+                        text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
+                        text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
+                    });
+
                 }
             } else {
                 // Thông báo khi tạo từ thất bại
-                Alert.alert(
-                    "Thất bại",
-                    "Tạo từ vựng thất bại.",
-                    [{text: "OK", onPress: () => console.log("User pressed OK")}]
-                );
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: 'Failed to save word 😞',
+                    position: 'bottom',
+                    visibilityTime: 3000,
+                    text1Style: {fontSize: 20},
+                    text2Style: {fontSize: 16},
+                });
             }
         } catch (error) {
             console.error("Error while creating word:", error);
             // Thông báo khi có lỗi xảy ra
-            Alert.alert(
-                "Lỗi",
-                "Có lỗi xảy ra khi lưu từ vựng.",
-                [{text: "OK", onPress: () => console.log("User pressed OK")}]
-            );
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: 'Failed to save word successfully 😞',
+                position: 'bottom',
+                visibilityTime: 3000,
+                text1Style: {fontSize: 20},
+                text2Style: {fontSize: 16},
+            });
         }
     };
-
 
     // handle select folder
     const handleSelectFolder = (folderId: number) => {
@@ -311,6 +329,7 @@ const SaveNewWordScreen = () => {
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
+            <StatusBar hidden={true}/>
             <View>
                 <Block style={[GlobalStyles.main_container]} flexDirection="row" height={50}
                        justifyContent="space-between"
@@ -556,7 +575,7 @@ const SaveNewWordScreen = () => {
                 </View>
             </Modal>
             {/* create package modal section */}
-
+            <Toast/>
         </SafeAreaView>
     );
 }
