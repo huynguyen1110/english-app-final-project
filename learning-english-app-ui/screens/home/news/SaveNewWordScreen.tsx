@@ -207,7 +207,6 @@ const SaveNewWordScreen = () => {
                         text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
                         text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
                     });
-
                 }
             } else {
                 // Thông báo khi tạo từ thất bại
@@ -227,7 +226,7 @@ const SaveNewWordScreen = () => {
             Toast.show({
                 type: 'error',
                 text1: 'Error',
-                text2: 'Failed to save word successfully 😞',
+                text2: 'Failed to save word 😞',
                 position: 'bottom',
                 visibilityTime: 3000,
                 text1Style: {fontSize: 20},

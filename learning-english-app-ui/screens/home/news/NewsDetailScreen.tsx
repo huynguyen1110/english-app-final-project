@@ -31,9 +31,10 @@ import {Audio} from 'expo-av';
 import {Modalize} from "react-native-modalize";
 import {askChatGpt} from "../../../services/GptService";
 import {getDefinitionInVietnamesePrompt} from "../../../utils/GptPrompts";
-import {decodeJwtToken} from "../../../services/AuthenticationService";
+import {decodeJwtToken, getJwtToken} from "../../../services/AuthenticationService";
 import {addNewsToFavoriteService} from "../../../services/FavoriteService";
 import Toast from 'react-native-toast-message';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const NewsDetailScreen = () => {
 
@@ -200,39 +201,39 @@ const NewsDetailScreen = () => {
     // function handle add news to favorite
     const handleAddNewsToFavoriteBtn = async () => {
         const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
-        // const token = getJwtToken();
-        const decodedToken = decodeJwtToken(testToken);
+        const token = await getJwtToken();
+        const decodedToken = decodeJwtToken(token);
 
         const userEmail = decodedToken?.sub;
         const newsId = newsData.newsId;
 
+        // const testEmail = "huytest23@gmail.com";
         try {
             const response: any = await addNewsToFavoriteService(userEmail, newsId);
             const {data} = response;
 
             if (data) {
-                console.log(123123123123)
                 Toast.show({
                     type: 'success',
                     text1: 'Success',
                     text2: 'News added to favorites successfully 👌',
                     position: 'bottom',
                     visibilityTime: 3000,
-                    text1Style: { fontSize: 20 },
-                    text2Style: { fontSize: 16 },
+                    text1Style: {fontSize: 18},
+                    text2Style: {fontSize: 16},
                 });
             }
-        } catch (e) {
-            console.log("Show error toast"); // Debug log
-            console.error("err while adding news to favorite", e);
+        } catch (e: any) {
+            console.error("err while adding news to favorite:", e.response.data);
+            const messageErr: string = e.response.data;
             Toast.show({
                 type: 'error',
-                text1: 'Error',
-                text2: 'Failed to add news to favorites 😞',
+                text1: 'Failed to add news to favorites 😞',
+                text2: `${messageErr}`,
                 position: 'bottom',
                 visibilityTime: 3000,
-                text1Style: { fontSize: 20 },
-                text2Style: { fontSize: 16 },
+                text1Style: {fontSize: 18},
+                text2Style: {fontSize: 16},
             });
         }
     }
@@ -628,7 +629,7 @@ const NewsDetailScreen = () => {
                 </View>
             </Modalize>
             {/* dictionary modal */}
-            <Toast />
+            <Toast/>
         </SafeAreaView>
     );
 }

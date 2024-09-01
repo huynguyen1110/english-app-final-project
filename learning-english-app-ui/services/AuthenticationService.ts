@@ -1,6 +1,6 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 import {BASE_URL, LOGIN_URI, REGISTER_URI} from "../utils/API";
 import RegisterDto from "../dto/authdto/registerDto";
 import LoginDto from "../dto/authdto/loginDto";
@@ -25,7 +25,7 @@ export const register = createAsyncThunk(
 
             return data;
         } catch (err: any) {
-            console.log(err)
+            console.log(err.response.data);
             return null;
         }
     }
@@ -68,8 +68,7 @@ export const addToken = createAsyncThunk(
 export const decodeJwtToken = (token: any) => {
     try {
         // @ts-ignore
-        const decoded = jwtDecode(token);
-        return decoded;
+        return jwtDecode(token);
     } catch (error) {
         console.error('Failed to decode JWT token:', error);
         return null;
@@ -78,5 +77,5 @@ export const decodeJwtToken = (token: any) => {
 
 // get jwt token
 export const getJwtToken = async () => {
-    return  await AsyncStorage.getItem('jwt');
+    return await AsyncStorage.getItem('jwt');
 }

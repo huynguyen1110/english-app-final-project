@@ -77,4 +77,4 @@ export const authReducer = createSlice({
 
 export const {logout, resetAllInitialState} = authReducer.actions;
 
-    export default authReducer.reducer;
+export default authReducer.reducer;

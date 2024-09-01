@@ -5,7 +5,7 @@ import {
     SafeAreaView,
     StatusBar,
     StyleSheet,
-    TouchableOpacity
+    TouchableOpacity, View
 } from "react-native";
 import {GlobalStyles} from "../../styles/GlobalStyles";
 import {
@@ -237,8 +237,18 @@ const LoginScreen = () => {
                                                 <Text italic={true} bold={true} size={14}>Fotgot password?</Text>
                                             </TouchableOpacity>
                                         </Block>
-                                        <Block>
 
+                                        <Block height={12}></Block>
+
+                                        <Block row alignItems="center" justifyContent="center">
+                                            <Text size={14}>Don't have an acount yet? </Text>
+                                            <View>
+                                                <TouchableOpacity onPress={() => {
+                                                    navigation.navigate('RegisterScreen');
+                                                }}>
+                                                    <Text bold size={14} color={theme.COLORS?.FACEBOOK}>Register</Text>
+                                                </TouchableOpacity>
+                                            </View>
                                         </Block>
                                         <Block middle>
                                             <Button color="primary" style={styles.createButton}

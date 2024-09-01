@@ -21,7 +21,7 @@ import {
     Input,
     // @ts-ignore
     Checkbox,
-    Toast
+    Toast as ToastGalio
 } from 'galio-framework';
 import Images from "../../utils/Images";
 import {useFormik} from "formik";
@@ -33,7 +33,9 @@ import RegisterDto from "../../dto/authdto/registerDto";
 import {RootState} from "../../utils/Store";
 import {LogBox} from 'react-native';
 import {authReducer} from "../../features/authentication/AuthenticationSlice";
-import setSurfaceProps = AppRegistry.setSurfaceProps;
+import Toast from "react-native-toast-message";
+import navigation from "../../utils/Navigation";
+import {useNavigation} from "@react-navigation/native";
 
 const {width, height} = Dimensions.get("screen");
 
@@ -41,19 +43,19 @@ const RegisterScreen = () => {
 
     LogBox.ignoreAllLogs();
 
+    const navigation = useNavigation();
+
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);
 
     const [retypePasswordVisible, setRetypePasswordVisible] = useState<boolean>(false);
-
-    const [isShowRegisterErr, setShowRegisterErr] = useState<boolean>(false);
-
-    const [isShowRegistersucess, setShowRegistersucess] = useState<boolean>(false);
 
     const [passwordStrength, setPasswordStrength] = useState('');
 
     const registerState = useSelector((state: RootState) => state.authentication.registerSuccess);
 
     const isSubmitClickedState = useSelector((state: RootState) => state.authentication.isSubmitting);
+
+    const [isSubmitClicked, setIsSubmitClicked] = useState<boolean>(false);
 
     const dispatch = useDispatch();
 
@@ -85,8 +87,9 @@ const RegisterScreen = () => {
         },
         validationSchema: signupSchema,
         onSubmit: (data: RegisterDto) => {
-            dispatch(authReducer.actions.setStateIsSubmiting(false));
-            dispatch(authReducer.actions.setStateIsSubmiting(true));
+            // dispatch(authReducer.actions.setStateIsSubmiting(false));
+            // dispatch(authReducer.actions.setStateIsSubmiting(true));
+            setIsSubmitClicked(true);
             // @ts-ignore
             dispatch(register(data))
         },
@@ -111,26 +114,34 @@ const RegisterScreen = () => {
     };
 
     useEffect(() => {
-        if (isSubmitClickedState) {
-            let timer: any;
+        console.log(isSubmitClicked)
+        if (isSubmitClicked) {
             if (registerState) {
                 dispatch(authReducer.actions.setErrorMessage("Register successfully"));
-                setShowRegistersucess(true);
-                setShowRegisterErr(false);
-                timer = setTimeout(() => {
-                    setShowRegistersucess(false);
-                }, 3000);
+                Toast.show({
+                    type: 'success',
+                    text1: 'Success',
+                    text2: 'Register successfully!',
+                    position: 'top',
+                    visibilityTime: 3000,
+                    text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
+                    text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
+                });
             } else {
                 dispatch(authReducer.actions.setErrorMessage("This email already existed"));
-                setShowRegistersucess(false);
-                setShowRegisterErr(true);
-                timer = setTimeout(() => {
-                    setShowRegisterErr(false);
-                }, 3000);
+                Toast.show({
+                    type: 'error',
+                    text1: 'Failed to register 😫',
+                    text2: 'This email already existed!',
+                    position: 'top',
+                    visibilityTime: 3000,
+                    text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
+                    text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
+                });
             }
-            return () => clearTimeout(timer);
         }
-    }, [registerState, isSubmitClickedState]);
+    }, [registerState, isSubmitClicked]);
+
 
     return (
         <SafeAreaView style={
@@ -163,10 +174,6 @@ const RegisterScreen = () => {
                                             <Text style={styles.socialTextButtons}>FACEBOOK</Text>
                                         </Block>
                                     </Button>
-                                    <Toast isShow={isShowRegisterErr} positionIndicator="top" round={true}
-                                           color="warning"> Register failed, this email already taken  </Toast>
-                                    <Toast isShow={isShowRegistersucess} round={true} positionIndicator="top"
-                                           color="success"> Register successfully </Toast>
                                     <Button style={styles.socialButtons}>
                                         <Block row>
                                             <Icon
@@ -277,7 +284,8 @@ const RegisterScreen = () => {
                                                 value={values.retypePassword}
                                                 onChangeText={handleChange('retypePassword')}
                                             />
-                                            {errors.retypePassword && <Text size={12} color={'red'}>{errors.retypePassword}</Text>}
+                                            {errors.retypePassword &&
+                                                <Text size={12} color={'red'}>{errors.retypePassword}</Text>}
                                         </Block>
                                         <Block row width={width * 0.75}>
                                             <Checkbox
@@ -300,7 +308,7 @@ const RegisterScreen = () => {
                                         </Block>
                                         <Block middle>
                                             <Button color="primary" style={styles.createButton}
-                                                    // @ts-ignore
+                                                // @ts-ignore
                                                     onPress={handleSubmit}>
                                                 <Text bold size={14} color={theme.COLORS?.WHITE}>
                                                     CREATE ACCOUNT
@@ -312,6 +320,7 @@ const RegisterScreen = () => {
                             </Block>
                         </Block>
                     </Block>
+                    <Toast/>
                 </ImageBackground>
             </Block>
         </SafeAreaView>
