@@ -15,5 +15,5 @@ public interface IPackagesService {
 
     void deletePackageById(Long id) throws Exception;
 
-    Page<Packages> getAllPackages(int page, int size, String sortField, Boolean sortDirection, String createBy);
+    Page<Packages> getAllPackages(int page, int size, String sortField, Boolean sortDirection, String createBy, Boolean isPublished);
 }

@@ -22,3 +22,8 @@ jwt:
 news:
   api:
     key: ec1836e1fae04b4bbf697c58db9b49e9
+
+cloudinary:
+  key: 697834762542465
+  api-secret: xihSuIAdZiqhrmXE1yEti_3lzNE
+  cloud-name: dw4zakhwr

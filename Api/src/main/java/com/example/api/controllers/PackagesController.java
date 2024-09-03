@@ -52,9 +52,10 @@ public class PackagesController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "name") String sortBy,
             @RequestParam(required = false) Boolean direction,
-            @RequestParam(required = false) String createBy) {
+            @RequestParam(required = false) String createBy,
+            @RequestParam(defaultValue = "false") Boolean isPublished) {
         try {
-            var response = packagesService.getAllPackages(page - 1, size, sortBy, direction, createBy);
+            var response = packagesService.getAllPackages(page - 1, size, sortBy, direction, createBy, isPublished);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

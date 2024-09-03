@@ -36,6 +36,8 @@ public class Packages {
 
     private Boolean isPublished;
 
+    private String image;
+
     @ManyToOne
     @JoinColumn(name = "topic_id", referencedColumnName = "id")
     private Topic topic;
