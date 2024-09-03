@@ -35,3 +35,7 @@ export const FAVORITE_ENPOINT = {
     ADD_FAVORITE_NEWS: "/api/v1/favorite/add-news",
     GET_FAVORITE_NEWS: "/api/v1/favorite/get-news",
 }
+
+export const FILE_ENPOINT = {
+    UPLOAD_IMAGE: "/api/v1/files/upload/image",
+}

@@ -33,6 +33,7 @@ import * as ImagePicker from 'expo-image-picker';
 import {addWordToPackage, createPackageService, createWord, getPackageService} from "../../../services/VocabService";
 import {decodeJwtToken} from "../../../services/AuthenticationService";
 import Toast from 'react-native-toast-message';
+import {updaloadImage} from "../../../services/FileService";
 
 const SaveNewWordScreen = () => {
     // ignore warning
@@ -171,12 +172,25 @@ const SaveNewWordScreen = () => {
     // handle save word to db
     const handleSaveWordButton = async () => {
         try {
+
+            let uploadedImageUrl = selectedImage;
+
+            if (selectedImage != null && selectedImage.startsWith('file:///')) {
+                try {
+                    const response: any = await updaloadImage(selectedImage, "example-image");
+                    const {data} = response;
+                    uploadedImageUrl = data.secure_url;
+                } catch (e) {
+                    console.log(e)
+                }
+            }
+
             const wordDto = {
                 name: wordInput,
                 meaning: definitionInput,
                 description: "",
                 example: exampleInput,
-                image: selectedImage,
+                image: uploadedImageUrl,
                 wordType: partOfSpeechInput,
             };
 
@@ -221,7 +235,7 @@ const SaveNewWordScreen = () => {
                 });
             }
         } catch (error) {
-            console.error("Error while creating word:", error);
+            console.error("Error while creating word:", error, "id package is null");
             // Thông báo khi có lỗi xảy ra
             Toast.show({
                 type: 'error',

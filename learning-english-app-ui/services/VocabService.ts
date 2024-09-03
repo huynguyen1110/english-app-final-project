@@ -52,6 +52,9 @@ export const getPackageService = async (params: any) => {
 
 // create word service
 export const createWord = async (wordDto: any) => {
+
+    console.log(wordDto)
+
     const options = {
         method: 'POST',
         url: BASE_URL.concat(WORD_ENPOINT.CREATE_WORD),
@@ -70,8 +73,8 @@ export const createWord = async (wordDto: any) => {
 
     try {
         return await axios.request(options);
-    } catch (error) {
-        console.error(error);
+    } catch (error: any) {
+        console.error("err while creating word",  error.response);
     }
 }
 
