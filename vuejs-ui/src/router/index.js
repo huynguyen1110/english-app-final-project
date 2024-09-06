@@ -7,7 +7,17 @@ const router = createRouter({
         {
             path: '/',
             component: AppLayout,
-            children: [
+            children: [ 
+                {
+                    path: '/v1/auth/register',
+                    name: 'register',
+                    component: () => import('@/pages/auth/Register.vue')
+                },
+                {
+                    path: '/v1/auth/login',
+                    name: 'login',
+                    component: () => import('@/pages/auth/Login.vue')
+                },
                 {
                     path: '/',
                     name: 'dashboard',
@@ -119,7 +129,7 @@ const router = createRouter({
 
         {
             path: '/auth/login',
-            name: 'login',
+            name: 'login1',
             component: () => import('@/views/pages/auth/Login.vue')
         },
         {
