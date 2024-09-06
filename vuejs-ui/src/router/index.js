@@ -1,12 +1,14 @@
 import AppLayout from '@/layout/AppLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import MainAdmin from '@/pages/MainAdmin.vue';
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
             path: '/',
-            component: AppLayout,
+            // component: AppLayout,
+            component: MainAdmin,
             children: [
                 {
                     path: '/v1/auth/register',
