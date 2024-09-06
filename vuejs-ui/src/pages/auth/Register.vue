@@ -2,9 +2,17 @@
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
 import { reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { passwordValidator, validateEmail, validateRequired } from '@/service/auth/AuthService';
+import {
+    passwordValidator,
+    registerService,
+    validateCheckPassowrd,
+    validateEmail,
+    validateRequired
+} from '@/service/auth/AuthService';
+import { useToast } from 'primevue/usetoast';
 
 const router = useRouter();
+const toast = useToast();
 
 const checked = ref(false);
 
@@ -16,19 +24,20 @@ const navigateToLogin = () => {
 const errMessage = ref({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    checkPassword: ''
 });
 
 // form data
 const form = reactive({
     username: '',
     email: '',
-    password: ''
+    password: '',
+    checkPassword: ''
 });
 
 // watch the changes of email field to validate
 watch(() => form.email, (newValue) => {
-    console.log(form);
     errMessage.value.email = validateEmail(newValue);
 });
 
@@ -40,16 +49,36 @@ watch(() => form.username, (newValue) => {
     errMessage.value.username = validateRequired(newValue);
 });
 
-const handleSubmit = () => {
+watch(() => form.checkPassword, (newValue) => {
+    errMessage.value.checkPassword = validateCheckPassowrd(form.password, newValue);
+});
+
+const handleSubmit = async () => {
     errMessage.email = validateEmail(form.email);
     errMessage.password = passwordValidator(form.password);
     errMessage.username = validateRequired(form.username);
 
     // Check if there are no errors before proceeding
     if (!errMessage.email && !errMessage.password && !errMessage.username) {
-        alert('Form submitted successfully!');
-        console.log(form);
-        // Perform login or other actions here...
+        let registerData = {
+            name: form.username,
+            password: form.password,
+            email: form.email,
+            phoneNumber: ''
+        };
+        try {
+            const response = await registerService(registerData);
+            const { data } = response;
+            if (data) {
+                toast.add({ severity: 'success', summary: 'Successful', detail: 'Register successfully', life: 3000 });
+            } else {
+                toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to register', life: 3000 });
+            }
+        } catch (error) {
+            errMessage.value.email = error.message;
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to register', life: 3000 });
+            console.error('err while fetching register api', error.message);
+        }
     } else {
         console.log('Form contains errors:', errMessage);
     }
@@ -59,7 +88,7 @@ const handleSubmit = () => {
 <template>
     <FloatingConfigurator />
     <div
-        class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[100vw] overflow-hidden">
+        class="bg-surface-50 dark:bg-surface-950 flex items-center justify-center min-h-screen min-w-[60vw] overflow-hidden">
         <div class="flex flex-col items-center justify-center">
             <div
                 style="border-radius: 56px; padding: 0.3rem; background: linear-gradient(180deg, var(--primary-color) 10%, rgba(33, 150, 243, 0) 30%)">
@@ -92,7 +121,7 @@ const handleSubmit = () => {
                     </div>
 
                     <form @submit.prevent="handleSubmit">
-                        <div class="mb-8">
+                        <div class="mb-5">
                             <label for="username"
                                    class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">User
                                 name</label>
@@ -104,9 +133,9 @@ const handleSubmit = () => {
                             </div>
                         </div>
 
-                        <div class="mb-8">
+                        <div class="mb-5">
                             <label for="email1"
-                                   class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-4">Email</label>
+                                   class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
                             <InputText id="email1" type="text" placeholder="Email address"
                                        class="w-full md:w-[30rem] mb-2" v-model="form.email" />
                             <div>
@@ -115,7 +144,7 @@ const handleSubmit = () => {
                             </div>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-5">
                             <label for="password1"
                                    class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
                             <Password id="password1" v-model="form.password" placeholder="Password" :toggleMask="true"
@@ -123,6 +152,19 @@ const handleSubmit = () => {
                             <div>
                                 <span class="font-bold text-amber-700"
                                       v-if="errMessage.password"> {{ errMessage.password }} </span>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="checkPassword"
+                                   class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Confirm
+                                password</label>
+                            <Password id="checkPassword" v-model="form.checkPassword" placeholder="Retype password"
+                                      :toggleMask="true"
+                                      class="mb-2" fluid :feedback="false"></Password>
+                            <div>
+                                <span class="font-bold text-amber-700"
+                                      v-if="errMessage.checkPassword"> {{ errMessage.checkPassword }} </span>
                             </div>
                         </div>
 

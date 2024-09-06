@@ -7,7 +7,7 @@ const router = createRouter({
         {
             path: '/',
             component: AppLayout,
-            children: [ 
+            children: [
                 {
                     path: '/v1/auth/register',
                     name: 'register',

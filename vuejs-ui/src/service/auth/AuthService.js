@@ -29,6 +29,11 @@ export const validateEmail = (value) => {
     return emailPattern.test(value) ? '' : 'Invalid Email Address';
 };
 
+// validate check password
+export const validateCheckPassowrd = (password, checkedPassword) => {
+    return checkedPassword.match(password) ? '' : 'passwords do not match';
+}
+
 // fetch register api
 export const registerService = async (registerDto) => {
     const options = {
@@ -40,6 +45,23 @@ export const registerService = async (registerDto) => {
     try {
         return await axios.request(options);
     } catch (error) {
-        console.error('err while upload image', error);
+        console.error('err while register', error);
+        throw new Error(error.response?.data || 'An error occurred while registering');
+    }
+};
+
+// fetch login api
+export const loginService = async (loginDto) => {
+    const options = {
+        method: 'POST',
+        url: BASE_URL.concat(AUTHENTICATION_ENPOINT.LOGIN),
+        data: loginDto,
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while login', error);
+        throw new Error(error.response?.data || 'An error occurred while logging in');
     }
 };
