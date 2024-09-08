@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { jwtDecode } from "jwt-decode";
 import { AUTHENTICATION_ENPOINT, BASE_URL } from '@/enpoint';
 
 // validate passoword
@@ -17,11 +18,11 @@ export const passwordValidator = (value) => {
     if (!specialCharValid) return 'Password must contain at least one special character';
 
     return ''; // Return true if all conditions are met
-}
+};
 
 export const validateRequired = (value) => {
     return value && value.trim() !== '' ? '' : 'This field is required';
-}
+};
 
 // validate email
 export const validateEmail = (value) => {
@@ -32,14 +33,14 @@ export const validateEmail = (value) => {
 // validate check password
 export const validateCheckPassowrd = (password, checkedPassword) => {
     return checkedPassword.match(password) ? '' : 'passwords do not match';
-}
+};
 
 // fetch register api
 export const registerService = async (registerDto) => {
     const options = {
         method: 'POST',
         url: BASE_URL.concat(AUTHENTICATION_ENPOINT.REGISTER),
-        data: registerDto,
+        data: registerDto
     };
 
     try {
@@ -50,12 +51,18 @@ export const registerService = async (registerDto) => {
     }
 };
 
+//decode token
+export const decodeToken = (token) => {
+    return token != null ? jwtDecode(token) : null;
+};
+
+
 // fetch login api
 export const loginService = async (loginDto) => {
     const options = {
         method: 'POST',
         url: BASE_URL.concat(AUTHENTICATION_ENPOINT.LOGIN),
-        data: loginDto,
+        data: loginDto
     };
 
     try {

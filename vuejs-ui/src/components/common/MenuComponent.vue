@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 
 import MenuItemComponent from './MenuItemComponent.vue';
+import { SUPER_ADMIN_PERMISSION } from '@/Constaints/Constaints';
 
 const model = ref([
     {
@@ -11,9 +12,9 @@ const model = ref([
         ]
     },
     {
-        label: 'User management',
+        label: SUPER_ADMIN_PERMISSION.USER_MANAGEMANT,
         items: [
-            { label: 'Dashboard', icon: 'pi pi-fw pi-users', to: '/' }
+            { label: SUPER_ADMIN_PERMISSION.USER_LIST, icon: 'pi pi-fw pi-users', to: '/' }
         ]
     },
     {
