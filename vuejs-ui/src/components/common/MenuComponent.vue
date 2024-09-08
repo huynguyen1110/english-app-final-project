@@ -14,7 +14,7 @@ const model = ref([
     {
         label: SUPER_ADMIN_PERMISSION.USER_MANAGEMANT,
         items: [
-            { label: SUPER_ADMIN_PERMISSION.USER_LIST, icon: 'pi pi-fw pi-users', to: '/' }
+            { label: SUPER_ADMIN_PERMISSION.USER_LIST, icon: 'pi pi-fw pi-users', to: '/v1/super-admin/user-management' }
         ]
     },
     {

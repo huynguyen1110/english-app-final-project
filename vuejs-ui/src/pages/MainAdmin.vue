@@ -59,7 +59,7 @@ function isOutsideClicked(event) {
         <side-bar-compoent></side-bar-compoent>
         <div class="layout-main-container">
             <div class="layout-main">
-<!--                <router-view></router-view>-->
+                <router-view></router-view>
             </div>
             <footer-component></footer-component>
         </div>

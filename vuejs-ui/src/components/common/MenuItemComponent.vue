@@ -3,7 +3,7 @@ import { useLayout } from '@/layout/composables/layout';
 import { onBeforeMount, onMounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { decodeToken } from '@/service/auth/AuthService';
-import { SUPER_ADMIN_PERMISSION } from '@/Constaints/Constaints';
+import { SUPER_ADMIN_PERMISSION, USER_ROLE } from '@/Constaints/Constaints';
 
 const route = useRoute();
 
@@ -75,8 +75,9 @@ const checkIsAvailableForAdmin = (label) => {
     if (token) {
         const decodedToken = decodeToken(token);
 
-        if (decodedToken.role && Array.isArray(decodedToken.role) && decodedToken.role.includes('USER')) {
+        if (decodedToken.role && Array.isArray(decodedToken.role) && decodedToken.role.includes(USER_ROLE.ADMIN)) {
             // Trả về true nếu không tìm thấy label trong bất kỳ value nào
+            console.log("true")
             return Object.entries(SUPER_ADMIN_PERMISSION).every(([key, value]) => !value.includes(label));
         } else {
             return true;
