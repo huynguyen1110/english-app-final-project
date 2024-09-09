@@ -46,4 +46,24 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }
     }
+
+    @PutMapping("/update-user")
+    public ResponseEntity<?> updateUser(@RequestBody RegisterDto updateUserDto, @RequestParam String userEmail) {
+        try {
+            var respone = userService.updateUserByEmail(updateUserDto, userEmail);
+            return ResponseEntity.ok(respone);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
+
+    @PutMapping("/delete-user")
+    public ResponseEntity<?> deleteUserByEmail(@RequestParam String userEmail) {
+        try {
+            userService.deleteUserByEmail(userEmail);
+            return ResponseEntity.ok("Delete user successfully");
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
 }

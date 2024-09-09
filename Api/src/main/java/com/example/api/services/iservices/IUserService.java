@@ -14,4 +14,8 @@ public interface IUserService {
     BearerToken authenticate(LoginDto loginDto) throws Exception;
 
     Users findUserByEmail(String userEmail) throws Exception;
+
+    Users updateUserByEmail(RegisterDto updateUserDto, String userEmail) throws Exception;
+
+    void deleteUserByEmail(String userEmail) throws Exception;
 }
