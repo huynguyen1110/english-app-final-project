@@ -2,5 +2,6 @@ package com.example.api.entities.enums;
 
 public enum UserRole {
     USER,
-    ADMIN
+    ADMIN,
+    SUPER_ADMIN
 }
