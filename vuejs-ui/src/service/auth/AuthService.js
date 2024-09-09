@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 import { AUTHENTICATION_ENPOINT, BASE_URL } from '@/enpoint';
 
 // validate passoword
@@ -32,7 +32,31 @@ export const validateEmail = (value) => {
 
 // validate check password
 export const validateCheckPassowrd = (password, checkedPassword) => {
-    return checkedPassword.match(password) ? '' : 'passwords do not match';
+    // Kiểm tra xem cả password và checkedPassword đều không rỗng
+    if (!password || !checkedPassword) {
+        return 'Password and confirm password cannot be empty';
+    }
+
+    // Kiểm tra xem password và checkedPassword có khớp nhau không
+    return password === checkedPassword ? '' : 'Passwords do not match';
+};
+
+// validate phone number
+export const validatePhoneNumber = (value) => {
+    if (value) {
+        const cleaned = value.replace(/[\s-]/g, '');
+
+        // Kiểm tra nếu số điện thoại có 10 hoặc 11 chữ số
+        const phoneRegex = /^(0[3|5|7|8|9])[0-9]{8}$/;
+
+        if (phoneRegex.test(cleaned)) {
+            return '';
+        } else {
+            return 'Invalid phone number';
+        }
+    } else {
+        return 'Phone number is required'
+    }
 };
 
 // fetch register api
