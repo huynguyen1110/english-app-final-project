@@ -5,6 +5,7 @@ import com.example.api.dtos.authentication.BearerToken;
 import com.example.api.dtos.authentication.LoginDto;
 import com.example.api.dtos.authentication.RegisterDto;
 import com.example.api.entities.Favorites;
+import com.example.api.entities.News;
 import com.example.api.entities.Users;
 import com.example.api.entities.enums.UserRole;
 import com.example.api.entities.enums.UserStatus;
@@ -13,6 +14,10 @@ import com.example.api.repositories.UserRepository;
 import com.example.api.services.iservices.IUserService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,11 +25,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -149,5 +152,22 @@ public class UserService implements IUserService {
         user.setUserStatus(UserStatus.IS_DELETED);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
+    }
+
+    @Override
+    public Page<Users> getAllUser(int page, int size, String sortField, Boolean sortDirection) {
+        boolean isValidField = Arrays.stream(Users.class.getDeclaredFields())
+                .map(Field::getName)
+                .anyMatch(fieldName -> fieldName.equals(sortField));
+
+        if (!isValidField) {
+            throw new IllegalArgumentException("Invalid sortField: " + sortField);
+        }
+
+        // If sortDirection == true then sort in ascending order, if false then sort in descending order
+        Sort.Direction direction = (sortDirection != null && sortDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortField);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        return userRepository.getAllUser(pageable);
     }
 }

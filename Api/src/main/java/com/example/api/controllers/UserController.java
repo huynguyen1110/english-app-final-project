@@ -41,8 +41,21 @@ public class UserController {
     @GetMapping("/get-user")
     public ResponseEntity<?> authenticate(@RequestParam String userEmail) {
         try {
-            var respone = userService.findUserByEmail(userEmail);
-            return ResponseEntity.ok(respone);
+            var response = userService.findUserByEmail(userEmail);
+            return ResponseEntity.ok(response);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
+
+    @GetMapping("/get-all-users")
+    public ResponseEntity<?> getAllUsers(@RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "10") int size,
+                                         @RequestParam(defaultValue = "username") String sortField,
+                                         @RequestParam(required = false) Boolean sortDirection) {
+        try {
+            var response = userService.getAllUser(page - 1, size, sortField, sortDirection);
+            return ResponseEntity.ok(response);
         } catch (Exception erException) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }
@@ -51,8 +64,8 @@ public class UserController {
     @PutMapping("/update-user")
     public ResponseEntity<?> updateUser(@RequestBody RegisterDto updateUserDto, @RequestParam String userEmail) {
         try {
-            var respone = userService.updateUserByEmail(updateUserDto, userEmail);
-            return ResponseEntity.ok(respone);
+            var response = userService.updateUserByEmail(updateUserDto, userEmail);
+            return ResponseEntity.ok(response);
         } catch (Exception erException) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }
