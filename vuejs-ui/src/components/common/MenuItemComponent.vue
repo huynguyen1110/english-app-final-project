@@ -75,12 +75,10 @@ const checkIsAvailableForAdmin = (label) => {
     if (token) {
         const decodedToken = decodeToken(token);
 
-        if (decodedToken.role && Array.isArray(decodedToken.role) && decodedToken.role.includes(USER_ROLE.ADMIN)) {
-            // Trả về true nếu không tìm thấy label trong bất kỳ value nào
-            console.log("true")
-            return Object.entries(SUPER_ADMIN_PERMISSION).every(([key, value]) => !value.includes(label));
-        } else {
+        if (decodedToken.role && Array.isArray(decodedToken.role) && decodedToken.role.includes(USER_ROLE.SUPER_ADMIN)) {
             return true;
+        } else {
+            return Object.entries(SUPER_ADMIN_PERMISSION).every(([key, value]) => !value.includes(label));
         }
     }
 

@@ -4,11 +4,12 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import {
-    passwordValidator,
+    passwordValidator, registerService,
     validateCheckPassowrd,
     validateEmail,
     validatePhoneNumber
 } from '@/service/auth/AuthService';
+import { USER_ROLE } from '@/Constaints/Constaints';
 
 onMounted(() => {
     ProductService.getProducts().then((data) => (products.value = data));
@@ -26,15 +27,10 @@ const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 const submitted = ref(false);
-const statuses = ref([
-    { label: 'INSTOCK', value: 'instock' },
-    { label: 'LOWSTOCK', value: 'lowstock' },
-    { label: 'OUTOFSTOCK', value: 'outofstock' }
-]);
 
 const userStatuses = ref([
     { label: 'ACTIVE', value: 'ACTIVE' },
-    { label: 'IS DELETE', value: 'IS_DELETE' }
+    { label: 'IS DELETE', value: 'IS_DELETED' }
 ]);
 
 function formatCurrency(value) {
@@ -73,10 +69,27 @@ function validateInput(data) {
     if (validateCheckPassowrd(data?.confirmPassword, data?.password) !== '') {
         isValid = false;
     }
-    if (!data?.userStatus) {
+    if (!data?.status) {
+        isValid = false;
+    }
+    if (data?.role?.length === 0) {
         isValid = false;
     }
     return isValid;
+}
+
+async function fetRegisterApi(registerDto) {
+    try {
+        const response = await registerService(registerDto);
+        const { data } = response;
+        console.log(data);
+        if (data) {
+            toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
+        }
+    } catch (e) {
+        console.error('123123', e.message);
+        toast.add({ severity: 'error', summary: 'Failed to create user', detail: e.message, life: 3000 });
+    }
 }
 
 function saveUser() {
@@ -89,7 +102,8 @@ function saveUser() {
         address: user?.value?.address?.trim(),
         password: user?.value?.password,
         confirmPassword: user?.value?.confirmPassword,
-        userStatus: user?.value?.status
+        status: user?.value?.status?.value,
+        roles: user?.value?.roles
     };
 
     if (validateInput(data)) {
@@ -98,12 +112,13 @@ function saveUser() {
             products.value[findIndexById(user.value.id)] = user.value;
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
         } else {
-            user.value.id = createId();
-            user.value.code = createId();
-            user.value.image = 'product-placeholder.svg';
-            user.value.inventoryStatus = user.value.inventoryStatus ? user.value.inventoryStatus.value : 'INSTOCK';
-            products.value.push(user.value);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
+            fetRegisterApi(data);
+            // user.value.id = createId();
+            // user.value.code = createId();
+            // user.value.image = 'product-placeholder.svg';
+            // user.value.inventoryStatus = user.value.inventoryStatus ? user.value.inventoryStatus.value : 'INSTOCK';
+            // products.value.push(user.value);
+            // toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
         }
 
         productDialog.value = false;
@@ -278,7 +293,7 @@ function getStatusLabel(status) {
                     <div class="col-span-6">
                         <label for="phoneNumber" class="block font-bold mb-3">Phone number</label>
                         <InputText id="phoneNumber" v-model="user.phoneNumber" fluid
-                                     :invalid="submitted && validatePhoneNumber(user.phoneNumber) !== ''" />
+                                   :invalid="submitted && validatePhoneNumber(user.phoneNumber) !== ''" />
                         <small v-if="submitted && validatePhoneNumber(user.phoneNumber) !== ''"
                                class="text-red-500">{{ validatePhoneNumber(user.phoneNumber) }}.</small>
                     </div>
@@ -303,7 +318,8 @@ function getStatusLabel(status) {
                               :toggleMask="true"
                               fluid :feedback="false"></Password>
                     <small v-if="submitted && validateCheckPassowrd(user.confirmPassword, user.password) !== ''"
-                           class="text-red-500">{{ validateCheckPassowrd(user.confirmPassword, user.password) }}.</small>
+                           class="text-red-500">{{ validateCheckPassowrd(user.confirmPassword, user.password)
+                        }}.</small>
                 </div>
                 <div>
                     <label for="userStatus" class="block font-bold mb-3">User Status</label>
@@ -312,6 +328,23 @@ function getStatusLabel(status) {
                     <small v-if="submitted && !user.status"
                            class="text-red-500">User status is required .</small>
                 </div>
+                <div class="font-semibold text-xl">User role</div>
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex items-center">
+                        <Checkbox id="checkOption1" name="option" :value="USER_ROLE.USER" v-model="user.roles" />
+                        <label for="checkOption1" class="ml-2">User</label>
+                    </div>
+                    <div class="flex items-center">
+                        <Checkbox id="checkOption2" name="option" :value="USER_ROLE.ADMIN" v-model="user.roles" />
+                        <label for="checkOption2" class="ml-2">Admin</label>
+                    </div>
+                    <div class="flex items-center">
+                        <Checkbox id="checkOption3" name="option" :value=USER_ROLE.SUPER_ADMIN
+                                  v-model="user.roles" />
+                        <label for="checkOption3" class="ml-2">Super admin</label>
+                    </div>
+                </div>
+                <small class="text-red-500" v-if="submitted && !user.roles">User role is required</small>
             </div>
 
             <template #footer>
