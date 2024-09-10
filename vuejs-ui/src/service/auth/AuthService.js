@@ -97,3 +97,19 @@ export const loginService = async (loginDto) => {
         throw new Error(error.response?.data || 'An error occurred while logging in');
     }
 };
+
+export const updateUserService = async (updateUserDto, userEmail) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(AUTHENTICATION_ENPOINT.UPDATE_USER)
+            .concat("?userEmail=" + userEmail),
+        data: updateUserDto
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while update user', error);
+        throw new Error(error.response?.data || 'An error occurred while update user');
+    }
+};

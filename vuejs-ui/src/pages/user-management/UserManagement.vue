@@ -4,7 +4,7 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import {
-    passwordValidator, registerService,
+    passwordValidator, registerService, updateUserService,
     validateCheckPassowrd,
     validateEmail,
     validatePhoneNumber
@@ -87,8 +87,20 @@ async function fetRegisterApi(registerDto) {
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
         }
     } catch (e) {
-        console.error('123123', e.message);
         toast.add({ severity: 'error', summary: 'Failed to create user', detail: e.message, life: 3000 });
+    }
+}
+
+async function fetchUpdateUserApi(updateUserDto) {
+    try {
+        const response = await updateUserService(updateUserDto);
+        const { data } = response;
+        console.log(data);
+        if (data) {
+            toast.add({ severity: 'success', summary: 'Successful', detail: 'User updated', life: 3000 });
+        }
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Failed to update user', detail: e.message, life: 3000 });
     }
 }
 
@@ -126,7 +138,7 @@ function saveUser() {
     }
 }
 
-function editProduct(prod) {
+function editUser(prod) {
     user.value = { ...prod };
     productDialog.value = true;
 }
@@ -264,7 +276,7 @@ function getStatusLabel(status) {
                 <Column :exportable="false" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2"
-                                @click="editProduct(slotProps.data)" />
+                                @click="editUser(slotProps.data)" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger"
                                 @click="confirmDeleteProduct(slotProps.data)" />
                     </template>
