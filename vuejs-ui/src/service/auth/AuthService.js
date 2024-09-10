@@ -113,3 +113,21 @@ export const updateUserService = async (updateUserDto, userEmail) => {
         throw new Error(error.response?.data || 'An error occurred while update user');
     }
 };
+
+export const getAllUsersService = async (params) => {
+    const options = {
+        method: 'GET',
+        url: BASE_URL.concat(AUTHENTICATION_ENPOINT.GET_ALL_USERS)
+            .concat("?page=" + params?.page)
+            .concat("&size=" + params?.size)
+            .concat("&sortField=" + params?.sortField)
+            .concat("&sortDirection=" + params?.sortDirection),
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while getting users', error);
+        throw new Error(error.response?.data || 'An error occurred while getting user');
+    }
+};

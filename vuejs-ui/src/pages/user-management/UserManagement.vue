@@ -4,15 +4,18 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { onMounted, ref } from 'vue';
 import {
+    getAllUsersService,
     passwordValidator, registerService, updateUserService,
     validateCheckPassowrd,
     validateEmail,
     validatePhoneNumber
 } from '@/service/auth/AuthService';
-import { USER_ROLE } from '@/Constaints/Constaints';
+import { USER_ROLE, USER_STATUSES } from '@/Constaints/Constaints';
+import { format } from 'date-fns';
 
 onMounted(() => {
     ProductService.getProducts().then((data) => (products.value = data));
+    fetchGetAllUsersApi();
 });
 
 const toast = useToast();
@@ -22,6 +25,8 @@ const productDialog = ref(false);
 const deleteProductDialog = ref(false);
 const deleteProductsDialog = ref(false);
 const user = ref({});
+const usersData = ref([]);
+const hidePasswordField = ref(false);
 const selectedProducts = ref();
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -29,8 +34,8 @@ const filters = ref({
 const submitted = ref(false);
 
 const userStatuses = ref([
-    { label: 'ACTIVE', value: 'ACTIVE' },
-    { label: 'IS DELETE', value: 'IS_DELETED' }
+    { label: 'ACTIVE', value: USER_STATUSES.ACTIVE },
+    { label: 'IS DELETE', value: USER_STATUSES.IS_DELIVERED }
 ]);
 
 function formatCurrency(value) {
@@ -38,9 +43,14 @@ function formatCurrency(value) {
     return;
 }
 
+function formatDate(dateString) {
+    return format(new Date(dateString), 'dd/MM/yyyy'); // định dạng theo kiểu dd/MM/yyyy
+}
+
 function openNew() {
     user.value = {};
     submitted.value = false;
+    hidePasswordField.value = false;
     productDialog.value = true;
 }
 
@@ -91,6 +101,22 @@ async function fetRegisterApi(registerDto) {
     }
 }
 
+async function fetchGetAllUsersApi() {
+    try {
+        const params = {
+            page: 1,
+            size: 1000,
+            sortField: 'username',
+            sortDirection: 'true'
+        };
+        const response = await getAllUsersService(params);
+        const { data } = response;
+        usersData.value = data.content;
+    } catch (e) {
+        console.error('err while getting users', e);
+    }
+}
+
 async function fetchUpdateUserApi(updateUserDto) {
     try {
         const response = await updateUserService(updateUserDto);
@@ -119,18 +145,14 @@ function saveUser() {
     };
 
     if (validateInput(data)) {
-        if (user.value.id) {
-            user.value.inventoryStatus = user.value.inventoryStatus.value ? user.value.inventoryStatus.value : user.value.inventoryStatus;
-            products.value[findIndexById(user.value.id)] = user.value;
+        if (user?.value?.email) {
+            // user.value.inventoryStatus = user.value.inventoryStatus.value ? user.value.inventoryStatus.value : user.value.inventoryStatus;
+            // products.value[findIndexById(user.value.id)] = user.value;
+            delete data.password;
+            fetchUpdateUserApi(data);
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
         } else {
             fetRegisterApi(data);
-            // user.value.id = createId();
-            // user.value.code = createId();
-            // user.value.image = 'product-placeholder.svg';
-            // user.value.inventoryStatus = user.value.inventoryStatus ? user.value.inventoryStatus.value : 'INSTOCK';
-            // products.value.push(user.value);
-            // toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Created', life: 3000 });
         }
 
         productDialog.value = false;
@@ -138,8 +160,15 @@ function saveUser() {
     }
 }
 
-function editUser(prod) {
-    user.value = { ...prod };
+function editUser(userData) {
+    user.value = { ...userData };
+    delete user?.value?.password;
+
+    // Cập nhật userStatus
+    user.value.status = userData?.userStatus;
+    user.value.name = userData?.username;
+
+    hidePasswordField.value = true;
     productDialog.value = true;
 }
 
@@ -193,14 +222,20 @@ function deleteSelectedProducts() {
 
 function getStatusLabel(status) {
     switch (status) {
-        case 'INSTOCK':
+        case USER_STATUSES.ACTIVE:
             return 'success';
 
-        case 'LOWSTOCK':
+        case USER_STATUSES.IS_DELIVERED:
+            return 'danger';
+
+        case USER_ROLE.SUPER_ADMIN:
+            return 'success';
+
+        case USER_ROLE.ADMIN:
             return 'warn';
 
-        case 'OUTOFSTOCK':
-            return 'danger';
+        case USER_ROLE.USER:
+            return 'secondary';
 
         default:
             return null;
@@ -226,7 +261,7 @@ function getStatusLabel(status) {
             <DataTable
                 ref="dt"
                 v-model:selection="selectedProducts"
-                :value="products"
+                :value="usersData"
                 dataKey="id"
                 :paginator="true"
                 :rows="10"
@@ -237,7 +272,7 @@ function getStatusLabel(status) {
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
-                        <h4 class="m-0">Manage Products</h4>
+                        <h4 class="m-0">Manage Users</h4>
                         <IconField>
                             <InputIcon>
                                 <i class="pi pi-search" />
@@ -248,29 +283,28 @@ function getStatusLabel(status) {
                 </template>
 
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                <Column field="code" header="Code" sortable style="min-width: 12rem"></Column>
-                <Column field="name" header="Name" sortable style="min-width: 16rem"></Column>
-                <Column header="Image">
+                <Column field="userId" header="User Id" sortable style="min-width: 12rem"></Column>
+                <Column field="username" header="User name" sortable style="min-width: 16rem"></Column>
+                <Column field="email" header="Email" sortable style="min-width: 10rem"></Column>
+                <Column field="phoneNumber" header="Phone number" sortable style="min-width: 10rem"></Column>
+                <Column field="address" header="Address" sortable style="min-width: 10rem"></Column>
+                <Column field="createdDate" header="Create date" sortable style="min-width: 10rem">
                     <template #body="slotProps">
-                        <img :src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.image}`"
-                             :alt="slotProps.data.image" class="rounded" style="width: 64px" />
+                        {{ formatDate(slotProps?.data?.createdDate) }}
                     </template>
                 </Column>
-                <Column field="price" header="Price" sortable style="min-width: 8rem">
+                <Column field="inventoryStatus" header="Status" style="min-width: 12rem">
                     <template #body="slotProps">
-                        {{ formatCurrency(slotProps.data.price) }}
+                        <Tag :value="slotProps?.data?.userStatus"
+                             :severity="getStatusLabel(slotProps?.data?.userStatus)" />
                     </template>
                 </Column>
-                <Column field="category" header="Category" sortable style="min-width: 10rem"></Column>
-                <Column field="rating" header="Reviews" sortable style="min-width: 12rem">
+                <Column field="roles" header="Roles" style="min-width: 12rem">
                     <template #body="slotProps">
-                        <Rating :modelValue="slotProps.data.rating" :readonly="true" />
-                    </template>
-                </Column>
-                <Column field="inventoryStatus" header="Status" sortable style="min-width: 12rem">
-                    <template #body="slotProps">
-                        <Tag :value="slotProps.data.inventoryStatus"
-                             :severity="getStatusLabel(slotProps.data.inventoryStatus)" />
+                        <div v-for="role in slotProps?.data?.roles" :key="role">
+                            <Tag :value="role"
+                                 :severity="getStatusLabel(role)" class="mb-4" />
+                        </div>
                     </template>
                 </Column>
                 <Column :exportable="false" style="min-width: 12rem">
@@ -286,8 +320,6 @@ function getStatusLabel(status) {
 
         <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="User detail" :modal="true">
             <div class="flex flex-col gap-6">
-                <img v-if="user.image" :src="`https://primefaces.org/cdn/primevue/images/product/${user.image}`"
-                     :alt="user.image" class="block m-auto pb-4" />
                 <div>
                     <label for="name" class="block font-bold mb-3">Name</label>
                     <InputText id="name" v-model.trim="user.name" required="true" autofocus
@@ -317,14 +349,14 @@ function getStatusLabel(status) {
                                class="text-red-500">Address is required.</small>
                     </div>
                 </div>
-                <div>
+                <div v-if="!hidePasswordField">
                     <label for="passsword" class="block font-bold mb-3">Password</label>
                     <Password id="password" v-model="user.password" placeholder="Password" :toggleMask="true"
                               fluid :feedback="false"></Password>
                     <small v-if="submitted && passwordValidator(user.password) !== ''"
                            class="text-red-500">{{ passwordValidator(user.password) }}.</small>
                 </div>
-                <div>
+                <div v-if="!hidePasswordField">
                     <label for="confirmPassword" class="block font-bold mb-3">Confirm password</label>
                     <Password id="confirmPassword" v-model="user.confirmPassword" placeholder="Confirm password"
                               :toggleMask="true"

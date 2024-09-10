@@ -8,3 +8,8 @@ export const USER_ROLE = {
     ADMIN: 'ADMIN',
     SUPER_ADMIN: 'SUPER_ADMIN',
 }
+
+export const USER_STATUSES = {
+    ACTIVE: 'ACTIVE',
+    IS_DELIVERED: 'IS_DELETED',
+}
