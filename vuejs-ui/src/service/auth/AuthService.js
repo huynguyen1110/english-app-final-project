@@ -131,3 +131,18 @@ export const getAllUsersService = async (params) => {
         throw new Error(error.response?.data || 'An error occurred while getting user');
     }
 };
+
+export const deleteUserService = async (userEmail) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(AUTHENTICATION_ENPOINT.DELETE_USER)
+            .concat("?userEmail=" + userEmail)
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while deleting users', error);
+        throw new Error(error.response?.data || 'An error occurred while deleting user');
+    }
+};

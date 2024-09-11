@@ -2,8 +2,9 @@
 import { ProductService } from '@/service/ProductService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import {
+    deleteUserService,
     getAllUsersService,
     passwordValidator, registerService, updateUserService,
     validateCheckPassowrd,
@@ -21,13 +22,13 @@ onMounted(() => {
 const toast = useToast();
 const dt = ref();
 const products = ref();
-const productDialog = ref(false);
-const deleteProductDialog = ref(false);
-const deleteProductsDialog = ref(false);
+const userDialog = ref(false);
+const deleteUserDialog = ref(false);
+const deleteUsersDialog = ref(false);
 const user = ref({});
 const usersData = ref([]);
 const hidePasswordField = ref(false);
-const selectedProducts = ref();
+const selectedUsers = ref();
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
@@ -51,11 +52,11 @@ function openNew() {
     user.value = {};
     submitted.value = false;
     hidePasswordField.value = false;
-    productDialog.value = true;
+    userDialog.value = true;
 }
 
 function hideDialog() {
-    productDialog.value = false;
+    userDialog.value = false;
     submitted.value = false;
 }
 
@@ -96,7 +97,7 @@ async function fetRegisterApi(registerDto) {
         const { data } = response;
         console.log(data);
         if (data) {
-            productDialog.value = false;
+            userDialog.value = false;
             user.value = {};
             usersData.value = [...usersData.value, registerDto];
             fetchGetAllUsersApi();
@@ -131,7 +132,7 @@ async function fetchUpdateUserApi(updateUserDto, userEmail) {
             usersData.value[findIndexById(updateUserDto?.email)] = updateUserDto;
             fetchGetAllUsersApi();
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User updated', life: 3000 });
-            productDialog.value = false;
+            userDialog.value = false;
             user.value = {};
         }
     } catch (e) {
@@ -175,19 +176,28 @@ function editUser(userData) {
     user.value.name = userData?.username;
 
     hidePasswordField.value = true;
-    productDialog.value = true;
+    userDialog.value = true;
 }
 
-function confirmDeleteProduct(prod) {
-    user.value = prod;
-    deleteProductDialog.value = true;
+function confirmDeleteUser(userData) {
+    user.value = { ...userData };
+    deleteUserDialog.value = true;
 }
 
-function deleteProduct() {
-    products.value = products.value.filter((val) => val.id !== user.value.id);
-    deleteProductDialog.value = false;
-    user.value = {};
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
+async function deleteUser() {
+    try {
+        const response = await deleteUserService(user?.value?.email);
+        const { data } = response;
+        if (data) {
+            usersData.value = usersData.value.filter((val) => val.email !== user.value.email);
+            deleteUserDialog.value = false;
+            user.value = {};
+            toast.add({ severity: 'success', summary: 'Successful', detail: 'User Deleted', life: 3000 });
+        }
+    } catch (e) {
+        console.log(e.message);
+        toast.add({ severity: 'error', summary: 'Error', detail: 'User Deleted', life: 3000 });
+    }
 }
 
 function findIndexById(email) {
@@ -202,28 +212,39 @@ function findIndexById(email) {
     return index;
 }
 
-function createId() {
-    let id = '';
-    var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (var i = 0; i < 5; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-}
-
 function exportCSV() {
     dt.value.exportCSV();
 }
 
 function confirmDeleteSelected() {
-    deleteProductsDialog.value = true;
+    deleteUsersDialog.value = true;
 }
 
-function deleteSelectedProducts() {
-    products.value = products.value.filter((val) => !selectedProducts.value.includes(val));
-    deleteProductsDialog.value = false;
-    selectedProducts.value = null;
-    toast.add({ severity: 'success', summary: 'Successful', detail: 'Products Deleted', life: 3000 });
+async function deleteSelectedUsers() {
+    let isAllDeleted = false;
+    for (let i = 0; i < selectedUsers.value.length; i++) {
+        try {
+            const response = await deleteUserService(selectedUsers.value[i]?.email);
+            const { data } = response;
+            if (data) {
+                isAllDeleted = true;
+            } else {
+                isAllDeleted = false;
+                break;
+            }
+        } catch (e) {
+            console.error(e);
+            isAllDeleted = false;
+        }
+    }
+    if (isAllDeleted) {
+        deleteUsersDialog.value = false;
+        selectedUsers.value = null;
+        fetchGetAllUsersApi();
+        toast.add({ severity: 'success', summary: 'Successful', detail: 'Users Deleted', life: 3000 });
+    } else {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete users', life: 3000 });
+    }
 }
 
 function getStatusLabel(status) {
@@ -256,7 +277,7 @@ function getStatusLabel(status) {
                 <template #start>
                     <Button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" @click="openNew" />
                     <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected"
-                            :disabled="!selectedProducts || !selectedProducts.length" />
+                            :disabled="!selectedUsers || !selectedUsers.length" />
                 </template>
 
                 <template #end>
@@ -266,15 +287,15 @@ function getStatusLabel(status) {
 
             <DataTable
                 ref="dt"
-                v-model:selection="selectedProducts"
+                v-model:selection="selectedUsers"
                 :value="usersData"
-                dataKey="id"
+                dataKey="userId"
                 :paginator="true"
                 :rows="10"
                 :filters="filters"
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 :rowsPerPageOptions="[5, 10, 25]"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users"
             >
                 <template #header>
                     <div class="flex flex-wrap gap-2 items-center justify-between">
@@ -318,13 +339,13 @@ function getStatusLabel(status) {
                         <Button icon="pi pi-pencil" outlined rounded class="mr-2"
                                 @click="editUser(slotProps.data)" />
                         <Button icon="pi pi-trash" outlined rounded severity="danger"
-                                @click="confirmDeleteProduct(slotProps.data)" />
+                                @click="confirmDeleteUser(slotProps.data)" />
                     </template>
                 </Column>
             </DataTable>
         </div>
 
-        <Dialog v-model:visible="productDialog" :style="{ width: '450px' }" header="User detail" :modal="true">
+        <Dialog v-model:visible="userDialog" :style="{ width: '450px' }" header="User detail" :modal="true">
             <div class="flex flex-col gap-6">
                 <div>
                     <label for="name" class="block font-bold mb-3">Name</label>
@@ -403,28 +424,28 @@ function getStatusLabel(status) {
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteProductDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+        <Dialog v-model:visible="deleteUserDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
                 <span v-if="user"
-                >Are you sure you want to delete <b>{{ user.name }}</b
+                >Are you sure you want to delete <b>{{ user?.username }}</b
                 >?</span
                 >
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteProductDialog = false" />
-                <Button label="Yes" icon="pi pi-check" @click="deleteProduct" />
+                <Button label="No" icon="pi pi-times" text @click="deleteUserDialog = false" />
+                <Button label="Yes" icon="pi pi-check" @click="deleteUser" />
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteProductsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+        <Dialog v-model:visible="deleteUsersDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="user">Are you sure you want to delete the selected products?</span>
+                <span v-if="user">Are you sure you want to delete the selected users?</span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteProductsDialog = false" />
-                <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedProducts" />
+                <Button label="No" icon="pi pi-times" text @click="deleteUsersDialog = false" />
+                <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedUsers" />
             </template>
         </Dialog>
     </div>

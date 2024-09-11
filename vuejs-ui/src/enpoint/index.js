@@ -5,5 +5,6 @@ export const AUTHENTICATION_ENPOINT = {
     LOGIN: "/user/login",
     UPDATE_USER: "/user/update-user",
     GET_ALL_USERS: "/user/get-all-users",
+    DELETE_USER: "/user/delete-user",
 };
 
