@@ -4,6 +4,7 @@ import com.example.api.config.JwtUtilities;
 import com.example.api.dtos.authentication.BearerToken;
 import com.example.api.dtos.authentication.LoginDto;
 import com.example.api.dtos.authentication.RegisterDto;
+import com.example.api.dtos.user.UpdateUserDto;
 import com.example.api.entities.Favorites;
 import com.example.api.entities.News;
 import com.example.api.entities.Users;
@@ -111,12 +112,11 @@ public class UserService implements IUserService {
         return user;
     }
 
-    private void updateUserDetails(Users user, RegisterDto updateUserDto) {
+    private void updateUserDetails(Users user, UpdateUserDto updateUserDto) {
         user.setUsername(updateUserDto.getName());
         user.setEmail(updateUserDto.getEmail());
         user.setPhoneNumber(updateUserDto.getPhoneNumber());
         user.setAddress(updateUserDto.getAddress());
-        user.setPassword(passwordEncoder.encode(updateUserDto.getPassword()));
         user.setUserStatus(UserStatus.valueOf(updateUserDto.getStatus()));
         user.setRoles(updateUserDto.getRoles());
         user.setUpdatedDate(LocalDateTime.now());
@@ -131,7 +131,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public Users updateUserByEmail(RegisterDto updateUserDto, String userEmail) throws Exception {
+    public Users updateUserByEmail(UpdateUserDto updateUserDto, String userEmail) throws Exception {
         Users user = findUserByEmail(userEmail);
 
         if (!user.getEmail().equals(userEmail)) {

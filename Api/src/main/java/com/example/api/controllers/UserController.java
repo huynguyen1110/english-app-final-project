@@ -2,6 +2,7 @@ package com.example.api.controllers;
 
 import com.example.api.dtos.authentication.LoginDto;
 import com.example.api.dtos.authentication.RegisterDto;
+import com.example.api.dtos.user.UpdateUserDto;
 import com.example.api.services.impservices.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +63,7 @@ public class UserController {
     }
 
     @PutMapping("/update-user")
-    public ResponseEntity<?> updateUser(@RequestBody RegisterDto updateUserDto, @RequestParam String userEmail) {
+    public ResponseEntity<?> updateUser(@RequestBody UpdateUserDto updateUserDto, @RequestParam String userEmail) {
         try {
             var response = userService.updateUserByEmail(updateUserDto, userEmail);
             return ResponseEntity.ok(response);
