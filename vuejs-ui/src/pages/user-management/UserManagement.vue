@@ -2,7 +2,7 @@
 import { ProductService } from '@/service/ProductService';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import {
     getAllUsersService,
     passwordValidator, registerService, updateUserService,
@@ -98,6 +98,8 @@ async function fetRegisterApi(registerDto) {
         if (data) {
             productDialog.value = false;
             user.value = {};
+            usersData.value = [...usersData.value, registerDto];
+            fetchGetAllUsersApi();
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
         }
     } catch (e) {
@@ -126,7 +128,11 @@ async function fetchUpdateUserApi(updateUserDto, userEmail) {
         const response = await updateUserService(updateUserDto, userEmail);
         const { data } = response;
         if (data) {
+            usersData.value[findIndexById(updateUserDto?.email)] = updateUserDto;
+            fetchGetAllUsersApi();
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User updated', life: 3000 });
+            productDialog.value = false;
+            user.value = {};
         }
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed to update user', detail: e.message, life: 3000 });
@@ -147,34 +153,17 @@ function saveUser() {
         roles: user?.value?.roles
     };
 
-
-    if (hidePasswordField === true) {
-        if (validateEmail(user)) {
+    if (hidePasswordField.value === true) {
+        if (validateInput(user?.value)) {
             delete user?.value?.password;
-            fetchUpdateUserApi(data, data.email);
+            user.value.status = user?.value?.status?.value;
+            fetchUpdateUserApi(user.value, user?.value?.email);
         }
-        productDialog.value = false;
-        user.value = {};
     } else {
         if (validateInput(data)) {
             fetRegisterApi(data);
         }
     }
-    // if (validateInput(data)) {
-    //     if (data?.email) {
-    //         // user.value.inventoryStatus = user.value.inventoryStatus.value ? user.value.inventoryStatus.value : user.value.inventoryStatus;
-    //         // products.value[findIndexById(user.value.id)] = user.value;
-    //         delete data.password;
-    //         fetchUpdateUserApi(data, data.email);
-    //         // toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-    //     } else {
-    //         console.log(2312312)
-    //         fetRegisterApi(data);
-    //     }
-    //
-    //     productDialog.value = false;
-    //     user.value = {};
-    // }
 }
 
 function editUser(userData) {
@@ -201,10 +190,10 @@ function deleteProduct() {
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Deleted', life: 3000 });
 }
 
-function findIndexById(id) {
+function findIndexById(email) {
     let index = -1;
-    for (let i = 0; i < products.value.length; i++) {
-        if (products.value[i].id === id) {
+    for (let i = 0; i < usersData.value.length; i++) {
+        if (usersData?.value[i]?.email === email) {
             index = i;
             break;
         }
@@ -310,7 +299,7 @@ function getStatusLabel(status) {
                         {{ formatDate(slotProps?.data?.createdDate) }}
                     </template>
                 </Column>
-                <Column field="inventoryStatus" header="Status" style="min-width: 12rem">
+                <Column field="userStatus" header="Status" style="min-width: 12rem">
                     <template #body="slotProps">
                         <Tag :value="slotProps?.data?.userStatus"
                              :severity="getStatusLabel(slotProps?.data?.userStatus)" />
