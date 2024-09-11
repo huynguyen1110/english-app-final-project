@@ -73,14 +73,16 @@ function validateInput(data) {
     if (data?.address === '') {
         isValid = false;
     }
-    if (passwordValidator(data?.password)) {
-        isValid = false;
-    }
-    if (validateCheckPassowrd(data?.confirmPassword, data?.password) !== '') {
-        isValid = false;
-    }
-    if (!data?.status) {
-        isValid = false;
+    if (hidePasswordField === false) {
+        if (passwordValidator(data?.password)) {
+            isValid = false;
+        }
+        if (validateCheckPassowrd(data?.confirmPassword, data?.password) !== '') {
+            isValid = false;
+        }
+        if (!data?.status) {
+            isValid = false;
+        }
     }
     if (data?.role?.length === 0) {
         isValid = false;
@@ -94,6 +96,8 @@ async function fetRegisterApi(registerDto) {
         const { data } = response;
         console.log(data);
         if (data) {
+            productDialog.value = false;
+            user.value = {};
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
         }
     } catch (e) {
@@ -117,11 +121,10 @@ async function fetchGetAllUsersApi() {
     }
 }
 
-async function fetchUpdateUserApi(updateUserDto) {
+async function fetchUpdateUserApi(updateUserDto, userEmail) {
     try {
-        const response = await updateUserService(updateUserDto);
+        const response = await updateUserService(updateUserDto, userEmail);
         const { data } = response;
-        console.log(data);
         if (data) {
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User updated', life: 3000 });
         }
@@ -144,20 +147,34 @@ function saveUser() {
         roles: user?.value?.roles
     };
 
-    if (validateInput(data)) {
-        if (user?.value?.email) {
-            // user.value.inventoryStatus = user.value.inventoryStatus.value ? user.value.inventoryStatus.value : user.value.inventoryStatus;
-            // products.value[findIndexById(user.value.id)] = user.value;
-            delete data.password;
-            fetchUpdateUserApi(data);
-            toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
-        } else {
-            fetRegisterApi(data);
-        }
 
+    if (hidePasswordField === true) {
+        if (validateEmail(user)) {
+            delete user?.value?.password;
+            fetchUpdateUserApi(data, data.email);
+        }
         productDialog.value = false;
         user.value = {};
+    } else {
+        if (validateInput(data)) {
+            fetRegisterApi(data);
+        }
     }
+    // if (validateInput(data)) {
+    //     if (data?.email) {
+    //         // user.value.inventoryStatus = user.value.inventoryStatus.value ? user.value.inventoryStatus.value : user.value.inventoryStatus;
+    //         // products.value[findIndexById(user.value.id)] = user.value;
+    //         delete data.password;
+    //         fetchUpdateUserApi(data, data.email);
+    //         // toast.add({ severity: 'success', summary: 'Successful', detail: 'Product Updated', life: 3000 });
+    //     } else {
+    //         console.log(2312312)
+    //         fetRegisterApi(data);
+    //     }
+    //
+    //     productDialog.value = false;
+    //     user.value = {};
+    // }
 }
 
 function editUser(userData) {
