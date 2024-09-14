@@ -10,6 +10,7 @@ import {
     validateRequired
 } from '@/service/auth/AuthService';
 import { useToast } from 'primevue/usetoast';
+import { USER_ROLE, USER_STATUSES } from '@/Constaints/Constaints';
 
 const router = useRouter();
 const toast = useToast();
@@ -64,12 +65,14 @@ const handleSubmit = async () => {
             name: form.username,
             password: form.password,
             email: form.email,
-            phoneNumber: ''
+            phoneNumber: '',
+            status: USER_STATUSES.ACTIVE,
+            roles: [USER_ROLE.SUPER_ADMIN]
         };
         try {
             const response = await registerService(registerData);
             const { data } = response;
-            if (data) {
+            if (data?.email) {
                 toast.add({ severity: 'success', summary: 'Successful', detail: 'Register successfully', life: 3000 });
             } else {
                 toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to register', life: 3000 });
@@ -182,6 +185,7 @@ const handleSubmit = async () => {
             </div>
         </div>
     </div>
+    <Toast />
 </template>
 
 <style scoped>

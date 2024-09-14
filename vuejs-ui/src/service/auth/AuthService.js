@@ -61,7 +61,6 @@ export const validatePhoneNumber = (value) => {
 
 // fetch register api
 export const registerService = async (registerDto) => {
-    console.log(registerDto)
     const options = {
         method: 'POST',
         url: BASE_URL.concat(AUTHENTICATION_ENPOINT.REGISTER),
