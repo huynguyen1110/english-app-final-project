@@ -95,13 +95,12 @@ async function fetRegisterApi(registerDto) {
     try {
         const response = await registerService(registerDto);
         const { data } = response;
-        console.log(data);
         if (data) {
-            userDialog.value = false;
+            console.log(data);
             user.value = {};
-            usersData.value = [...usersData.value, registerDto];
             fetchGetAllUsersApi();
             toast.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
+            userDialog.value = false;
         }
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed to create user', detail: e.message, life: 3000 });

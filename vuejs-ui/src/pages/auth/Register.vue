@@ -1,6 +1,6 @@
 <script setup>
 import FloatingConfigurator from '@/components/FloatingConfigurator.vue';
-import { reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import {
     passwordValidator,
@@ -16,6 +16,10 @@ const router = useRouter();
 const toast = useToast();
 
 const checked = ref(false);
+
+onMounted(() => {
+    localStorage.clear();
+})
 
 const navigateToLogin = () => {
     router.push({ name: 'login' });
