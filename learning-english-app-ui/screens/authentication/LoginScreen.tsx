@@ -1,7 +1,7 @@
 import {
     Dimensions,
     ImageBackground,
-    KeyboardAvoidingView,
+    KeyboardAvoidingView, LogBox,
     SafeAreaView,
     StatusBar,
     StyleSheet,
@@ -34,6 +34,8 @@ import Spinner from "react-native-loading-spinner-overlay";
 const {width, height} = Dimensions.get("screen");
 
 const LoginScreen = () => {
+
+    LogBox.ignoreAllLogs();
 
     // show password state
     const [passwordVisible, setPasswordVisible] = useState<boolean>(false);

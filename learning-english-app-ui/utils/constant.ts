@@ -49,4 +49,15 @@ export const TOPIC_NAME = {
     SPORT: "Sport"
 }
 
+export const USER_STATUS = {
+    ACTIVE: "ACTIVE",
+    IS_DELETED: "IS_DELETED"
+}
+
+export const USER_ROLE = {
+    USER: "USER",
+    ADMIN: "ADMIN",
+    SUPER_ADMIN: "SUPER_ADMIN",
+}
+
 

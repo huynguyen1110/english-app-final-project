@@ -36,6 +36,7 @@ import {authReducer} from "../../features/authentication/AuthenticationSlice";
 import Toast from "react-native-toast-message";
 import navigation from "../../utils/Navigation";
 import {useNavigation} from "@react-navigation/native";
+import {USER_ROLE, USER_STATUS} from "../../utils/constant";
 
 const {width, height} = Dimensions.get("screen");
 
@@ -89,9 +90,14 @@ const RegisterScreen = () => {
         onSubmit: (data: RegisterDto) => {
             // dispatch(authReducer.actions.setStateIsSubmiting(false));
             // dispatch(authReducer.actions.setStateIsSubmiting(true));
+            const registerData: any = {
+                ... data,
+                status: USER_STATUS.ACTIVE,
+                roles: [USER_ROLE.USER]
+            }
             setIsSubmitClicked(true);
             // @ts-ignore
-            dispatch(register(data))
+            dispatch(register(registerData))
         },
     });
 
