@@ -90,6 +90,9 @@ public class UserService implements IUserService {
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         Users user = userRepository.findByEmail(authentication.getName()).orElseThrow(() -> new Exception("User not found"));
+        if (user.getIsDeleted()) {
+            throw new Exception("The user no longer exists");
+        }
         Set<UserRole> rolesNames = user.getRoles();
         Set<String> roles = new HashSet<>();
         for (UserRole role : rolesNames) {
