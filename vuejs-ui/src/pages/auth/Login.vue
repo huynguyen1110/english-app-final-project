@@ -5,9 +5,7 @@ import { useRouter } from 'vue-router';
 import {
     loginService,
     passwordValidator,
-    registerService,
     validateEmail,
-    validateRequired
 } from '@/service/auth/AuthService';
 import { useToast } from 'primevue/usetoast';
 
@@ -70,7 +68,7 @@ const handleSubmit = async () => {
             toast.add({
                 severity: 'error',
                 summary: 'Error',
-                detail: 'Failed to login (email or password is incorrect)',
+                detail: `Failed to login: ${error.message}`,
                 life: 3000
             });
             console.error('err while fetching login api', error.message);
@@ -160,6 +158,7 @@ const handleSubmit = async () => {
             </div>
         </div>
     </div>
+    <Toast/>
 </template>
 
 <style scoped>
