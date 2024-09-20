@@ -1,7 +1,7 @@
 import {
     SafeAreaView,
     StatusBar,
-    ScrollView
+    ScrollView, View
 } from "react-native";
 import {GlobalStyles} from "../../styles/GlobalStyles";
 import {
@@ -70,7 +70,9 @@ const HomeScreen = () => {
                 </Block>
 
             </ScrollView>
-            <FooterComponent/>
+           <View style={GlobalStyles.footer}>
+               <FooterComponent/>
+           </View>
         </SafeAreaView>
     );
 }

@@ -10,6 +10,7 @@ import ByNewsWebSiteScreen from "../screens/home/news/ByNewsWebSiteScreen";
 import NewsDetailScreen from "../screens/home/news/NewsDetailScreen";
 import SaveNewWordScreen from "../screens/home/news/SaveNewWordScreen";
 import ListNewsBySourceNameScreen from "../screens/home/news/ListNewsBySourceNameScreen";
+import VocabMainScreen from "../screens/vocab/VocabMainScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -18,7 +19,7 @@ const Navigation = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName='LoginScreen'
+                initialRouteName='VocabMainScreen'
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true
@@ -33,6 +34,10 @@ const Navigation = () => {
                 <Stack.Screen name="NewsDetailScreen" component={NewsDetailScreen} />
                 <Stack.Screen name="SaveNewWordScreen" component={SaveNewWordScreen} />
                 <Stack.Screen name="ListNewsBySourceNameScreen" component={ListNewsBySourceNameScreen} />
+                {/* vocab screens */}
+                <Stack.Screen name="VocabMainScreen" component={VocabMainScreen} />
+                {/* vocab screens */}
+
             </Stack.Navigator>
         </NavigationContainer>
     );

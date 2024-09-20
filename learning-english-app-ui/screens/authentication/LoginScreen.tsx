@@ -21,7 +21,6 @@ import {
 import Images from "../../utils/Images";
 import React, {useEffect, useState} from "react";
 import {useFormik} from "formik";
-import RegisterDto from "../../dto/authdto/registerDto";
 import {authReducer} from "../../features/authentication/AuthenticationSlice";
 import {addToken, login, register} from "../../services/AuthenticationService";
 import * as Yup from "yup";
