@@ -3,6 +3,8 @@ import {Block, Text} from 'galio-framework';
 import {GlobalStyles} from "../../styles/GlobalStyles";
 import FooterComponent from "../../components/FooterComponent";
 import VocabHeaderComponent from "../../components/vocab/VocabHeaderComponent";
+import PackageListComponent from "../../components/vocab/PackageListComponent";
+import {Layout} from "@ui-kitten/components";
 
 const VocabMainScreen = () => {
 
@@ -13,8 +15,12 @@ const VocabMainScreen = () => {
             <StatusBar hidden/>
             <VocabHeaderComponent/>
 
-            <View style={[GlobalStyles.main_container]}>
-            </View>
+            <Layout level='2'>
+                <View style={[GlobalStyles.main_container]}>
+                    <Block height={12}></Block>
+                    <PackageListComponent/>
+                </View>
+            </Layout>
             <View style={GlobalStyles.footer}>
                 <FooterComponent/>
             </View>

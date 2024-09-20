@@ -4,7 +4,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import {TouchableOpacity, View} from "react-native";
 import {
     Block,
-    Text
+    Text, theme
 } from "galio-framework";
 import {GlobalStyles} from "../../styles/GlobalStyles";
 
@@ -13,7 +13,7 @@ const VocabHeaderComponent = () => {
         <View>
             <Block flexDirection="row" justifyContent="space-between">
                 <View style={{padding: 4}}>
-                    <Text size={24} bold>Your vocab</Text>
+                    <Text h5 italic bold color={theme.COLORS?.FACEBOOK}>E-English</Text>
                 </View>
                 <TouchableOpacity style={[ {padding: 4} ]}>
                     <Feather name="plus" size={27}/>

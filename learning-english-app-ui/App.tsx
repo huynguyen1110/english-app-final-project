@@ -7,16 +7,18 @@ import {
 } from "react-redux";
 import store from "./utils/Store";
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import Toast from "react-native-toast-message";
+import * as eva from '@eva-design/eva';
+import {ApplicationProvider} from "@ui-kitten/components";
 
 export default function App() {
   return (
-      <GestureHandlerRootView>
-        <Provider store={store}>
-          <Navigation />
-        </Provider>
-      </GestureHandlerRootView>
-
+      <ApplicationProvider {...eva} theme={eva.light}>
+          <GestureHandlerRootView>
+              <Provider store={store}>
+                  <Navigation />
+              </Provider>
+          </GestureHandlerRootView>
+      </ApplicationProvider>
   );
 }
 
