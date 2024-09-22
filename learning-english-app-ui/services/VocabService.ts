@@ -53,8 +53,6 @@ export const getPackageService = async (params: any) => {
 // create word service
 export const createWord = async (wordDto: any) => {
 
-    console.log(wordDto)
-
     const options = {
         method: 'POST',
         url: BASE_URL.concat(WORD_ENPOINT.CREATE_WORD),
@@ -68,6 +66,8 @@ export const createWord = async (wordDto: any) => {
             example: wordDto.example,
             wordType: wordDto.wordType,
             image: wordDto.image,
+            audio: wordDto?.audio,
+            phonetic: wordDto?.phonetic
         }
     };
 

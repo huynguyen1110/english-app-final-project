@@ -44,7 +44,7 @@ const SaveNewWordScreen = () => {
     const route = useRoute();
 
     // @ts-ignore
-    const {word, partOfSpeech, definition, example} = route.params;
+    const {word, partOfSpeech, definition, example, audio, phonetic} = route.params;
 
     const [wordInput, setWordInput] = useState(word);
 
@@ -192,6 +192,8 @@ const SaveNewWordScreen = () => {
                 example: exampleInput,
                 image: uploadedImageUrl,
                 wordType: partOfSpeechInput,
+                audio: audio,
+                phonetic: phonetic
             };
 
             const {data}: any = await createWord(wordDto);

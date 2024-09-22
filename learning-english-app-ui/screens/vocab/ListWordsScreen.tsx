@@ -7,6 +7,7 @@ import ListWordsScreenHeader from "../../components/vocab/list-word-screen/ListW
 import LearningActionComponent from "../../components/vocab/list-word-screen/LearningActionComponent";
 import {Block} from "galio-framework";
 import ListCardsComponent from "../../components/vocab/list-word-screen/ListCardsComponent";
+import Toast from "react-native-toast-message";
 
 const ListWordsScreen = () => {
 
@@ -17,7 +18,11 @@ const ListWordsScreen = () => {
 
     return (
         <SafeAreaView style={[GlobalStyles.AndroidSafeArea]}>
+            {/*Header section*/}
             <ListWordsScreenHeader/>
+            {/*Header section*/}
+
+            {/* package content section */}
             <Layout level='2' style={{flex: 1}}>
                 <ScrollView style={[GlobalStyles.main_container]}>
                     <View>
@@ -39,15 +44,20 @@ const ListWordsScreen = () => {
 
                     <Block height={20}></Block>
 
+                    {/* learning btn action */}
                     <LearningActionComponent wordsData={packageData?.words} />
+                    {/* learning btn action */}
 
                     <Block height={20}></Block>
 
+                    {/* list card section */}
                     <ListCardsComponent wordsData={packageData?.words} />
+                    {/* list card section */}
 
                 </ScrollView>
             </Layout>
-
+            {/* package content section */}
+            <Toast/>
         </SafeAreaView>
     );
 }

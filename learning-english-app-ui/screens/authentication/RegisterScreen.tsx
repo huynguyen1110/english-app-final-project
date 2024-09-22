@@ -34,7 +34,6 @@ import {RootState} from "../../utils/Store";
 import {LogBox} from 'react-native';
 import {authReducer} from "../../features/authentication/AuthenticationSlice";
 import Toast from "react-native-toast-message";
-import navigation from "../../utils/Navigation";
 import {useNavigation} from "@react-navigation/native";
 import {USER_ROLE, USER_STATUS} from "../../utils/constant";
 

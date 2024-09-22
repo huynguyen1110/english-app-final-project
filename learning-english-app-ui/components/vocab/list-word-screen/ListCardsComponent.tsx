@@ -7,10 +7,16 @@ import Entypo from 'react-native-vector-icons/Entypo';
 // @ts-ignore
 import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import {GlobalStyles} from "../../../styles/GlobalStyles";
+import {Audio} from "expo-av";
+import Toast from "react-native-toast-message";
 
 const ListCardsComponent = (wordsData: any) => {
 
     const [selectedIndex, setSelectedIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
+
+    const [sound, setSound] = React.useState<any>();
+
+    const [sortedWords, setSortedWords] = React.useState<any>([]);
 
     const options = {
         'Newest': 'NEWEST',
@@ -19,9 +25,68 @@ const ListCardsComponent = (wordsData: any) => {
         'Name: Z to A': 'Z_TO_A'
     }; // sort option
 
+    // handle play sound //
+    const playAudioBtn = async (audio: any) => {
+        if (audio !== undefined && audio !== null && audio !== '') {
+            const {sound} = await Audio.Sound.createAsync({uri: audio});
+            setSound(sound);
+            await sound.playAsync();
+        } else {
+            Toast.show({
+                type: 'info',
+                text1: 'No audio is found',
+                position: 'top',
+                visibilityTime: 3000,
+                text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
+                text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
+            });
+        }
+
+    }
+
     React.useEffect(() => {
-        console.log(wordsData);
-    }, [])
+        return sound
+            ? () => {
+                sound.unloadAsync();
+            }
+            : undefined;
+    }, [sound]);
+    // handle play sound //
+
+
+    // filter package
+    React.useEffect(() => {
+        const data: any = Object.values(wordsData)[0];
+        if (selectedIndex instanceof IndexPath) {
+            const sortValue = Object.keys(options)[selectedIndex?.row];
+            let sortedWords = [];
+
+            // Tạo bản sao của data để sắp xếp
+            const dataCopy = [...data]; // Hoặc dùng data.slice()
+
+            switch (sortValue) {
+                case Object.keys(options)[0]:
+                    sortedWords = dataCopy.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                    break;
+                case Object.keys(options)[1]:
+                    sortedWords = dataCopy.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                    break;
+                case Object.keys(options)[2]:
+                    sortedWords = dataCopy.sort((a: any, b: any) => a.name.localeCompare(b.name));
+                    break;
+                case Object.keys(options)[3]:
+                    sortedWords = dataCopy.sort((a: any, b: any) => b.name.localeCompare(a.name));
+                    break;
+                default:
+                    sortedWords = dataCopy.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+                    break;
+            }
+
+            setSortedWords(sortedWords); // Cập nhật state với mảng đã sắp xếp
+        }
+    }, [selectedIndex, wordsData]);
+
+
 
     return (
         <View>
@@ -46,53 +111,68 @@ const ListCardsComponent = (wordsData: any) => {
 
             <Block height={12}></Block>
 
-            <View>
-                <View style={[styles.cardContainer]}>
-                    <Block style={GlobalStyles.main_container}>
-                        <Block height={8}></Block>
-                        <Block flexDirection="row" justifyContent="space-between" alignItems="center">
-                            <Text color={theme.COLORS?.FACEBOOK} bold
-                                  size={18}>Try</Text>
-                            <TouchableOpacity style={{padding: 4}}>
-                                <Text size={18}> <Entypo name="dots-three-vertical" size={18}/> </Text>
-                            </TouchableOpacity>
-                        </Block>
-                        <Block height={4}></Block>
-                        <Text size={16}>verb</Text>
-                        <Block height={4}></Block>
+            {/* card section */}
 
-                        <Block height={30} row alignItems="center">
-                            <Block>
-                                <TouchableOpacity style={{ padding: 4 }}>
-                                    <Text size={18} style={{ opacity: 0.5 }}><FontAwesome size={20} name="volume-up"/></Text>
-                                </TouchableOpacity>
-                            </Block>
-                            <Block width={12}></Block>
-                            <Block height={30}>
-                                <Text style={{ opacity: 0.5 }} size={18}>
-                                    phonetic
-                                </Text>
-                            </Block>
-                        </Block>
+            {
+                // @ts-ignore
+                sortedWords.map((word: any, index: any) => {
+                    return (
+                        <View key={index}>
+                            <View style={[styles.cardContainer]}>
+                                <Block style={GlobalStyles.main_container}>
+                                    <Block height={8}></Block>
+                                    <Block flexDirection="row" justifyContent="space-between" alignItems="center">
+                                        <Text color={theme.COLORS?.FACEBOOK} bold size={18}>
+                                            {word?.name || "Unknown Word"}
+                                        </Text>
+                                        <TouchableOpacity style={{padding: 4}}>
+                                            <Text size={18}>
+                                                <Entypo name="dots-three-vertical" size={18}/>
+                                            </Text>
+                                        </TouchableOpacity>
+                                    </Block>
+                                    <Block height={4}></Block>
+                                    <Text size={16}>{word?.wordType || "Unknown Type"}</Text>
+                                    <Block height={4}></Block>
 
-                        <Block height={6}></Block>
+                                    <Block height={30} row alignItems="center">
+                                        <TouchableOpacity style={{padding: 4}} onPress={() => {
+                                            playAudioBtn(word?.audio)
+                                        }}>
+                                            <Text size={18} style={{opacity: 0.5}}>
+                                                <FontAwesome size={20} name="volume-up"/>
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <Block width={12}></Block>
+                                        <Block height={30}>
+                                            <Text style={{opacity: 0.5}} size={18}>
+                                                {word?.phonetic || "No phonetic"}
+                                            </Text>
+                                        </Block>
+                                    </Block>
 
-                        <Block>
-                            <Image style={styles.exampleImg} source={ require("../../../assets/imgs/background-wellcome-image-background.jpeg") } />
-                        </Block>
+                                    <Block height={6}></Block>
 
-                        <Block height={8}></Block>
+                                    {word?.image ? ( // Đổi từ `wordsData?.image` thành `word?.image`
+                                        <Image style={styles.exampleImg} source={{uri: word?.image}}/>
+                                    ) : (
+                                        <View></View>
+                                    )}
 
-                        <Block>
-                            <Text size={16}>Meaning of the word.</Text>
-                        </Block>
+                                    <Block height={8}></Block>
 
-                        <Block height={12}></Block>
+                                    <Text size={16}>{word?.meaning || "No meaning available."}</Text>
 
-                    </Block>
-                </View>
-                <Block height={10}></Block>
-            </View>
+                                    <Block height={12}></Block>
+                                </Block>
+                            </View>
+                            <Block height={10}></Block>
+                        </View>
+                    );
+                })
+            }
+
+            {/* card section */}
         </View>
     );
 }
@@ -106,7 +186,7 @@ const styles = StyleSheet.create({
     cardContainer: {
         backgroundColor: 'white',
         width: "95%",
-        minHeight: 300,
+        minHeight: 150,
         marginLeft: "auto",
         marginRight: "auto",
         // Đổ bóng cho Android

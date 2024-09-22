@@ -458,7 +458,9 @@ const NewsDetailScreen = () => {
                                 word: translateWord,
                                 partOfSpeech: null,
                                 definition: null,
-                                example: null
+                                example: null,
+                                audio: phonetic?.audio,
+                                phonetic: phonetic?.text
                             }
                             // @ts-ignore
                             navigation.navigate("SaveNewWordScreen", saveWordData);
@@ -523,7 +525,9 @@ const NewsDetailScreen = () => {
                                                                               word: translateWord,
                                                                               partOfSpeech: partOfSpeech,
                                                                               definition: item,
-                                                                              example: null
+                                                                              example: null,
+                                                                              audio: phonetic?.audio,
+                                                                              phonetic: phonetic?.text
                                                                           }
                                                                           // @ts-ignore
                                                                           navigation.navigate("SaveNewWordScreen", saveWordData)
@@ -577,7 +581,9 @@ const NewsDetailScreen = () => {
                                                                               word: translateWord,
                                                                               partOfSpeech: partOfSpeech,
                                                                               definition: item,
-                                                                              example: null
+                                                                              example: null,
+                                                                              audio: phonetic?.audio,
+                                                                              phonetic: phonetic?.text
                                                                           }
                                                                           // @ts-ignore
                                                                           navigation.navigate("SaveNewWordScreen", saveWordData)
