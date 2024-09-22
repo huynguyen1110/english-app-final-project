@@ -31,6 +31,10 @@ public class Words {
 
     private String image;
 
+    private String audio;
+
+    private String phonetic;
+
     private Boolean isDeleted;
 
     private LocalDateTime createdAt;

@@ -21,4 +21,8 @@ public class WordDto {
     private String wordType;
 
     private String image;
+
+    private String audio;
+
+    private String phonetic;
 }

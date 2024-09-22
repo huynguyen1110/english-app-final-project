@@ -40,6 +40,8 @@ public class WordSerivce implements IWordService {
                 .meaning(wordDto.getMeaning())
                 .example(wordDto.getExample())
                 .image(wordDto.getImage())
+                .audio(wordDto.getAudio())
+                .phonetic(wordDto.getPhonetic())
                 .isDeleted(false)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
