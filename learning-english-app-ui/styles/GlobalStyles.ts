@@ -27,7 +27,6 @@ export const GlobalStyles = StyleSheet.create({
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#fff',
         padding: 10,
         elevation: 5,
         shadowColor: '#000',
