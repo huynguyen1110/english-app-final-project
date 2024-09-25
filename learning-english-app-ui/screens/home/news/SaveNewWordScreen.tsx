@@ -44,7 +44,7 @@ const SaveNewWordScreen = () => {
     const route = useRoute();
 
     // @ts-ignore
-    const {word, partOfSpeech, definition, example, audio, phonetic} = route.params;
+    const {word, partOfSpeech, definition, example, audio, phonetic} = route?.params;
 
     const [wordInput, setWordInput] = useState(word);
 

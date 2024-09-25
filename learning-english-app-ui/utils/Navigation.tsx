@@ -12,6 +12,7 @@ import SaveNewWordScreen from "../screens/home/news/SaveNewWordScreen";
 import ListNewsBySourceNameScreen from "../screens/home/news/ListNewsBySourceNameScreen";
 import VocabMainScreen from "../screens/vocab/VocabMainScreen";
 import ListWordsScreen from "../screens/vocab/ListWordsScreen";
+import CreateNewVocabPackScreen from "../screens/vocab/CreateNewVocabPackScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -38,6 +39,7 @@ const Navigation = () => {
                 {/* vocab screens */}
                 <Stack.Screen name="VocabMainScreen" component={VocabMainScreen} />
                 <Stack.Screen name="ListWordsScreen" component={ListWordsScreen} />
+                <Stack.Screen name="CreateNewVocabPackScreen" component={CreateNewVocabPackScreen} />
                 {/* vocab screens */}
 
             </Stack.Navigator>
