@@ -7,22 +7,22 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 // @ts-ignore
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
-    KeyboardAvoidingView,
+    ActivityIndicator,
     LogBox,
-    Platform,
-    SafeAreaView, ScrollView,
+    SafeAreaView,
     StyleSheet,
-    TextInput,
     TouchableOpacity,
     View
 } from "react-native";
 import {GlobalStyles} from "../../styles/GlobalStyles";
 import {Block, Text, theme} from "galio-framework";
 import {useNavigation} from "@react-navigation/native";
-import {Layout, Input} from "@ui-kitten/components";
+import {Input} from "@ui-kitten/components";
 import {themeAppColor} from "../../utils/constant";
 import {SwipeListView} from 'react-native-swipe-list-view';
 import React from 'react';
+import Toast from "react-native-toast-message";
+import {addWordToPackage, createPackageService, createWord} from "../../services/VocabService";
 
 const CreateNewVocabPackScreen = () => {
 
@@ -30,14 +30,12 @@ const CreateNewVocabPackScreen = () => {
 
     const navigation = useNavigation();
 
-    const [wordInput, setWordInput] = React.useState<string>('');
+    const [loading, setLoading] = React.useState(false);
 
-    const [meaningInput, setMeaningInput] = React.useState<string>('');
-
-    const [exampleInput, setExampleInput] = React.useState<string>('');
+    const [packageName, setPackageName] = React.useState<string>("");
 
     const [listNewWords, setListNewWords] = React.useState([
-        {key: '1', word: '', meaning: '', example: ''},
+        {key: '1', word: '', meaning: '', wordType: "", example: ''},
     ]);
 
     const backButton = () => {
@@ -65,6 +63,7 @@ const CreateNewVocabPackScreen = () => {
         console.log('Opened row with key:', rowKey);
     };
 
+    // add word data to list
     const addNewWordToListBtn = () => {
         const key = Math.random().toString(36).substring(2, 9);
         const newListData = [...listNewWords];
@@ -72,6 +71,7 @@ const CreateNewVocabPackScreen = () => {
             key: key,
             word: "",
             meaning: "",
+            wordType: "",
             example: ""
         });
         setListNewWords(newListData);
@@ -110,6 +110,16 @@ const CreateNewVocabPackScreen = () => {
             setListNewWords(updatedWords);
         };
 
+        const handleWordTypeChange = (value: string) => {
+            const updatedWords = listNewWords.map((item: any) => {
+                if (item.key === rowData.item.key) {
+                    return {...item, wordType: value};
+                }
+                return item;
+            });
+            setListNewWords(updatedWords);
+        };
+
         return (
             <View
                 style={styles.itemContainer}
@@ -120,10 +130,17 @@ const CreateNewVocabPackScreen = () => {
                         <Text size={14} bold>Word:</Text>
                         <Input value={rowData?.item?.word} onChangeText={handleWordChange}/>
                     </Block>
+                    <Block height={6}></Block>
                     <Block>
                         <Text size={14} bold>Meaning:</Text>
                         <Input value={rowData?.item?.meaning} onChangeText={handleMeaningChange}/>
                     </Block>
+                    <Block height={6}></Block>
+                    <Block>
+                        <Text size={14} bold>Word type:</Text>
+                        <Input value={rowData?.item?.wordType} onChangeText={handleWordTypeChange}/>
+                    </Block>
+                    <Block height={6}></Block>
                     <Block>
                         <Text size={14} bold>Example:</Text>
                         <Input
@@ -157,14 +174,115 @@ const CreateNewVocabPackScreen = () => {
         </View>
     );
 
-    React.useEffect(() => {
-        console.log(listNewWords)
-    }, [listNewWords])
+    // validate data
+    const validatePackageData = (data: any) => {
+        let isValid = true;
+        const isListValid = data?.listNewWords.every((item: any) => item.word !== '' && item.meaning !== '' && item.example !== '');
+        if (data?.packageName === '' || data?.packageName === undefined) {
+            isValid = false;
+        }
+        if (data?.listNewWords?.length == 0 || !isListValid) {
+            isValid = false;
+        }
+        return isValid;
+    }
+
+    const handleSavePackageBtn = async () => {
+        let packageData = {
+            packageName: packageName,
+            listNewWords: listNewWords
+        }
+        if (validatePackageData(packageData)) {
+            try {
+                // Bật trạng thái loading
+                setLoading(true);
+                const packageDto = {
+                    name: packageData?.packageName,
+                    isPublished: false
+                }
+
+                const createPackageResponse: any = await createPackageService(packageDto);
+                const {data} = createPackageResponse;
+                let packageId = data?.id;
+                if (data?.id) {
+                    const wordData = packageData?.listNewWords.map((item: any, index: number) => {
+                        return {
+                            name: item?.word,
+                            description: '',
+                            meaning: item?.meaning,  // Có thể thêm các thuộc tính khác nếu cần
+                            example: item?.example,
+                            wordType: item?.wordType,
+                            image: '',
+                            audio: '',
+                            phonetic: ''
+                        };
+                    });
+
+                    if (wordData.length > 0) {
+                        const wordsId = await Promise.all(
+                            wordData.map(async (item: any) => {
+                                const createWordResponse: any = await createWord(item);
+                                const {data} = createWordResponse;
+                                return data?.wordId;
+                            })
+                        );
+                        if (wordsId.length > 0 && packageId) {
+                            const addWordToPackageResponses = await Promise.all(
+                                wordsId.map(async (item: any) => {
+                                    const addWordToPackageResponse: any = await addWordToPackage(item, packageId);
+                                    const {data} = addWordToPackageResponse;
+                                    return data;
+                                })
+                            );
+                            if (addWordToPackageResponses.length > 0) {
+                                Toast.show({
+                                    type: 'success',
+                                    text1: 'Created package successfully',
+                                    text1Style: {fontSize: 20, fontWeight: 'bold'},
+                                });
+                            }
+                        }
+                    }
+                }
+            } catch (err) {
+                console.log("err while creating package in createNewVocabPackScreen")
+            } finally {
+                // Tat trạng thái loading
+                setLoading(false);
+                setTimeout(() => {
+                    backButton();
+                }, 2000);
+            }
+        } else {
+            Toast.show({
+                type: 'error',
+                text1: 'Can not create package',
+                text2: 'Word data, package name can not be empty!',
+                text1Style: {fontSize: 20, fontWeight: 'bold'},
+                text2Style: {fontSize: 14},
+            });
+        }
+    }
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}
         >
-            {/*list new words section*/}
+            {/* Hiển thị loading indicator nếu loading */}
+            {loading && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.2)',
+                    zIndex: 10,
+                }}>
+                    <ActivityIndicator size="large" color="#0000ff"/>
+                </View>
+            )}
             <View style={{flex: 1}}>
                 <SwipeListView
                     data={listNewWords}
@@ -179,6 +297,7 @@ const CreateNewVocabPackScreen = () => {
                     keyExtractor={(item) => item.key.toString()}
                     ListHeaderComponent={
                         <View>
+                            {/*header section*/}
                             <Block style={GlobalStyles.main_container} flexDirection="row"
                                    justifyContent="space-between"
                                    alignItems="center">
@@ -186,7 +305,7 @@ const CreateNewVocabPackScreen = () => {
                                     <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                                 </TouchableOpacity>
                                 <Text size={20} bold>Create package</Text>
-                                <TouchableOpacity style={{padding: 4}}>
+                                <TouchableOpacity style={{padding: 4}} onPress={handleSavePackageBtn}>
                                     <Text size={20}> <AntDesign name="check" size={24}/> </Text>
                                 </TouchableOpacity>
                             </Block>
@@ -194,6 +313,7 @@ const CreateNewVocabPackScreen = () => {
                             <Block style={[
                                 GlobalStyles.under_line
                             ]}></Block>
+                            {/*header section*/}
 
                             <View style={[GlobalStyles.main_container]}>
                                 <Block height={12}></Block>
@@ -201,7 +321,8 @@ const CreateNewVocabPackScreen = () => {
                                     <Text bold size={16}>Package name:</Text>
                                     <Block height={6}></Block>
                                     <Block>
-                                        <Input placeholder='Package name'/>
+                                        <Input placeholder='Package name'
+                                               onChangeText={value => setPackageName(value)}/>
                                     </Block>
                                 </Block>
 
@@ -238,6 +359,8 @@ const CreateNewVocabPackScreen = () => {
                     }
                 />
             </View>
+
+            <Toast/>
         </SafeAreaView>
     );
 }
