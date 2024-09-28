@@ -1,5 +1,5 @@
-import {SafeAreaView, ScrollView, StyleSheet, View} from "react-native";
-import React from 'react';
+import {SafeAreaView, ScrollView, StyleSheet, View, StatusBar} from "react-native";
+import React, {useEffect, useState} from 'react';
 import {GlobalStyles} from "../../styles/GlobalStyles";
 import {Avatar, Layout, Text} from "@ui-kitten/components";
 import {useRoute} from "@react-navigation/native";
@@ -18,6 +18,7 @@ const ListWordsScreen = () => {
 
     return (
         <SafeAreaView style={[GlobalStyles.AndroidSafeArea]}>
+            <StatusBar hidden/>
             {/*Header section*/}
             <ListWordsScreenHeader/>
             {/*Header section*/}
@@ -51,7 +52,7 @@ const ListWordsScreen = () => {
                     <Block height={20}></Block>
 
                     {/* list card section */}
-                    <ListCardsComponent wordsData={packageData?.words} />
+                    <ListCardsComponent wordsData={packageData?.words}/>
                     {/* list card section */}
 
                 </ScrollView>

@@ -1,4 +1,4 @@
-import {Image, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Image, StyleSheet, TouchableOpacity, View, Modal, StatusBar} from "react-native";
 import {Block, Text, theme} from "galio-framework";
 import React from "react";
 import {IndexPath, Select, SelectItem} from "@ui-kitten/components";
@@ -9,14 +9,21 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome'
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Audio} from "expo-av";
 import Toast from "react-native-toast-message";
+import {useNavigation} from "@react-navigation/native";
 
 const ListCardsComponent = (wordsData: any) => {
+
+    const navigation = useNavigation();
 
     const [selectedIndex, setSelectedIndex] = React.useState<IndexPath | IndexPath[]>(new IndexPath(0));
 
     const [sound, setSound] = React.useState<any>();
 
     const [sortedWords, setSortedWords] = React.useState<any>([]);
+
+    const [modalVisible, setModalVisible] = React.useState(false);
+
+    const [wordToEdit, setWordToEdit] = React.useState({})
 
     const options = {
         'Newest': 'NEWEST',
@@ -86,8 +93,6 @@ const ListCardsComponent = (wordsData: any) => {
         }
     }, [selectedIndex, wordsData]);
 
-
-
     return (
         <View>
             <Block flexDirection="row" justifyContent="space-between" alignItems="center">
@@ -112,7 +117,6 @@ const ListCardsComponent = (wordsData: any) => {
             <Block height={12}></Block>
 
             {/* card section */}
-
             {
                 // @ts-ignore
                 sortedWords.map((word: any, index: any) => {
@@ -125,7 +129,18 @@ const ListCardsComponent = (wordsData: any) => {
                                         <Text color={theme.COLORS?.FACEBOOK} bold size={18}>
                                             {word?.name || "Unknown Word"}
                                         </Text>
-                                        <TouchableOpacity style={{padding: 4}}>
+                                        <TouchableOpacity style={{padding: 4}} onPress={() => {
+                                            setModalVisible(true);
+                                            // @ts-ignore
+                                            setWordToEdit({
+                                                word: word?.name,
+                                                partOfSpeech: word?.wordType,
+                                                definition: word?.definition,
+                                                example: word?.example,
+                                                audio: word?.audio,
+                                                phonetic: word?.phonetic,
+                                            })
+                                        }}>
                                             <Text size={18}>
                                                 <Entypo name="dots-three-vertical" size={18}/>
                                             </Text>
@@ -171,8 +186,43 @@ const ListCardsComponent = (wordsData: any) => {
                     );
                 })
             }
-
             {/* card section */}
+
+            {/* modal section */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                }}>
+                <TouchableOpacity
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)' // Màu nền mờ
+                    }}
+                    activeOpacity={1}
+                    onPressOut={() => setModalVisible(false)}
+                >
+                    <View style={styles.modalView}>
+                        <Block flexDirection="collum" width={300} height={120} justifyContent="space-around"
+                               alignItems="center">
+                            <TouchableOpacity style={styles.actionBtn} onPress={() => {
+                                // @ts-ignore
+                                navigation.navigate("SaveNewWordScreen", wordToEdit);
+                            }}>
+                                <Text size={16}><FontAwesome size={16} name='pencil'/><Text> </Text> Edit</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.actionBtn}>
+                                <Text size={16}><FontAwesome size={16} name="trash"/><Text> </Text> Delete</Text>
+                            </TouchableOpacity>
+                        </Block>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
+            {/* modal section */}
         </View>
     );
 }
@@ -208,5 +258,31 @@ const styles = StyleSheet.create({
         height: 150,
         resizeMode: "stretch",
         borderRadius: 10
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        height: 200,
+        width: 350
+    },
+    actionBtn: {
+        padding: 10,
+        width: "100%",
+        height: 50,
+        alignItems: "flex-start",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderRadius: 6
     }
 });

@@ -311,7 +311,9 @@ const SaveNewWordScreen = () => {
         if (partOfSpeech != null && definition != null) {
             setDefinitionInput(definition);
             setPartOfSpeechInput(partOfSpeech);
-            fetchExampleUsingChatGpt();
+            if (exampleInput === '' || exampleInput === undefined || exampleInput === null) {
+                fetchExampleUsingChatGpt();
+            }
         }
     }, [partOfSpeech, definition]);
 
