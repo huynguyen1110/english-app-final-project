@@ -96,3 +96,21 @@ export const addWordToPackage = async (wordId: any, packageId: any) => {
         console.error(error);
     }
 }
+
+export const removeWordFromPackageService = async (wordId: any, packageId: any) => {
+    console.log(wordId, packageId)
+    const options = {
+        method: 'POST',
+        url: BASE_URL.concat(WORD_ENPOINT.REMOVE_WORD_FROM_PACKAGE)
+            .concat("?wordId=" + wordId)
+            .concat("&packageId=" + packageId)
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error("err while removing word from package",error);
+    }
+}
+
+

@@ -133,6 +133,7 @@ const ListCardsComponent = (wordsData: any) => {
                                             setModalVisible(true);
                                             // @ts-ignore
                                             setWordToEdit({
+                                                wordId: word?.wordId,
                                                 word: word?.name,
                                                 partOfSpeech: word?.wordType,
                                                 definition: word?.definition,

@@ -30,7 +30,13 @@ import {getExamplePrompt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
 import {getImageResult} from "../../../services/SerperService";
 import * as ImagePicker from 'expo-image-picker';
-import {addWordToPackage, createPackageService, createWord, getPackageService} from "../../../services/VocabService";
+import {
+    addWordToPackage,
+    createPackageService,
+    createWord,
+    getPackageService,
+    removeWordFromPackageService
+} from "../../../services/VocabService";
 import {decodeJwtToken} from "../../../services/AuthenticationService";
 import Toast from 'react-native-toast-message';
 import {updaloadImage} from "../../../services/FileService";
@@ -44,7 +50,7 @@ const SaveNewWordScreen = () => {
     const route = useRoute();
 
     // @ts-ignore
-    const {word, partOfSpeech, definition, example, audio, phonetic, exampleFromEdit, packageId} = route?.params;
+    const {word, partOfSpeech, definition, example, audio, phonetic, exampleFromEdit, packageId, wordId} = route?.params;
 
     const [wordInput, setWordInput] = useState(word);
 
@@ -169,6 +175,14 @@ const SaveNewWordScreen = () => {
         }
     }
 
+    const removeWordFromPackage = async (wordId: any, packageId: any) => {
+        try {
+            const response = await removeWordFromPackageService(wordId, packageId);
+        } catch (e) {
+            console.log("err while call removeWordFromPackage service", e);
+        }
+    }
+
     // handle save word to db
     const handleSaveWordButton = async () => {
         try {
@@ -202,6 +216,11 @@ const SaveNewWordScreen = () => {
                 const addWordResponse = await addWordToPackage(data.wordId, selectedFoder.id);
 
                 if (addWordResponse) {
+
+                    if (wordId && packageId) {
+                        removeWordFromPackage(wordId, packageId);
+                    }
+
                     Toast.show({
                         type: 'success',
                         text1: 'Success',
