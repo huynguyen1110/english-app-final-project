@@ -34,7 +34,6 @@ import {getDefinitionInVietnamesePrompt} from "../../../utils/GptPrompts";
 import {decodeJwtToken, getJwtToken} from "../../../services/AuthenticationService";
 import {addNewsToFavoriteService} from "../../../services/FavoriteService";
 import Toast from 'react-native-toast-message';
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const NewsDetailScreen = () => {
 

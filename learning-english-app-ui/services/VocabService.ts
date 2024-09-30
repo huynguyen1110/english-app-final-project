@@ -28,6 +28,22 @@ export const createPackageService = async (packageDto: any) => {
     }
 }
 
+// delete package service
+export const deletePackageService = async (packageId: any) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(PACAKGE_ENPOINT.DELETE_PACKAGE)
+            .concat("?id=" + packageId),
+    };
+
+    try {
+        const response = await axios.request(options);
+        return response;
+    } catch (error) {
+        console.error("err while deleting package", error);
+    }
+}
+
 // get package service
 export const getPackageService = async (params: any) => {
     const options = {
@@ -74,7 +90,7 @@ export const createWord = async (wordDto: any) => {
     try {
         return await axios.request(options);
     } catch (error: any) {
-        console.error("err while creating word",  error.response);
+        console.error("err while creating word", error.response);
     }
 }
 
@@ -98,7 +114,6 @@ export const addWordToPackage = async (wordId: any, packageId: any) => {
 }
 
 export const removeWordFromPackageService = async (wordId: any, packageId: any) => {
-    console.log(wordId, packageId)
     const options = {
         method: 'POST',
         url: BASE_URL.concat(WORD_ENPOINT.REMOVE_WORD_FROM_PACKAGE)
@@ -109,7 +124,7 @@ export const removeWordFromPackageService = async (wordId: any, packageId: any) 
     try {
         return await axios.request(options);
     } catch (error) {
-        console.error("err while removing word from package",error);
+        console.error("err while removing word from package", error);
     }
 }
 

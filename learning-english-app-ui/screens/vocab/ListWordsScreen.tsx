@@ -20,7 +20,7 @@ const ListWordsScreen = () => {
         <SafeAreaView style={[GlobalStyles.AndroidSafeArea]}>
             <StatusBar hidden/>
             {/*Header section*/}
-            <ListWordsScreenHeader/>
+            <ListWordsScreenHeader data={packageData}/>
             {/*Header section*/}
 
             {/* package content section */}

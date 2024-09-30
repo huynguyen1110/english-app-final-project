@@ -10,6 +10,7 @@ import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Audio} from "expo-av";
 import Toast from "react-native-toast-message";
 import {useNavigation} from "@react-navigation/native";
+import {removeWordFromPackageService} from "../../../services/VocabService";
 
 const ListCardsComponent = (wordsData: any) => {
 
@@ -23,7 +24,7 @@ const ListCardsComponent = (wordsData: any) => {
 
     const [modalVisible, setModalVisible] = React.useState(false);
 
-    const [wordToEdit, setWordToEdit] = React.useState({})
+    const [wordToEdit, setWordToEdit] = React.useState<any>({})
 
     const options = {
         'Newest': 'NEWEST',
@@ -49,6 +50,37 @@ const ListCardsComponent = (wordsData: any) => {
             });
         }
 
+    }
+
+    const handelRemoveWordFromPackageBtn = async () => {
+        const wordId = wordToEdit?.wordId;
+        const packageId = wordToEdit?.packageId;
+
+        try {
+            const response = await removeWordFromPackageService(wordId, packageId);
+            const {data}: any = response;
+            if (data) {
+                const updatedWords = sortedWords.filter((item: any) => item.wordId !== wordId);
+                setSortedWords(updatedWords);
+                Toast.show({
+                    type: 'success',
+                    text1: 'Removed word successfully!',
+                    position: 'top',
+                    visibilityTime: 3000,
+                    text1Style: {fontSize: 20}
+                });
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Can not remove word!',
+                    position: 'top',
+                    visibilityTime: 3000,
+                    text1Style: {fontSize: 20}
+                });
+            }
+        } catch (e) {
+            console.log("err while removing word from package in ListCardComponent", e);
+        }
     }
 
     React.useEffect(() => {
@@ -217,7 +249,7 @@ const ListCardsComponent = (wordsData: any) => {
                             }}>
                                 <Text size={16}><FontAwesome size={16} name='pencil'/><Text> </Text> Edit</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.actionBtn}>
+                            <TouchableOpacity style={styles.actionBtn} onPress={handelRemoveWordFromPackageBtn}>
                                 <Text size={16}><FontAwesome size={16} name="trash"/><Text> </Text> Delete</Text>
                             </TouchableOpacity>
                         </Block>
