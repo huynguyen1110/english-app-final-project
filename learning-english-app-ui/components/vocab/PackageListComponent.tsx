@@ -131,7 +131,7 @@ const PackageListComponent = () => {
     useEffect(() => {
         const filteredData = searchTerm
             ? vocabPackages.filter((item: any) =>
-                item.name.toLowerCase().includes(searchTerm.toLowerCase()) // Lọc theo tên package
+                item?.name?.toLowerCase()?.includes(searchTerm.toLowerCase()) // Lọc theo tên package
             )
             : vocabPackages;  // Nếu không có từ khóa, trả về toàn bộ data
         setFilteredData(filteredData);

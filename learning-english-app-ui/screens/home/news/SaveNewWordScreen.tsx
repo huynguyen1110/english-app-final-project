@@ -44,7 +44,7 @@ const SaveNewWordScreen = () => {
     const route = useRoute();
 
     // @ts-ignore
-    const {word, partOfSpeech, definition, example, audio, phonetic} = route?.params;
+    const {word, partOfSpeech, definition, example, audio, phonetic, exampleFromEdit, packageId} = route?.params;
 
     const [wordInput, setWordInput] = useState(word);
 
@@ -254,6 +254,7 @@ const SaveNewWordScreen = () => {
     // handle select folder
     const handleSelectFolder = (folderId: number) => {
         setSelectedFolder(null);
+        setLatestPackage(null);
         const selectedFolder = listOfPackages.find((item: any) => item.id === folderId);
         setSelectedFolder(selectedFolder);
     }
@@ -338,11 +339,17 @@ const SaveNewWordScreen = () => {
     }, []);
 
     useEffect(() => {
-        const latestPackage = listOfPackages?.reduce((latest, current) => {
-            return new Date(latest.updatedAt) > new Date(current.updatedAt) ? latest : current;
-        }, listOfPackages[0]);
-        setLatestPackage(latestPackage);
-    }, [listOfPackages]);
+        if (packageId) {
+            const selectedFolder = listOfPackages.find((item: any) => item.id === packageId);
+            setSelectedFolder(selectedFolder);
+        } else {
+            const latestPackage = listOfPackages?.reduce((latest, current) => {
+                return new Date(latest.updatedAt) > new Date(current.updatedAt) ? latest : current;
+            }, listOfPackages[0]);
+            // setLatestPackage(latestPackage);
+            setSelectedFolder(latestPackage);
+        }
+    }, [listOfPackages, packageId]);
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
@@ -426,7 +433,7 @@ const SaveNewWordScreen = () => {
                         multiline={true}
                         onContentSizeChange={(e) => setInputExampleHeight(e.nativeEvent.contentSize.height)}
                         numberOfLines={5}
-                        value={exampleInput}
+                        value={exampleFromEdit || exampleInput}
                         onChangeText={text => setExampleInput(text)}
                     />
                 </Block>
@@ -570,7 +577,9 @@ const SaveNewWordScreen = () => {
                                 </TouchableOpacity>
                             </Block>
                         </Block>
+
                         <Block height={18}></Block>
+
                         <Block collum alignItems="center" justifyContent="space-around">
                             <TextInput onChangeText={text => setPackageName(text)}
                                        style={{width: "90%", borderWidth: 1, height: 35, borderRadius: 10}}

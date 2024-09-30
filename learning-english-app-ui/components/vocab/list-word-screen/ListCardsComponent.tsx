@@ -136,9 +136,10 @@ const ListCardsComponent = (wordsData: any) => {
                                                 word: word?.name,
                                                 partOfSpeech: word?.wordType,
                                                 definition: word?.definition,
-                                                example: word?.example,
+                                                exampleFromEdit: word?.example,
                                                 audio: word?.audio,
                                                 phonetic: word?.phonetic,
+                                                packageId: wordsData?.packageId
                                             })
                                         }}>
                                             <Text size={18}>

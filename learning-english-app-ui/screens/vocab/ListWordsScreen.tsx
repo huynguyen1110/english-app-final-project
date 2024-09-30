@@ -52,7 +52,7 @@ const ListWordsScreen = () => {
                     <Block height={20}></Block>
 
                     {/* list card section */}
-                    <ListCardsComponent wordsData={packageData?.words}/>
+                    <ListCardsComponent wordsData={packageData?.words} packageId={packageData?.id} />
                     {/* list card section */}
 
                 </ScrollView>
