@@ -25,6 +25,7 @@ import Toast from "react-native-toast-message";
 import {addWordToPackage, createPackageService, createWord} from "../../services/VocabService";
 import {object} from "yup";
 import {description} from "@eva-design/eva/package";
+import data from "../../components/carousel/data";
 
 const CreateNewVocabPackScreen = () => {
 
@@ -36,10 +37,10 @@ const CreateNewVocabPackScreen = () => {
 
     const packageDataParam: any = router?.params;
 
-    let packageData: any;
+    let packagesData: any;
 
     if (packageDataParam) {
-        packageData = Object?.values(packageDataParam)[0];
+        packagesData = Object?.values(packageDataParam)[0];
     }
 
     const [loading, setLoading] = React.useState(false);
@@ -192,9 +193,13 @@ const CreateNewVocabPackScreen = () => {
     const validatePackageData = (data: any) => {
         let isValid = true;
         const isListValid = data?.listNewWords.every((item: any) => item.word !== '' && item.meaning !== '' && item.example !== '');
-        if (data?.packageName === '' || data?.packageName === undefined) {
-            isValid = false;
+
+        if (!packagesData) {
+            if (data?.packageName === '' || data?.packageName === undefined) {
+                isValid = false;
+            }
         }
+
         if (data?.listNewWords?.length == 0 || !isListValid) {
             isValid = false;
         }
@@ -202,82 +207,80 @@ const CreateNewVocabPackScreen = () => {
     }
 
     const handleSavePackageBtn = async () => {
-        let packageData = {
+        let packageData: any = {
             packageName: packageName,
             description: packageDescription,
-            listNewWords: listNewWords
-        }
-        if (validatePackageData(packageData)) {
-            try {
-                // Bật trạng thái loading
-                setLoading(true);
-                const packageDto = {
-                    name: packageData?.packageName,
-                    isPublished: false
-                }
+            listNewWords: listNewWords,
+        };
 
-                const createPackageResponse: any = await createPackageService(packageDto);
-                const {data} = createPackageResponse;
-                let packageId = data?.id;
-                if (data?.id) {
-                    const wordData = packageData?.listNewWords.map((item: any, index: number) => {
-                        return {
-                            name: item?.word,
-                            description: '',
-                            meaning: item?.meaning,  // Có thể thêm các thuộc tính khác nếu cần
-                            example: item?.example,
-                            wordType: item?.wordType,
-                            image: '',
-                            audio: '',
-                            phonetic: ''
-                        };
-                    });
-
-                    if (wordData.length > 0) {
-                        const wordsId = await Promise.all(
-                            wordData.map(async (item: any) => {
-                                const createWordResponse: any = await createWord(item);
-                                const {data} = createWordResponse;
-                                return data?.wordId;
-                            })
-                        );
-                        if (wordsId.length > 0 && packageId) {
-                            const addWordToPackageResponses = await Promise.all(
-                                wordsId.map(async (item: any) => {
-                                    const addWordToPackageResponse: any = await addWordToPackage(item, packageId);
-                                    const {data} = addWordToPackageResponse;
-                                    return data;
-                                })
-                            );
-                            if (addWordToPackageResponses.length > 0) {
-                                Toast.show({
-                                    type: 'success',
-                                    text1: 'Created package successfully',
-                                    text1Style: {fontSize: 20, fontWeight: 'bold'},
-                                });
-                            }
-                        }
-                    }
-                }
-            } catch (err) {
-                console.log("err while creating package in createNewVocabPackScreen")
-            } finally {
-                // Tat trạng thái loading
-                setLoading(false);
-                setTimeout(() => {
-                    backButton();
-                }, 2000);
-            }
-        } else {
+        // Validate package data
+        if (!validatePackageData(packageData)) {
             Toast.show({
                 type: 'error',
-                text1: 'Can not create package',
-                text2: 'Word data, package name can not be empty!',
-                text1Style: {fontSize: 20, fontWeight: 'bold'},
-                text2Style: {fontSize: 14},
+                text1: 'Word data can not be empty',
+                text1Style: { fontSize: 20, fontWeight: 'bold' },
             });
+            return;
         }
-    }
+
+        try {
+            setLoading(true);
+
+            let packageId = packagesData?.id;
+            // If package does not exist, create a new one
+            if (!packageId) {
+                const packageDto = {
+                    name: packageData.packageName,
+                    isPublished: false,
+                };
+                const createPackageResponse: any = await createPackageService(packageDto);
+                packageId = createPackageResponse.data?.id;
+            }
+
+            // If packageId is present, create words and add to package
+            if (packageId && packageData.listNewWords.length > 0) {
+                const wordData = packageData.listNewWords.map((item: any) => ({
+                    name: item.word,
+                    description: '',
+                    meaning: item.meaning,
+                    example: item.example,
+                    wordType: item.wordType,
+                    image: '',
+                    audio: '',
+                    phonetic: '',
+                }));
+
+                const wordsId = await Promise.all(
+                    wordData.map(async (item: any) => {
+                        const createWordResponse: any = await createWord(item);
+                        return createWordResponse.data?.wordId;
+                    })
+                );
+
+                if (wordsId.length > 0) {
+                    await Promise.all(
+                        wordsId.map(async (wordId: any) => {
+                            await addWordToPackage(wordId, packageId);
+                        })
+                    );
+
+                    Toast.show({
+                        type: 'success',
+                        text1: packagesData?.id ? 'Add word to package successfully' : 'Created package successfully',
+                        text1Style: { fontSize: 20, fontWeight: 'bold' },
+                    });
+                }
+            }
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setLoading(false);
+            setTimeout(() => {
+                backButton();
+            }, 2000);
+        }
+    };
+
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}
@@ -319,7 +322,7 @@ const CreateNewVocabPackScreen = () => {
                                 <TouchableOpacity onPress={backButton} style={{padding: 4}}>
                                     <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                                 </TouchableOpacity>
-                                {packageData ? (
+                                {packagesData ? (
                                     <Text size={20} bold>Add words package</Text>
                                 ) : (
                                     <Text size={20} bold>Create package</Text>
@@ -340,12 +343,12 @@ const CreateNewVocabPackScreen = () => {
                                     <Text bold size={16}>Package name:</Text>
                                     <Block height={6}></Block>
                                     <Block>
-                                        <View pointerEvents={packageData?.name ? 'none' : 'auto'}>
+                                        <View pointerEvents={packagesData?.name ? 'none' : 'auto'}>
                                             <Input
                                                 placeholder='Package name'
-                                                value={packageData?.name || packageName}
+                                                value={packagesData?.name || packageName}
                                                 onChangeText={value => setPackageName(value)}
-                                                editable={!packageData?.name}
+                                                editable={!packagesData?.name}
                                             />
                                         </View>
                                     </Block>
@@ -357,12 +360,12 @@ const CreateNewVocabPackScreen = () => {
                                     <Text bold size={16}>Description:</Text>
                                     <Block height={6}></Block>
                                     <Block>
-                                        <View pointerEvents={packageData?.name ? 'none' : 'auto'}>
+                                        <View pointerEvents={packagesData?.name ? 'none' : 'auto'}>
                                             <Input
                                                 placeholder='Description'
-                                                value={packageData?.description || packageDescription}
+                                                value={packagesData?.description || packageDescription}
                                                 onChangeText={value => setPackageDescription(value)}
-                                                editable={!packageData?.description}
+                                                editable={!packagesData?.description}
                                             />
                                         </View>
                                     </Block>

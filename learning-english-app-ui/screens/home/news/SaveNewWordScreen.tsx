@@ -4,7 +4,7 @@ import {
     TextInput,
     TouchableOpacity,
     View,
-    LogBox, StyleSheet, Image, Alert, StatusBar
+    LogBox, StyleSheet, Image, Alert, StatusBar, ActivityIndicator
 } from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Block, Text} from "galio-framework";
@@ -48,6 +48,8 @@ const SaveNewWordScreen = () => {
     const navigation = useNavigation();
 
     const route = useRoute();
+
+    const [loading, setLoading] = React.useState(false);
 
     // @ts-ignore
     const {word, partOfSpeech, definition, example, audio, phonetic, exampleFromEdit, packageId, wordId} = route?.params;
@@ -186,6 +188,7 @@ const SaveNewWordScreen = () => {
     // handle save word to db
     const handleSaveWordButton = async () => {
         try {
+            setLoading(true);
 
             let uploadedImageUrl = selectedImage;
 
@@ -213,35 +216,42 @@ const SaveNewWordScreen = () => {
             const {data}: any = await createWord(wordDto);
 
             if (data?.wordId) {
-                const addWordResponse = await addWordToPackage(data.wordId, selectedFoder.id);
+                try {
+                    const addWordResponse = await addWordToPackage(data.wordId, selectedFoder.id);
 
-                if (addWordResponse) {
+                    if (addWordResponse) {
 
-                    if (wordId && packageId) {
-                        removeWordFromPackage(wordId, packageId);
+                        if (wordId && packageId) {
+                            removeWordFromPackage(wordId, packageId);
+                        }
+
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Success',
+                            text2: 'Saved word successfully 👌',
+                            position: 'bottom',
+                            visibilityTime: 3000,
+                            text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
+                            text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
+                        });
+
+                    } else {
+                        // Thông báo khi thêm từ vào package thất bại
+                        Toast.show({
+                            type: 'error',
+                            text1: 'Error',
+                            text2: 'Failed to save word 😞',
+                            position: 'bottom',
+                            visibilityTime: 3000,
+                            text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
+                            text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
+                        });
                     }
-
-                    Toast.show({
-                        type: 'success',
-                        text1: 'Success',
-                        text2: 'Saved word successfully 👌',
-                        position: 'bottom',
-                        visibilityTime: 3000,
-                        text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
-                        text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
-                    });
-
-                } else {
-                    // Thông báo khi thêm từ vào package thất bại
-                    Toast.show({
-                        type: 'error',
-                        text1: 'Error',
-                        text2: 'Failed to save word 😞',
-                        position: 'bottom',
-                        visibilityTime: 3000,
-                        text1Style: {fontSize: 20}, // Tăng kích thước chữ của text1
-                        text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
-                    });
+                } catch(e) {
+                    setLoading(false);
+                    console.log(e);
+                } finally {
+                    setLoading(false);
                 }
             } else {
                 // Thông báo khi tạo từ thất bại
@@ -372,6 +382,22 @@ const SaveNewWordScreen = () => {
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
+            {/* Hiển thị loading indicator nếu loading */}
+            {loading && (
+                <View style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.2)',
+                    zIndex: 10,
+                }}>
+                    <ActivityIndicator size="large" color="#0000ff"/>
+                </View>
+            )}
             <StatusBar hidden={true}/>
             <View>
                 <Block style={[GlobalStyles.main_container]} flexDirection="row" height={50}
