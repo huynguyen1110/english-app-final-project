@@ -15,14 +15,16 @@ import {
     View
 } from "react-native";
 import {GlobalStyles} from "../../styles/GlobalStyles";
-import {Block, Text, theme} from "galio-framework";
-import {useNavigation} from "@react-navigation/native";
+import {Block, Text} from "galio-framework";
+import {useNavigation, useRoute} from "@react-navigation/native";
 import {Input} from "@ui-kitten/components";
 import {themeAppColor} from "../../utils/constant";
 import {SwipeListView} from 'react-native-swipe-list-view';
 import React from 'react';
 import Toast from "react-native-toast-message";
 import {addWordToPackage, createPackageService, createWord} from "../../services/VocabService";
+import {object} from "yup";
+import {description} from "@eva-design/eva/package";
 
 const CreateNewVocabPackScreen = () => {
 
@@ -30,9 +32,21 @@ const CreateNewVocabPackScreen = () => {
 
     const navigation = useNavigation();
 
+    const router = useRoute();
+
+    const packageDataParam: any = router?.params;
+
+    let packageData: any;
+
+    if (packageDataParam) {
+        packageData = Object?.values(packageDataParam)[0];
+    }
+
     const [loading, setLoading] = React.useState(false);
 
     const [packageName, setPackageName] = React.useState<string>("");
+
+    const [packageDescription, setPackageDescription] = React.useState<string>("");
 
     const [listNewWords, setListNewWords] = React.useState([
         {key: '1', word: '', meaning: '', wordType: "", example: ''},
@@ -190,6 +204,7 @@ const CreateNewVocabPackScreen = () => {
     const handleSavePackageBtn = async () => {
         let packageData = {
             packageName: packageName,
+            description: packageDescription,
             listNewWords: listNewWords
         }
         if (validatePackageData(packageData)) {
@@ -304,7 +319,11 @@ const CreateNewVocabPackScreen = () => {
                                 <TouchableOpacity onPress={backButton} style={{padding: 4}}>
                                     <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                                 </TouchableOpacity>
-                                <Text size={20} bold>Create package</Text>
+                                {packageData ? (
+                                    <Text size={20} bold>Add words package</Text>
+                                ) : (
+                                    <Text size={20} bold>Create package</Text>
+                                )}
                                 <TouchableOpacity style={{padding: 4}} onPress={handleSavePackageBtn}>
                                     <Text size={20}> <AntDesign name="check" size={24}/> </Text>
                                 </TouchableOpacity>
@@ -321,8 +340,14 @@ const CreateNewVocabPackScreen = () => {
                                     <Text bold size={16}>Package name:</Text>
                                     <Block height={6}></Block>
                                     <Block>
-                                        <Input placeholder='Package name'
-                                               onChangeText={value => setPackageName(value)}/>
+                                        <View pointerEvents={packageData?.name ? 'none' : 'auto'}>
+                                            <Input
+                                                placeholder='Package name'
+                                                value={packageData?.name || packageName}
+                                                onChangeText={value => setPackageName(value)}
+                                                editable={!packageData?.name}
+                                            />
+                                        </View>
                                     </Block>
                                 </Block>
 
@@ -332,7 +357,14 @@ const CreateNewVocabPackScreen = () => {
                                     <Text bold size={16}>Description:</Text>
                                     <Block height={6}></Block>
                                     <Block>
-                                        <Input placeholder='Description'/>
+                                        <View pointerEvents={packageData?.name ? 'none' : 'auto'}>
+                                            <Input
+                                                placeholder='Description'
+                                                value={packageData?.description || packageDescription}
+                                                onChangeText={value => setPackageDescription(value)}
+                                                editable={!packageData?.description}
+                                            />
+                                        </View>
                                     </Block>
                                 </Block>
 

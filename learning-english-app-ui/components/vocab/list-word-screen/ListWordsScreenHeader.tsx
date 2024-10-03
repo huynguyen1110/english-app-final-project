@@ -85,6 +85,10 @@ const ListWordsScreenHeader = (data: any) => {
         );
     }
 
+    const handleAddWordBtn = () => {
+        // @ts-ignore
+        navigation.navigate("CreateNewVocabPackScreen", {packageData})
+    }
 
     return (
         <View>
@@ -120,7 +124,7 @@ const ListWordsScreenHeader = (data: any) => {
 
                         <Block height={12}></Block>
 
-                        <TouchableOpacity style={styles.actionBtn}>
+                        <TouchableOpacity style={styles.actionBtn} onPress={handleAddWordBtn}>
                             <Text size={18}><Entypo size={18} name='add-to-list'/><Text> </Text> Add word</Text>
                         </TouchableOpacity>
 
