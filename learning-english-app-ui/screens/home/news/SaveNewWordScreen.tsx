@@ -52,7 +52,7 @@ const SaveNewWordScreen = () => {
     const [loading, setLoading] = React.useState(false);
 
     // @ts-ignore
-    const {word, partOfSpeech, definition, example, audio, phonetic, exampleFromEdit, packageId, wordId} = route?.params;
+    let {word, partOfSpeech, definition, example, audio, phonetic, exampleFromEdit, packageId, wordId} = route?.params;
 
     const [wordInput, setWordInput] = useState(word);
 
@@ -60,7 +60,7 @@ const SaveNewWordScreen = () => {
 
     const [definitionInput, setDefinitionInput] = useState(definition);
 
-    const [exampleInput, setExampleInput] = useState(example);
+    const [exampleInput, setExampleInput] = useState(example || "");
 
     const [chatGptResponse, setChatGptResponse] = useState<string>("");
 
@@ -91,12 +91,6 @@ const SaveNewWordScreen = () => {
     const [selectedFoder, setSelectedFolder] = useState<any>(null);
 
     const modalRef = useRef<Modalize>(null);
-
-    // definition input height
-    const [inputHeight, setInputHeight] = useState(50);
-
-    // example input height
-    const [inputExampleHeight, setInputExampleHeight] = useState(50);
 
     // use for opening Modalize (handle scroll view in modal)
     const openModal = () => modalRef?.current?.open();
@@ -247,7 +241,7 @@ const SaveNewWordScreen = () => {
                             text2Style: {fontSize: 16}, // Tăng kích thước chữ của text2
                         });
                     }
-                } catch(e) {
+                } catch (e) {
                     setLoading(false);
                     console.log(e);
                 } finally {
@@ -380,6 +374,13 @@ const SaveNewWordScreen = () => {
         }
     }, [listOfPackages, packageId]);
 
+    // Sử dụng useEffect để cập nhật khi exampleFromEdit thay đổi
+    useEffect(() => {
+        if (!example) {
+            setExampleInput(exampleFromEdit || "");
+        }
+    }, [exampleFromEdit]);
+
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             {/* Hiển thị loading indicator nếu loading */}
@@ -456,10 +457,9 @@ const SaveNewWordScreen = () => {
                     <TextInput
                         style={[
                             GlobalStyles.non_rounded_input,
-                            {height: inputHeight}]}
+                            {minHeight: 50}]}
                         multiline={true}
-                        onContentSizeChange={(e) => setInputHeight(e.nativeEvent.contentSize.height)}
-                        numberOfLines={5}
+                        numberOfLines={1}
                         value={definitionInput}
                         onChangeText={text => setDefinitionInput(text)}
                     />
@@ -473,14 +473,16 @@ const SaveNewWordScreen = () => {
                     <TextInput
                         style={[
                             GlobalStyles.non_rounded_input,
-                            {height: inputExampleHeight}
+                            {minHeight: 50}
                         ]}
                         multiline={true}
-                        onContentSizeChange={(e) => setInputExampleHeight(e.nativeEvent.contentSize.height)}
                         numberOfLines={5}
-                        value={exampleFromEdit || exampleInput}
-                        onChangeText={text => setExampleInput(text)}
+                        value={exampleInput}  // Ưu tiên exampleInput nếu tồn tại
+                        onChangeText={(text) => {
+                            setExampleInput(text);  // Luôn cập nhật exampleInput
+                        }}
                     />
+
                 </Block>
 
                 <Block height={12}></Block>

@@ -13,6 +13,7 @@ import ListNewsBySourceNameScreen from "../screens/home/news/ListNewsBySourceNam
 import VocabMainScreen from "../screens/vocab/VocabMainScreen";
 import ListWordsScreen from "../screens/vocab/ListWordsScreen";
 import CreateNewVocabPackScreen from "../screens/vocab/CreateNewVocabPackScreen";
+import FlashCardScreen from "../screens/vocab/FlashCardScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -21,7 +22,7 @@ const Navigation = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName='VocabMainScreen'
+                initialRouteName='FlashCardScreen'
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true
@@ -40,6 +41,7 @@ const Navigation = () => {
                 <Stack.Screen name="VocabMainScreen" component={VocabMainScreen} />
                 <Stack.Screen name="ListWordsScreen" component={ListWordsScreen} />
                 <Stack.Screen name="CreateNewVocabPackScreen" component={CreateNewVocabPackScreen} />
+                <Stack.Screen name="FlashCardScreen" component={FlashCardScreen} />
                 {/* vocab screens */}
 
             </Stack.Navigator>

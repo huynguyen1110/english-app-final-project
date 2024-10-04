@@ -3,12 +3,20 @@ import {Image, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Block} from "galio-framework";
 import {Layout, Text} from "@ui-kitten/components";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
+import {useNavigation} from "@react-navigation/native";
 
 const LearningActionComponent = ({wordsData}: { wordsData: any }) => {
 
+    const navigation = useNavigation();
+
+    const navigateToFlashCardScreen = () => {
+        // @ts-ignore
+        navigation.navigate("FlashCardScreen");
+    }
+
     return (
         <Layout level='2'>
-            <TouchableOpacity style={[styles.container]}>
+            <TouchableOpacity style={[styles.container]} onPress={navigateToFlashCardScreen}>
                 <View style={GlobalStyles.main_container}>
                     <Block height={60} row alignItems='center'>
                         <Image style={styles.icon} source={require('../../../assets/icon-png/flash-cards.png')}/>

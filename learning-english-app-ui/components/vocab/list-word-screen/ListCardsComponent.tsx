@@ -168,7 +168,7 @@ const ListCardsComponent = (wordsData: any) => {
                                                 wordId: word?.wordId,
                                                 word: word?.name,
                                                 partOfSpeech: word?.wordType,
-                                                definition: word?.definition,
+                                                definition: word?.meaning,
                                                 exampleFromEdit: word?.example,
                                                 audio: word?.audio,
                                                 phonetic: word?.phonetic,
@@ -210,7 +210,12 @@ const ListCardsComponent = (wordsData: any) => {
 
                                     <Block height={8}></Block>
 
-                                    <Text size={16}>{word?.meaning || "No meaning available."}</Text>
+                                    <Text color={theme.COLORS?.FACEBOOK} bold
+                                          size={16}>{word?.meaning || "No meaning available."}</Text>
+
+                                    <Block height={8}></Block>
+
+                                    <Text size={16}>{word?.example}</Text>
 
                                     <Block height={12}></Block>
                                 </Block>
