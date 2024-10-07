@@ -22,7 +22,7 @@ const Navigation = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName='FlashCardScreen'
+                initialRouteName='VocabMainScreen'
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true

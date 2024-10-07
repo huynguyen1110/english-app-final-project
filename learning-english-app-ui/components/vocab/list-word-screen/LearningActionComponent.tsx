@@ -11,7 +11,7 @@ const LearningActionComponent = ({wordsData}: { wordsData: any }) => {
 
     const navigateToFlashCardScreen = () => {
         // @ts-ignore
-        navigation.navigate("FlashCardScreen");
+        navigation.navigate("FlashCardScreen", {wordsData: wordsData});
     }
 
     return (
