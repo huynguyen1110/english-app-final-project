@@ -1,4 +1,4 @@
-import {Dimensions, LogBox, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Dimensions, LogBox, Modal, SafeAreaView, StatusBar, StyleSheet, TouchableOpacity, View} from "react-native";
 import {GlobalStyles} from "../../styles/GlobalStyles";
 import {Block, Text} from "galio-framework";
 import React from "react";
@@ -7,12 +7,27 @@ import {useNavigation} from "@react-navigation/native";
 import FlipCard from 'react-native-flip-card';
 // @ts-ignore
 import SimpleLineIcons from "react-native-vector-icons/SimpleLineIcons";
+// @ts-ignore
+import AntDesign from "react-native-vector-icons/AntDesign";
+// @ts-ignore
+import Entypo from "react-native-vector-icons/Entypo";
+// @ts-ignore
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import {themeAppColor} from "../../utils/constant";
 
 const FlashCardScreen = () => {
 
     LogBox.ignoreAllLogs();
 
+    const [isPlaying, setIsPlaying] = React.useState(false);
+
+    const [modalVisible, setModalVisible] = React.useState(false);
+
     const navigation = useNavigation();
+
+    const handlePlayPausePress = () => {
+        setIsPlaying(!isPlaying);
+    };
 
     const backButton = () => {
         navigation.goBack();
@@ -27,7 +42,9 @@ const FlashCardScreen = () => {
                     <TouchableOpacity onPress={backButton}>
                         <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                     </TouchableOpacity>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                        setModalVisible(true);
+                    }}>
                         <Text size={18}> <SimpleLineIcons name="settings" size={18}/> </Text>
                     </TouchableOpacity>
                 </Block>
@@ -36,10 +53,10 @@ const FlashCardScreen = () => {
             </View>
             {/* header section*/}
 
-            <View style={GlobalStyles.main_container}>
-                <Block height={50}></Block>
+            <View style={{flex: 1}}>
+                <Block height={40}></Block>
                 <FlipCard
-                    style={styles.card}
+                    style={styles.cardContainer}
                     friction={6}
                     perspective={1000}
                     flipHorizontal={true}
@@ -51,15 +68,62 @@ const FlashCardScreen = () => {
                     }}
                 >
                     {/* Face Side */}
-                    <View style={styles.face}>
+                    <View>
                         <Text>The Face</Text>
                     </View>
                     {/* Back Side */}
-                    <View style={styles.back}>
+                    <View>
                         <Text>The Back</Text>
                     </View>
                 </FlipCard>
+
+                <Block height={40}></Block>
+
+                <Block flexDirection="row" justifyContent="center" alignItems="center">
+                    <TouchableOpacity onPress={handlePlayPausePress} style={styles.playButton}>
+                        <AntDesign
+                            name={isPlaying ? "pausecircleo" : "playcircleo"}
+                            size={50}
+                            color={themeAppColor}
+                        />
+                    </TouchableOpacity>
+                </Block>
+
+                <Block height={20}></Block>
             </View>
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                }}>
+                <TouchableOpacity
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)' // Màu nền mờ
+                    }}
+                    activeOpacity={1}
+                    onPressOut={() => setModalVisible(false)}
+                >
+                    <View style={styles.modalView}>
+                        <Block flexDirection="row" width={300} height={120} justifyContent="space-around"
+                               alignItems="center">
+                            <TouchableOpacity style={styles.iconBtn}>
+                                <Entypo size={40} name="shuffle"/>
+                                <Text>Shuffle</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.iconBtn}>
+                                <MaterialCommunityIcons size={41} name="credit-card-sync"/>
+                                <Text>Flip card</Text>
+                            </TouchableOpacity>
+                        </Block>
+                    </View>
+                </TouchableOpacity>
+            </Modal>
         </SafeAreaView>
     )
 }
@@ -67,10 +131,9 @@ const FlashCardScreen = () => {
 export default FlashCardScreen;
 
 const styles = StyleSheet.create({
-    card: {
+    cardContainer: {
         backgroundColor: 'white',
-        width: "95%",
-        minHeight: 580,
+        width: "85%",
         marginLeft: "auto",
         marginRight: "auto",
         // Đổ bóng cho Android
@@ -96,5 +159,33 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 150,
         backgroundColor: 'blue'
+    },
+    playButton: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 60,
+        height: 60,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 35,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
+        height: 200,
+        width: 350
+    },
+    iconBtn: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 6
     }
 });
