@@ -40,15 +40,19 @@ const FlashCardScreen = () => {
 
     const wordsDataParams: any = router?.params;
 
-    const [wordsData, setWordsData] = React.useState<[]>([]);
+    const [isCardFliped, setIsCardFliped] = React.useState(false);
+
+    const [wordsData, setWordsData] = React.useState<any []>([]);
 
     const [isPlaying, setIsPlaying] = React.useState(false);
 
     const [modalVisible, setModalVisible] = React.useState(false);
 
-    const handlePlayPausePress = () => {
-        setIsPlaying(!isPlaying);
-    };
+    const flatListRef = React.useRef<FlatList>(null); // Tham chiếu đến FlatList
+
+    const [currentIndex, setCurrentIndex] = React.useState(0); // Vị trí hiện tại
+
+    const intervalRef = React.useRef<any>(null); // Tham chiếu đến interval
 
     const backButton = () => {
         navigation.goBack();
@@ -62,7 +66,7 @@ const FlashCardScreen = () => {
                 perspective={1000}
                 flipHorizontal={true}
                 flipVertical={false}
-                flip={false}
+                flip={isCardFliped}
                 clickable={true}
                 onFlipEnd={(isFlipEnd: any) => {
                     console.log('isFlipEnd', isFlipEnd);
@@ -100,6 +104,84 @@ const FlashCardScreen = () => {
         );
     };
 
+    const shuffleAndSetWords = () => {
+        const shuffledWords = [...wordsData];
+        for (let i = shuffledWords.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledWords[i], shuffledWords[j]] = [shuffledWords[j], shuffledWords[i]];
+        }
+        setWordsData(shuffledWords);
+    };
+
+    const handleScroll = (event: any) => {
+        const contentOffsetX = event.nativeEvent.contentOffset.x; // Lấy giá trị cuộn hiện tại
+        const index = Math.floor(contentOffsetX / width); // Tính toán chỉ số hiện tại
+        setCurrentIndex(index);
+    };
+
+    // Hàm tự động cuộn
+    const startAutoScroll = () => {
+            if (!intervalRef.current) {
+                intervalRef.current = setInterval(() => {
+                    setCurrentIndex((prevIndex) => {
+                            const newIndex = prevIndex + 1;
+
+                            // Kiểm tra xem newIndex có nằm trong phạm vi không
+                            if (newIndex < wordsData.length) {
+
+                                if (!isCardFliped) {
+                                    setTimeout(() => {
+                                        setIsCardFliped(true);
+                                    }, 2000)
+
+                                    setTimeout(() => {
+                                        setIsCardFliped(false);
+                                        flatListRef.current?.scrollToIndex({index: newIndex, animated: true});
+                                    }, 3000); // Đợi 2 giây trước khi cuộn
+                                } else {
+                                    setTimeout(() => {
+                                        setIsCardFliped(false);
+                                    }, 2000)
+
+                                    setTimeout(() => {
+                                        setIsCardFliped(true);
+                                        flatListRef.current?.scrollToIndex({index: newIndex, animated: true});
+                                    }, 3000); // Đợi 2 giây trước khi cuộn
+                                }
+
+                                return newIndex;
+                            } else {
+                                clearInterval(intervalRef.current);
+                                intervalRef.current = null;
+                                return prevIndex; // Giữ nguyên index hiện tại
+                            }
+                        }
+                    )
+                    ;
+                }, 2000); // Tốc độ cuộn (2000ms = 2s)
+            }
+        }
+    ;
+
+    // Hàm dừng cuộn
+    const stopAutoScroll = () => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
+    };
+
+    // Hàm khi nhấn nút Play/Pause
+    const togglePlay = () => {
+        if (isPlaying) {
+            stopAutoScroll();
+        } else {
+            startAutoScroll();
+        }
+        setIsPlaying(!isPlaying);
+    };
+
+
     React.useEffect(() => {
         if (wordsDataParams && wordsData.length == 0) {
             // @ts-ignore
@@ -131,6 +213,7 @@ const FlashCardScreen = () => {
                 <Block height={40}></Block>
 
                 <FlatList
+                    ref={flatListRef}
                     data={wordsData}
                     renderItem={({item}) => (
                         <View style={{
@@ -148,57 +231,15 @@ const FlashCardScreen = () => {
                     horizontal={true}
                     pagingEnabled={true}
                     showsHorizontalScrollIndicator={false}
+                    onScrollToIndexFailed={() => setCurrentIndex(0)}
+                    onScroll={handleScroll} // Lắng nghe sự kiện cuộn
+                    scrollEventThrottle={16} // Để lắng nghe sự kiện cuộn thường xuyên
                 />
-
-                {/*<FlipCard*/}
-                {/*    style={styles.cardContainer}*/}
-                {/*    friction={6}*/}
-                {/*    perspective={1000}*/}
-                {/*    flipHorizontal={true}*/}
-                {/*    flipVertical={false}*/}
-                {/*    flip={false}*/}
-                {/*    clickable={true}*/}
-                {/*    onFlipEnd={(isFlipEnd: any) => {*/}
-                {/*        console.log('isFlipEnd', isFlipEnd)*/}
-                {/*    }}*/}
-                {/*>*/}
-                {/*    /!* Face Side *!/*/}
-                {/*    <View style={styles.cardFaceContentContainer}>*/}
-                {/*        <Block flexDirection="row" alignItems="center">*/}
-                {/*            <TouchableOpacity style={{padding: 4}}>*/}
-                {/*                <Text size={20} style={{opacity: 0.5}}>*/}
-                {/*                    <FontAwesome size={20} name="volume-up"/>*/}
-                {/*                </Text>*/}
-                {/*            </TouchableOpacity>*/}
-                {/*            <Block width={6}></Block>*/}
-                {/*            <Text size={20} bold color={themeAppColor}>Hello</Text>*/}
-                {/*        </Block>*/}
-                {/*        <Block style={{padding: 4}}>*/}
-                {/*            <Block height={2}></Block>*/}
-                {/*            <Text>Verb</Text>*/}
-                {/*            <Block height={12}></Block>*/}
-
-                {/*            <Image*/}
-                {/*                source={{uri: 'https://media.istockphoto.com/id/1496192609/vi/vec-to/xin-ch%C3%A0o-bong-b%C3%B3ng-l%E1%BB%9Di-n%C3%B3i-b%E1%BA%B1ng-v%C4%83n-b%E1%BA%A3n-tr%C3%AAn-n%E1%BB%81n-v%C3%A0ng.jpg?s=1024x1024&w=is&k=20&c=DAUfgoNfmxXqv_jAKeuYDltzkzE4mBeIUn_UuU7hTRQ='}} // Link ảnh từ Internet*/}
-                {/*                style={styles.image}*/}
-                {/*            />*/}
-
-                {/*            <Block height={12}></Block>*/}
-                {/*            <Text>Hello Bob, how are you today?</Text>*/}
-                {/*            <Text>Hello Bob</Text>*/}
-                {/*        </Block>*/}
-
-                {/*    </View>*/}
-                {/*    /!* Back Side *!/*/}
-                {/*    <View style={styles.cardBackContentContainer}>*/}
-                {/*        <Text size={20} bold color={themeAppColor}>Xin chào</Text>*/}
-                {/*    </View>*/}
-                {/*</FlipCard>*/}
 
                 <Block height={40}></Block>
 
                 <Block flexDirection="row" justifyContent="center" alignItems="center">
-                    <TouchableOpacity onPress={handlePlayPausePress} style={styles.playButton}>
+                    <TouchableOpacity onPress={togglePlay} style={styles.playButton}>
                         <AntDesign
                             name={isPlaying ? "pausecircleo" : "playcircleo"}
                             size={50}
@@ -230,11 +271,13 @@ const FlashCardScreen = () => {
                     <View style={styles.modalView}>
                         <Block flexDirection="row" width={300} height={120} justifyContent="space-around"
                                alignItems="center">
-                            <TouchableOpacity style={styles.iconBtn}>
+                            <TouchableOpacity style={styles.iconBtn} onPress={shuffleAndSetWords}>
                                 <Entypo size={40} name="shuffle"/>
                                 <Text>Shuffle</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconBtn}>
+                            <TouchableOpacity style={styles.iconBtn} onPress={() => {
+                                setIsCardFliped(!isCardFliped)
+                            }}>
                                 <MaterialCommunityIcons size={41} name="credit-card-sync"/>
                                 <Text>Flip card</Text>
                             </TouchableOpacity>
@@ -316,7 +359,7 @@ const styles = StyleSheet.create({
         resizeMode: "stretch",
         borderRadius: 10, // Đặt borderRadius = nửa chiều rộng hoặc chiều cao để bo tròn
         shadowColor: "#000", // Màu bóng đổ (iOS)
-        shadowOffset: { width: 0, height: 2 }, // Đổ bóng ngang và dọc (iOS)
+        shadowOffset: {width: 0, height: 2}, // Đổ bóng ngang và dọc (iOS)
         shadowOpacity: 0.2, // Độ mờ của bóng (iOS)
         shadowRadius: 2.62, // Bán kính của bóng đổ (iOS)
         elevation: 4, // Đổ bóng (Android)
