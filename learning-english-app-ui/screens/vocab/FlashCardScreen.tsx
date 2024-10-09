@@ -4,7 +4,7 @@ import {
     Image,
     LogBox,
     Modal,
-    SafeAreaView, ScrollView,
+    SafeAreaView,
     StatusBar,
     StyleSheet,
     TouchableOpacity,

@@ -14,6 +14,11 @@ const LearningActionComponent = ({wordsData}: { wordsData: any }) => {
         navigation.navigate("FlashCardScreen", {wordsData: wordsData});
     }
 
+    const navigateToTestOptionScreen = () => {
+        // @ts-ignore
+        navigation.navigate("TestOptionScreen", {wordsData: wordsData});
+    }
+
     return (
         <Layout level='2'>
             <TouchableOpacity style={[styles.container]} onPress={navigateToFlashCardScreen}>
@@ -28,7 +33,7 @@ const LearningActionComponent = ({wordsData}: { wordsData: any }) => {
 
             <Block height={6}></Block>
 
-            <TouchableOpacity style={[styles.container]}>
+            <TouchableOpacity style={[styles.container]} onPress={navigateToTestOptionScreen}>
                 <View style={GlobalStyles.main_container}>
                     <Block height={60} row alignItems='center'>
                         <Image style={styles.icon} source={require('../../../assets/icon-png/document.png')}/>
