@@ -49,6 +49,9 @@ export const GlobalStyles = StyleSheet.create({
     justify_content_space_between: {
         justifyContent: "space-between"
     },
+    justify_content_space_around: {
+        justifyContent: "space-around"
+    },
     under_line: {
         borderBottomWidth: 1,
         width: "100%",
