@@ -4,9 +4,13 @@ import {GlobalStyles} from "../../styles/GlobalStyles";
 import {useNavigation, useRoute} from "@react-navigation/native";
 // @ts-ignore
 import Feather from 'react-native-vector-icons/Feather';
+// @ts-ignore
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {Text} from "galio-framework";
 import {ProgressBar, MD3Colors} from 'react-native-paper';
 import * as Progress from 'react-native-progress';
+import {themeAppColor} from "../../utils/constant";
+import {Layout} from "@ui-kitten/components";
 
 const TestScreen = () => {
 
@@ -53,7 +57,7 @@ const TestScreen = () => {
             setCurrentQuestionIndex(currentQuestionIndex + 1); // Chuyển sang câu hỏi tiếp theo
         } else {
             setIsGameFinished(true);
-            setPercentOftrueQuestions(numberOfCorrectQuestions / trueFalseQuestions?.length);
+            setPercentOftrueQuestions((numberOfCorrectQuestions / trueFalseQuestions?.length).toFixed(2));
             console.log("You've completed the game!");
         }
     };
@@ -85,7 +89,8 @@ const TestScreen = () => {
                 incorrectMeaning: incorrectMeaning, // Add the incorrect meaning to the structure
                 image: wordObj.image,
                 isCorrect: showCorrectMeaning, // Indicate if the displayed meaning is correct
-                showCorrectMeaning: showCorrectMeaning
+                showCorrectMeaning: showCorrectMeaning,
+                answered: false
             };
         });
     };
@@ -123,116 +128,235 @@ const TestScreen = () => {
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
-            <View style={GlobalStyles.main_container}>
-                <View
-                    style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
-                    <TouchableOpacity style={[{padding: 6}]} onPress={goBackBtn}>
-                        <Feather size={35} name="x"/>
-                    </TouchableOpacity>
-                    {
-                        dataParams?.isTrueFalseOption ? (
-                            <View>
-                                <Text size={28}>{currentQuestionIndex + 1}/{trueFalseQuestions?.length}</Text>
-                            </View>
-                        ) : (
-                            <View>
-                            </View>
-                        )
-                    }
-                    <View style={{width: 35}}></View>
-                </View>
-            </View>
-            {
-                dataParams?.isTrueFalseOption ? (
-                    <ProgressBar
-                        progress={(currentQuestionIndex + 1) / (trueFalseQuestions?.length || 1)}
-                        color={MD3Colors.error50}
-                    />
-                ) : (
-                    <View></View>
-                )
-            }
-            {
-                !isGameFinished ? (
-                    dataParams?.isTrueFalseOption ? (
-                        <View style={{padding: 20}}>
-                            <View>
-                                <Text bold size={18}>Word:</Text>
-                                <Text size={26}>{currentQuestion?.word}</Text>
-                                <View style={{height: 4}}></View>
-                                {currentQuestion?.showCorrectMeaning === false ? (
-                                    <View>
-                                        <Text bold size={18}>Meaning:</Text>
-                                        <Text size={26}>{currentQuestion?.incorrectMeaning}</Text>
-                                    </View>
-                                ) : (
-                                    <View>
-                                        <Text bold size={18}>Meaning:</Text>
-                                        <Text size={26}>{currentQuestion?.meaning}</Text>
-                                    </View>
-                                )}
-                            </View>
-                            {answered ? (
+            <Layout level="2" style={{flex: 1}}>
+                <View style={GlobalStyles.main_container}>
+                    <View
+                        style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
+                        <TouchableOpacity style={[{padding: 6}]} onPress={goBackBtn}>
+                            <Feather size={35} name="x"/>
+                        </TouchableOpacity>
+                        {
+                            dataParams?.isTrueFalseOption ? (
                                 <View>
-                                    <Text>Answer: {currentQuestion.isCorrect ? "True" : "False"}</Text>
+                                    <Text size={28}>{currentQuestionIndex + 1}/{trueFalseQuestions?.length}</Text>
                                 </View>
                             ) : (
                                 <View>
-                                    <View style={{height: 14}}></View>
-                                    <Text size={16}>Choose the correct answer:</Text>
-                                    <View style={{height: 12}}></View>
-                                    <TouchableOpacity style={styles.trueFlaseBtn}
-                                                      onPress={() => handleTrueFalseAnswer(true)}>
-                                        <Text size={18}>True</Text>
-                                    </TouchableOpacity>
-                                    <View style={{height: 20}}></View>
-                                    <TouchableOpacity style={styles.trueFlaseBtn}
-                                                      onPress={() => handleTrueFalseAnswer(false)}>
-                                        <Text size={18}>False</Text>
-                                    </TouchableOpacity>
                                 </View>
-                            )}
-                        </View>
+                            )
+                        }
+                        <View style={{width: 35}}></View>
+                    </View>
+                </View>
+                {
+                    dataParams?.isTrueFalseOption ? (
+                        <ProgressBar
+                            progress={(currentQuestionIndex + 1) / (trueFalseQuestions?.length || 1)}
+                            color={MD3Colors.error50}
+                        />
                     ) : (
                         <View></View>
                     )
-                ) : (
-                    // Hiển thị kết quả khi trò chơi kết thúc
-                    <ScrollView style={GlobalStyles.main_container}>
-                        <View style={{height: 36}}></View>
-                        <View
-                            style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
-                            <View style={{width: "75%"}}>
-                                <Text bold size={25}>You are learning something!</Text>
-                                <Text size={20}>Practice your incorrectly answered terms with the learning mode until
-                                    you get them all right.</Text>
+                }
+                {
+                    !isGameFinished ? (
+                        dataParams?.isTrueFalseOption ? (
+                            <View style={{padding: 20}}>
+                                <View>
+                                    <Text bold size={18}>Word:</Text>
+                                    <Text size={26}>{currentQuestion?.word}</Text>
+                                    <View style={{height: 4}}></View>
+                                    {currentQuestion?.showCorrectMeaning === false ? (
+                                        <View>
+                                            <Text bold size={18}>Meaning:</Text>
+                                            <Text size={26}>{currentQuestion?.incorrectMeaning}</Text>
+                                        </View>
+                                    ) : (
+                                        <View>
+                                            <Text bold size={18}>Meaning:</Text>
+                                            <Text size={26}>{currentQuestion?.meaning}</Text>
+                                        </View>
+                                    )}
+                                </View>
+                                {answered ? (
+                                    <View>
+                                        <Text>Answer: {currentQuestion.isCorrect ? "True" : "False"}</Text>
+                                    </View>
+                                ) : (
+                                    <View>
+                                        <View style={{height: 14}}></View>
+                                        <Text size={16}>Choose the correct answer:</Text>
+                                        <View style={{height: 12}}></View>
+                                        <TouchableOpacity style={styles.trueFlaseBtn}
+                                                          onPress={() => handleTrueFalseAnswer(true)}>
+                                            <Text size={18}>True</Text>
+                                        </TouchableOpacity>
+                                        <View style={{height: 20}}></View>
+                                        <TouchableOpacity style={styles.trueFlaseBtn}
+                                                          onPress={() => handleTrueFalseAnswer(false)}>
+                                            <Text size={18}>False</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
                             </View>
-                            <Image style={styles.winIcon} source={require('../../assets/icon-png/achievement.png')}/>
-                        </View>
-
-                        <View style={{height: 26}}></View>
-
-                        <View>
-                            <Text bold size={18}>Your result</Text>
-                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center]}>
-                                <Progress.Circle
-                                    progress={percentOftrueQuestions}
-                                    size={100}
-                                    color="green"
-                                    unfilledColor={MD3Colors.error50}
-                                ></Progress.Circle>
-                                <View style={{height: 6}}></View>
-                                <Text>{percentOftrueQuestions} %</Text>
+                        ) : (
+                            <View></View>
+                        )
+                    ) : (
+                        // Hiển thị kết quả khi trò chơi kết thúc
+                        <ScrollView style={GlobalStyles.main_container}>
+                            <View style={{height: 36}}></View>
+                            <View
+                                style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
+                                <View style={{width: "75%"}}>
+                                    <Text bold size={25}>You are learning something!</Text>
+                                    <Text size={20}>Practice your incorrectly answered terms with the learning mode
+                                        until
+                                        you get them all right.</Text>
+                                </View>
+                                <Image style={styles.winIcon}
+                                       source={require('../../assets/icon-png/achievement.png')}/>
                             </View>
-                        </View>
-                        <Text>You answered {numberOfCorrectQuestions} out of {trueFalseQuestions.length} questions
-                            correctly.</Text>
 
-                    </ScrollView>
-                )
-            }
+                            <View style={{height: 26}}></View>
 
+                            <View>
+                                <Text bold size={18}>Your result</Text>
+                                <View style={{height: 12}}></View>
+                                <View
+                                    style={[GlobalStyles.flex_row, GlobalStyles.justify_content_space_between, GlobalStyles.align_item_center]}>
+                                    <View
+                                        style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, {width: "40%"}]}>
+                                        <Progress.Circle
+                                            progress={percentOftrueQuestions}
+                                            size={100}
+                                            color="#77ed96"
+                                            unfilledColor="#eb983b"
+                                        ></Progress.Circle>
+                                        <View style={{height: 6}}></View>
+                                        <Text>{percentOftrueQuestions} %</Text>
+                                    </View>
+                                    <View
+                                        style={[{width: "60%"}, GlobalStyles.flex_row, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
+                                        <View
+                                            style={[GlobalStyles.flex_collum, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
+                                            <Text size={16} bold color="#77ed96">Correct</Text>
+                                            <Text size={16} bold color="#eb983b">False</Text>
+                                        </View>
+                                        <View style={{height: 20}}></View>
+                                        <View
+                                            style={[GlobalStyles.flex_collum, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
+                                            <Text size={16} bold color="#77ed96">{numberOfCorrectQuestions}</Text>
+                                            <Text size={16} bold
+                                                  color="#eb983b">{trueFalseQuestions.length - numberOfCorrectQuestions}</Text>
+                                        </View>
+                                    </View>
+                                </View>
 
+                                <View style={{height: 25}}></View>
+
+                                <View><Text bold size={18}>Next steps</Text></View>
+
+                                <View style={{height: 12}}></View>
+
+                                <View>
+                                    <TouchableOpacity style={[styles.lageBtn, {backgroundColor: themeAppColor}]}
+                                                      onPress={goBackBtn}>
+                                        <Text size={16} bold>Take the test again</Text>
+                                    </TouchableOpacity>
+                                    <View style={{height: 12}}></View>
+                                    <TouchableOpacity style={[styles.lageBtn, {backgroundColor: "white"}]}
+                                                      onPress={() => {
+                                                          // @ts-ignore
+                                                          navigation.navigate("FlashCardScreen", {wordsData: dataParams?.wordsData})
+                                                      }}>
+                                        <Text size={16} bold>Learn with flash card</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+
+                            <View style={{height: 50}}></View>
+
+                            <View>
+                                <Text size={18} bold>Your answers</Text>
+                                <View style={{height: 20}}></View>
+                                <Layout level="1" style={styles.cardContainer}>
+                                    <View style={{height: 16}}></View>
+                                    <View style={[GlobalStyles.main_container]}>
+                                        <Text size={16} bold>Hello</Text>
+                                        <View style={{height: 12}}></View>
+                                        <View style={[GlobalStyles.under_line]}></View>
+                                        <View style={{height: 12}}></View>
+
+                                        <Text size={16} bold>Xin chao</Text>
+
+                                        <View style={{height: 30}}></View>
+
+                                        <View style={[GlobalStyles.flex_row, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
+                                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, GlobalStyles.justify_content_center]}>
+                                                <Feather color="green" size={20} name="check"/>
+                                                <Text color="green" size={16}>True</Text>
+                                            </View>
+                                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, GlobalStyles.justify_content_center]}>
+                                                <Feather color="red" size={20} name="x"/>
+                                                <Text color="red" size={16}>False</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+
+                                    <View style={{height: 40}}></View>
+
+                                    <View style={[GlobalStyles.justify_content_center, GlobalStyles.align_item_center, {height: 50, width: "100%", backgroundColor: "red"}]}>
+                                        <View style={[GlobalStyles.main_container, GlobalStyles.flex_row]}>
+                                            <Feather color="white" size={20} name="x"/>
+                                            <View style={{width: 4}}></View>
+                                            <Text color="white" size={16}>False</Text>
+                                        </View>
+                                    </View>
+                                </Layout>
+
+                                <View style={{height: 20}}></View>
+
+                                <Layout level="1" style={styles.cardContainer}>
+                                    <View style={{height: 16}}></View>
+                                    <View style={[GlobalStyles.main_container]}>
+                                        <Text size={16} bold>Hello</Text>
+                                        <View style={{height: 12}}></View>
+                                        <View style={[GlobalStyles.under_line]}></View>
+                                        <View style={{height: 12}}></View>
+
+                                        <Text size={16} bold>Xin chao</Text>
+
+                                        <View style={{height: 30}}></View>
+
+                                        <View style={[GlobalStyles.flex_row, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
+                                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, GlobalStyles.justify_content_center]}>
+                                                <Feather color="green" size={20} name="check"/>
+                                                <Text color="green" size={16}>True</Text>
+                                            </View>
+                                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, GlobalStyles.justify_content_center]}>
+                                                <Feather color="red" size={20} name="x"/>
+                                                <Text color="red" size={16}>False</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+
+                                    <View style={{height: 40}}></View>
+
+                                    <View style={[GlobalStyles.justify_content_center, GlobalStyles.align_item_center, {height: 50, width: "100%", backgroundColor: "red"}]}>
+                                        <View style={[GlobalStyles.main_container, GlobalStyles.flex_row]}>
+                                            <Feather color="white" size={20} name="x"/>
+                                            <View style={{width: 4}}></View>
+                                            <Text color="white" size={16}>False</Text>
+                                        </View>
+                                    </View>
+                                </Layout>
+
+                            </View>
+                        </ScrollView>
+                    )
+                }
+            </Layout>
         </SafeAreaView>
     );
 }
@@ -249,9 +373,21 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         padding: 6
     },
+    lageBtn: {
+        width: "100%",
+        height: 60,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 4
+    },
     winIcon: {
         width: "20%",
         height: 100,
         resizeMode: 'stretch'
+    },
+    cardContainer: {
+        width: "100%",
+        height: 250,
     }
 });
