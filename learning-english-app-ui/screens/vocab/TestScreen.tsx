@@ -25,6 +25,8 @@ const TestScreen = () => {
     // true false question data
     const [trueFalseQuestions, setTrueFalseQuestions] = React.useState<any []>([]);
 
+    const [multipleChoiceQuestions, setMultipleChoiceQuestions] = React.useState<any []>([]);
+
     const [currentQuestionIndex, setCurrentQuestionIndex] = React.useState(0); // Chỉ số câu hỏi hiện tại
 
     const [answered, setAnswered] = React.useState(false); // Kiểm soát xem đã trả lời chưa
@@ -32,8 +34,6 @@ const TestScreen = () => {
     const [currentQuestion, setCurrentQuestion] = React.useState<any>(null);
 
     const [numberOfCorrectQuestions, setNumberOfCorrectQuestions] = React.useState<number>(0);
-
-    const [percentOftrueQuestions, setPercentOftrueQuestions] = React.useState<any>(0);
 
     const [isGameFinished, setIsGameFinished] = React.useState(false);
 
@@ -45,20 +45,55 @@ const TestScreen = () => {
         setAnswered(true);
         if (isCorrect === currentQuestion?.isCorrect) {
             console.log("Correct!");
+            const updatedQuestions = trueFalseQuestions.map((question, idx) => {
+                if (idx === currentQuestionIndex) {
+                    if (isCorrect === question.isCorrect) {
+                        return {...question, isAnswerCorrect: true}; // Chỉ cập nhật `answered` nếu đúng
+                    }
+                }
+                return question; // Giữ nguyên nếu không phải câu hiện tại hoặc trả lời sai
+            });
+
+            setTrueFalseQuestions(updatedQuestions); // Cập nhật danh sách các câu hỏi
             setNumberOfCorrectQuestions(numberOfCorrectQuestions + 1);
         } else {
             console.log("Incorrect!");
         }
     };
 
+    const handleMultipleChoiceAnswer = (answer: any) => {
+        setAnswered(true);
+        if (answer === currentQuestion?.correctAnswer) {
+            const updatedQuestions = multipleChoiceQuestions.map((question, idx) => {
+                if (idx === currentQuestionIndex) {
+                    return {...question, isAnswerCorrect: true}; // Chỉ cập nhật `answered` nếu đúng
+                }
+                return question; // Giữ nguyên nếu không phải câu hiện tại hoặc trả lời sai
+            });
+            setMultipleChoiceQuestions(updatedQuestions); // Cập nhật danh sách các câu hỏi
+            console.log(updatedQuestions);
+            setNumberOfCorrectQuestions(numberOfCorrectQuestions + 1);
+        } else {
+            console.log("Incorrect!");
+        }
+    }
+
     const handleNextQuestion = () => {
         setAnswered(false); // Đặt lại trạng thái đã trả lời
-        if (currentQuestionIndex < trueFalseQuestions.length - 1) {
-            setCurrentQuestionIndex(currentQuestionIndex + 1); // Chuyển sang câu hỏi tiếp theo
+        if (dataParams?.isTrueFalseOption) {
+            if (currentQuestionIndex < trueFalseQuestions.length - 1) {
+                setCurrentQuestionIndex(currentQuestionIndex + 1); // Chuyển sang câu hỏi tiếp theo
+            } else {
+                setIsGameFinished(true);
+                console.log("You've completed the game!");
+            }
         } else {
-            setIsGameFinished(true);
-            setPercentOftrueQuestions((numberOfCorrectQuestions / trueFalseQuestions?.length).toFixed(2));
-            console.log("You've completed the game!");
+            if (currentQuestionIndex < multipleChoiceQuestions.length - 1) {
+                setCurrentQuestionIndex(currentQuestionIndex + 1); // Chuyển sang câu hỏi tiếp theo
+            } else {
+                setIsGameFinished(true);
+                console.log("You've completed the game!");
+            }
         }
     };
 
@@ -90,11 +125,37 @@ const TestScreen = () => {
                 image: wordObj.image,
                 isCorrect: showCorrectMeaning, // Indicate if the displayed meaning is correct
                 showCorrectMeaning: showCorrectMeaning,
-                answered: false
+                isAnswerCorrect: false
             };
         });
     };
 
+    const createMultipleChoiceQuestion = (wordData: any) => {
+        return wordData?.map((wordObj: any) => {
+            // Get the correct meaning
+            const correctMeaning = wordObj.meaning;
+
+            // Determine how many incorrect meanings to retrieve
+            const numIncorrectMeanings = wordData.length >= 4 ? 3 : wordData.length - 1; // -1 to exclude the correct meaning
+            const incorrectMeanings: any = [];
+            while (incorrectMeanings.length < numIncorrectMeanings) {
+                const incorrectMeaning = getRandomIncorrectMeaning(wordData, correctMeaning);
+                if (!incorrectMeanings.includes(incorrectMeaning)) {
+                    incorrectMeanings.push(incorrectMeaning);
+                }
+            }
+
+            // Combine correct meaning with incorrect meanings and shuffle them to randomize the options
+            const allMeanings = [...incorrectMeanings, correctMeaning].sort(() => Math.random() - 0.5);
+
+            return {
+                word: wordObj.name,
+                options: allMeanings, // Array of 4 options (1 correct, 3 incorrect)
+                correctAnswer: correctMeaning, // The correct answer
+                isAnswerCorrect: false // Placeholder to store if the user answer is correct later
+            };
+        });
+    };
 
     React.useEffect(() => {
         // take random question
@@ -109,15 +170,23 @@ const TestScreen = () => {
                 const trueFalseQuestions = createTrueFalseQuestion(wordsData);
                 setTrueFalseQuestions(trueFalseQuestions);
             }
+        } else {
+            if (multipleChoiceQuestions?.length == 0) {
+                // create true false question base on random question above
+                const multipleChoiceQuestions = createMultipleChoiceQuestion(wordsData);
+                setMultipleChoiceQuestions(multipleChoiceQuestions);
+            }
         }
     }, [wordsData]);
 
     // Khi trueFalseQuestions thay đổi, set câu hỏi hiện tại
     React.useEffect(() => {
-        if (trueFalseQuestions.length > 0) {
+        if (trueFalseQuestions.length > 0 && dataParams?.isTrueFalseOption) {
             setCurrentQuestion(trueFalseQuestions[currentQuestionIndex]);
+        } else {
+            setCurrentQuestion(multipleChoiceQuestions[currentQuestionIndex]);
         }
-    }, [trueFalseQuestions, currentQuestionIndex]);
+    }, [trueFalseQuestions, currentQuestionIndex, multipleChoiceQuestions]);
 
     // Sử dụng useEffect để chuyển sang câu hỏi tiếp theo
     React.useEffect(() => {
@@ -142,6 +211,10 @@ const TestScreen = () => {
                                 </View>
                             ) : (
                                 <View>
+                                    <View>
+                                        <Text
+                                            size={28}>{currentQuestionIndex + 1}/{multipleChoiceQuestions?.length}</Text>
+                                    </View>
                                 </View>
                             )
                         }
@@ -200,7 +273,28 @@ const TestScreen = () => {
                                 )}
                             </View>
                         ) : (
-                            <View></View>
+                            <View style={{padding: 20}}>
+                                <View>
+                                    <Text bold size={18}>Word:</Text>
+                                    <Text size={26}>{currentQuestion?.word}</Text>
+                                    <View style={{height: 4}}></View>
+                                </View>
+                                <View>
+                                    <View style={{height: 14}}></View>
+                                    <Text size={16}>Choose the correct answer:</Text>
+                                    <View style={{height: 12}}></View>
+                                    {
+                                        currentQuestion?.options?.map((option: any, index: any) => (
+                                            <View key={index}>
+                                                <TouchableOpacity style={styles.trueFlaseBtn} onPress={() => {handleMultipleChoiceAnswer(option)}}>
+                                                    <Text size={18}>{option}</Text>
+                                                </TouchableOpacity>
+                                                <View style={{height: 12}}></View>
+                                            </View>
+                                        ))
+                                    }
+                                </View>
+                            </View>
                         )
                     ) : (
                         // Hiển thị kết quả khi trò chơi kết thúc
@@ -225,17 +319,33 @@ const TestScreen = () => {
                                 <View style={{height: 12}}></View>
                                 <View
                                     style={[GlobalStyles.flex_row, GlobalStyles.justify_content_space_between, GlobalStyles.align_item_center]}>
-                                    <View
-                                        style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, {width: "40%"}]}>
-                                        <Progress.Circle
-                                            progress={percentOftrueQuestions}
-                                            size={100}
-                                            color="#77ed96"
-                                            unfilledColor="#eb983b"
-                                        ></Progress.Circle>
-                                        <View style={{height: 6}}></View>
-                                        <Text>{percentOftrueQuestions} %</Text>
-                                    </View>
+                                    {
+                                        dataParams?.isTrueFalseOption ? (
+                                            <View
+                                                style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, {width: "40%"}]}>
+                                                <Progress.Circle
+                                                    progress={numberOfCorrectQuestions / trueFalseQuestions?.length}
+                                                    size={100}
+                                                    color="#77ed96"
+                                                    unfilledColor="#eb983b"
+                                                ></Progress.Circle>
+                                                <View style={{height: 6}}></View>
+                                                <Text>{((numberOfCorrectQuestions / trueFalseQuestions?.length) * 100).toFixed(1)} %</Text>
+                                            </View>
+                                        ) : (
+                                            <View
+                                                style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, {width: "40%"}]}>
+                                                <Progress.Circle
+                                                    progress={numberOfCorrectQuestions / multipleChoiceQuestions?.length}
+                                                    size={100}
+                                                    color="#77ed96"
+                                                    unfilledColor="#eb983b"
+                                                ></Progress.Circle>
+                                                <View style={{height: 6}}></View>
+                                                <Text>{((numberOfCorrectQuestions / multipleChoiceQuestions?.length) * 100).toFixed(1)} %</Text>
+                                            </View>
+                                        )
+                                    }
                                     <View
                                         style={[{width: "60%"}, GlobalStyles.flex_row, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
                                         <View
@@ -247,8 +357,15 @@ const TestScreen = () => {
                                         <View
                                             style={[GlobalStyles.flex_collum, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
                                             <Text size={16} bold color="#77ed96">{numberOfCorrectQuestions}</Text>
-                                            <Text size={16} bold
-                                                  color="#eb983b">{trueFalseQuestions.length - numberOfCorrectQuestions}</Text>
+                                            {
+                                                dataParams?.isTrueFalseOption ? (
+                                                    <Text size={16} bold
+                                                          color="#eb983b">{trueFalseQuestions.length - numberOfCorrectQuestions}</Text>
+                                                ) : (
+                                                    <Text size={16} bold
+                                                          color="#eb983b">{multipleChoiceQuestions.length - numberOfCorrectQuestions}</Text>
+                                                )
+                                            }
                                         </View>
                                     </View>
                                 </View>
@@ -280,78 +397,99 @@ const TestScreen = () => {
                             <View>
                                 <Text size={18} bold>Your answers</Text>
                                 <View style={{height: 20}}></View>
-                                <Layout level="1" style={styles.cardContainer}>
-                                    <View style={{height: 16}}></View>
-                                    <View style={[GlobalStyles.main_container]}>
-                                        <Text size={16} bold>Hello</Text>
-                                        <View style={{height: 12}}></View>
-                                        <View style={[GlobalStyles.under_line]}></View>
-                                        <View style={{height: 12}}></View>
 
-                                        <Text size={16} bold>Xin chao</Text>
+                                {trueFalseQuestions?.map((question, index) => (
+                                    <View key={index}>
+                                        <Layout level="1" style={styles.cardContainer}>
+                                            <View style={{height: 16}}></View>
+                                            <View style={[GlobalStyles.main_container]}>
+                                                <Text size={16} bold>{question?.word}</Text>
+                                                <View style={{height: 12}}></View>
+                                                <View style={[GlobalStyles.under_line]}></View>
+                                                <View style={{height: 12}}></View>
 
-                                        <View style={{height: 30}}></View>
+                                                {/* Display correct or incorrect meaning based on the result */}
+                                                <Text size={16} bold>
+                                                    {question.showCorrectMeaning ? question?.meaning : question?.incorrectMeaning}
+                                                </Text>
 
-                                        <View style={[GlobalStyles.flex_row, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
-                                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, GlobalStyles.justify_content_center]}>
-                                                <Feather color="green" size={20} name="check"/>
-                                                <Text color="green" size={16}>True</Text>
+                                                <View style={{height: 30}}></View>
+
+                                                <View
+                                                    style={[
+                                                        GlobalStyles.flex_row,
+                                                        GlobalStyles.justify_content_space_around,
+                                                        GlobalStyles.align_item_center
+                                                    ]}
+                                                >
+                                                    <View
+                                                        style={[
+                                                            GlobalStyles.flex_collum,
+                                                            GlobalStyles.align_item_center,
+                                                            GlobalStyles.justify_content_center
+                                                        ]}
+                                                    >
+                                                        <Feather color="green" size={20} name="check"/>
+                                                        <Text color="green" size={16}>True</Text>
+                                                    </View>
+                                                    <View
+                                                        style={[
+                                                            GlobalStyles.flex_collum,
+                                                            GlobalStyles.align_item_center,
+                                                            GlobalStyles.justify_content_center
+                                                        ]}
+                                                    >
+                                                        <Feather color="red" size={20} name="x"/>
+                                                        <Text color="red" size={16}>False</Text>
+                                                    </View>
+                                                </View>
                                             </View>
-                                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, GlobalStyles.justify_content_center]}>
-                                                <Feather color="red" size={20} name="x"/>
-                                                <Text color="red" size={16}>False</Text>
-                                            </View>
-                                        </View>
+
+                                            <View style={{height: 40}}></View>
+
+                                            {/* Conditionally display the result bar at the bottom */}
+                                            {!question?.isAnswerCorrect ? (
+                                                <View
+                                                    style={[
+                                                        GlobalStyles.justify_content_center,
+                                                        GlobalStyles.align_item_center,
+                                                        {
+                                                            height: 50,
+                                                            width: "100%",
+                                                            backgroundColor: "red"
+                                                        }
+                                                    ]}
+                                                >
+                                                    <View style={[GlobalStyles.main_container, GlobalStyles.flex_row]}>
+                                                        <Feather color="white" size={20} name="x"/>
+                                                        <View style={{width: 4}}></View>
+                                                        <Text color="white" size={16}>False</Text>
+                                                    </View>
+                                                </View>
+                                            ) : (
+                                                <View
+                                                    style={[
+                                                        GlobalStyles.justify_content_center,
+                                                        GlobalStyles.align_item_center,
+                                                        {
+                                                            height: 50,
+                                                            width: "100%",
+                                                            backgroundColor: "green"
+                                                        }
+                                                    ]}
+                                                >
+                                                    <View style={[GlobalStyles.main_container, GlobalStyles.flex_row]}>
+                                                        <Feather color="white" size={20} name="check"/>
+                                                        <View style={{width: 4}}></View>
+                                                        <Text color="white" size={16}>True</Text>
+                                                    </View>
+                                                </View>
+                                            )}
+                                        </Layout>
+
+                                        <View style={{height: 20}}></View>
                                     </View>
-
-                                    <View style={{height: 40}}></View>
-
-                                    <View style={[GlobalStyles.justify_content_center, GlobalStyles.align_item_center, {height: 50, width: "100%", backgroundColor: "red"}]}>
-                                        <View style={[GlobalStyles.main_container, GlobalStyles.flex_row]}>
-                                            <Feather color="white" size={20} name="x"/>
-                                            <View style={{width: 4}}></View>
-                                            <Text color="white" size={16}>False</Text>
-                                        </View>
-                                    </View>
-                                </Layout>
-
-                                <View style={{height: 20}}></View>
-
-                                <Layout level="1" style={styles.cardContainer}>
-                                    <View style={{height: 16}}></View>
-                                    <View style={[GlobalStyles.main_container]}>
-                                        <Text size={16} bold>Hello</Text>
-                                        <View style={{height: 12}}></View>
-                                        <View style={[GlobalStyles.under_line]}></View>
-                                        <View style={{height: 12}}></View>
-
-                                        <Text size={16} bold>Xin chao</Text>
-
-                                        <View style={{height: 30}}></View>
-
-                                        <View style={[GlobalStyles.flex_row, GlobalStyles.justify_content_space_around, GlobalStyles.align_item_center]}>
-                                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, GlobalStyles.justify_content_center]}>
-                                                <Feather color="green" size={20} name="check"/>
-                                                <Text color="green" size={16}>True</Text>
-                                            </View>
-                                            <View style={[GlobalStyles.flex_collum, GlobalStyles.align_item_center, GlobalStyles.justify_content_center]}>
-                                                <Feather color="red" size={20} name="x"/>
-                                                <Text color="red" size={16}>False</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-
-                                    <View style={{height: 40}}></View>
-
-                                    <View style={[GlobalStyles.justify_content_center, GlobalStyles.align_item_center, {height: 50, width: "100%", backgroundColor: "red"}]}>
-                                        <View style={[GlobalStyles.main_container, GlobalStyles.flex_row]}>
-                                            <Feather color="white" size={20} name="x"/>
-                                            <View style={{width: 4}}></View>
-                                            <Text color="white" size={16}>False</Text>
-                                        </View>
-                                    </View>
-                                </Layout>
-
+                                ))}
                             </View>
                         </ScrollView>
                     )
