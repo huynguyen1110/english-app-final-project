@@ -63,20 +63,24 @@ const TestScreen = () => {
 
     const handleMultipleChoiceAnswer = (answer: any) => {
         setAnswered(true);
-        if (answer === currentQuestion?.correctAnswer) {
-            const updatedQuestions = multipleChoiceQuestions.map((question, idx) => {
-                if (idx === currentQuestionIndex) {
-                    return {...question, isAnswerCorrect: true}; // Chỉ cập nhật `answered` nếu đúng
-                }
-                return question; // Giữ nguyên nếu không phải câu hiện tại hoặc trả lời sai
-            });
-            setMultipleChoiceQuestions(updatedQuestions); // Cập nhật danh sách các câu hỏi
-            console.log(updatedQuestions);
+        const isCorrect = answer === currentQuestion?.correctAnswer;
+
+        const updatedQuestions = multipleChoiceQuestions.map((question, idx) => {
+            if (idx === currentQuestionIndex) {
+                return { ...question, isAnswerCorrect: isCorrect, answered: answer }; // Update the current question
+            }
+            return question; // Keep other questions unchanged
+        });
+
+        setMultipleChoiceQuestions(updatedQuestions); // Update the questions list
+
+        if (isCorrect) {
             setNumberOfCorrectQuestions(numberOfCorrectQuestions + 1);
         } else {
             console.log("Incorrect!");
         }
-    }
+    };
+
 
     const handleNextQuestion = () => {
         setAnswered(false); // Đặt lại trạng thái đã trả lời
@@ -152,7 +156,8 @@ const TestScreen = () => {
                 word: wordObj.name,
                 options: allMeanings, // Array of 4 options (1 correct, 3 incorrect)
                 correctAnswer: correctMeaning, // The correct answer
-                isAnswerCorrect: false // Placeholder to store if the user answer is correct later
+                isAnswerCorrect: false, // Placeholder to store if the user answer is correct later
+                answered: ''
             };
         });
     };
@@ -490,6 +495,103 @@ const TestScreen = () => {
                                         <View style={{height: 20}}></View>
                                     </View>
                                 ))}
+
+                                {multipleChoiceQuestions?.map((question, index) => (
+                                    <View key={index}>
+                                        <Layout level="1" style={styles.cardContainer}>
+                                            <View style={{height: 16}}></View>
+                                            <View style={[GlobalStyles.main_container]}>
+                                                <Text size={16} bold>{question?.word}</Text>
+                                                <View style={{height: 12}}></View>
+                                                <View style={[GlobalStyles.under_line]}></View>
+                                                <View style={{height: 65}}></View>
+
+                                                {/* Display correct or incorrect meaning based on the result */}
+                                                {
+                                                    question?.isAnswerCorrect ? (
+                                                        <View style={[GlobalStyles.flex_row, GlobalStyles.justify_content_center, GlobalStyles.align_item_center]}>
+                                                            <Feather color="green" size={20} name="check"/>
+                                                            <Text color="green" size={16}>{question?.answered}</Text>
+                                                        </View>
+                                                    ) : (
+                                                        <View
+                                                            style={[
+                                                                GlobalStyles.flex_row,
+                                                                GlobalStyles.justify_content_space_around,
+                                                                GlobalStyles.align_item_center
+                                                            ]}
+                                                        >
+                                                            <View
+                                                                style={[
+                                                                    GlobalStyles.flex_collum,
+                                                                    GlobalStyles.align_item_center,
+                                                                    GlobalStyles.justify_content_center
+                                                                ]}
+                                                            >
+                                                                <Feather color="green" size={20} name="check"/>
+                                                                <Text color="green" size={16}>{question?.correctAnswer}</Text>
+                                                            </View>
+                                                            <View
+                                                                style={[
+                                                                    GlobalStyles.flex_collum,
+                                                                    GlobalStyles.align_item_center,
+                                                                    GlobalStyles.justify_content_center
+                                                                ]}
+                                                            >
+                                                                <Feather color="red" size={20} name="x"/>
+                                                                <Text color="red" size={16}>{question?.answered}</Text>
+                                                            </View>
+                                                        </View>
+                                                    )
+                                                }
+
+                                            </View>
+
+                                            <View style={{height: 40}}></View>
+
+                                            {/* Conditionally display the result bar at the bottom */}
+                                            {!question?.isAnswerCorrect ? (
+                                                <View
+                                                    style={[
+                                                        GlobalStyles.justify_content_center,
+                                                        GlobalStyles.align_item_center,
+                                                        {
+                                                            height: 50,
+                                                            width: "100%",
+                                                            backgroundColor: "red"
+                                                        }
+                                                    ]}
+                                                >
+                                                    <View style={[GlobalStyles.main_container, GlobalStyles.flex_row]}>
+                                                        <Feather color="white" size={20} name="x"/>
+                                                        <View style={{width: 4}}></View>
+                                                        <Text color="white" size={16}>False</Text>
+                                                    </View>
+                                                </View>
+                                            ) : (
+                                                <View
+                                                    style={[
+                                                        GlobalStyles.justify_content_center,
+                                                        GlobalStyles.align_item_center,
+                                                        {
+                                                            height: 50,
+                                                            width: "100%",
+                                                            backgroundColor: "green"
+                                                        }
+                                                    ]}
+                                                >
+                                                    <View style={[GlobalStyles.main_container, GlobalStyles.flex_row]}>
+                                                        <Feather color="white" size={20} name="check"/>
+                                                        <View style={{width: 4}}></View>
+                                                        <Text color="white" size={16}>True</Text>
+                                                    </View>
+                                                </View>
+                                            )}
+                                        </Layout>
+
+                                        <View style={{height: 20}}></View>
+                                    </View>
+                                ))}
                             </View>
                         </ScrollView>
                     )
@@ -526,6 +628,11 @@ const styles = StyleSheet.create({
     },
     cardContainer: {
         width: "100%",
-        height: 250,
+        minHeight: 250,
+        shadowColor: "#000", // Màu bóng đổ (iOS)
+        shadowOffset: {width: 0, height: 2}, // Đổ bóng ngang và dọc (iOS)
+        shadowOpacity: 0.2, // Độ mờ của bóng (iOS)
+        shadowRadius: 2.62, // Bán kính của bóng đổ (iOS)
+        elevation: 4, // Đổ bóng (Android)
     }
 });
