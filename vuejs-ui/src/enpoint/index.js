@@ -8,3 +8,7 @@ export const AUTHENTICATION_ENPOINT = {
     DELETE_USER: "/user/delete-user",
 };
 
+export const NEWS_ENPOINT = {
+    GET_NEWS: "/api/v1/news/get-everything"
+}
+

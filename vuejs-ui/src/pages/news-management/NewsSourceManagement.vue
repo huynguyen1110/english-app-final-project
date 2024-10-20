@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { NEWS_DOMAIN_NAME, SOURCE_NEWS_NAME } from '@/utils/Constaints';
+import { useToast } from 'primevue/usetoast';
+import { getNewsSourceService } from '@/service/news/NewsService';
 
 const display = ref(false);
 const keyWord = ref('');
@@ -11,6 +13,8 @@ const filters = ref({
 });
 
 const dropdownValue = ref(null);
+
+const toast = useToast();
 
 const dropdownValues = ref([
     { name: SOURCE_NEWS_NAME.BBC_NEWS, domain: NEWS_DOMAIN_NAME.BBC_NEWS },
@@ -25,8 +29,28 @@ function open() {
     display.value = true;
 }
 
-function save() {
-    display.value = false;
+async function getNews() {
+    if (!dropdownValue.value) {
+        toast.add({ severity: 'info', summary: 'Please select news source', life: 3000 });
+        return;
+    }
+
+    const params = {
+        domain: dropdownValue.value?.domain,
+        keyWord: keyWord?.value || '' // Providing a default empty string if no keyword
+    };
+    try {
+        const response = await getNewsSourceService(params);
+        const { data } = response;
+        console.log(data);
+        return data;
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Error fetching news', detail: e.message, life: 3000 });
+        console.log(e.message);
+    }
+
+    console.log(dropdownValue.value?.domain); // This log is still valid for debugging
+    display.value = false; // Assuming this controls some loading or display state
 }
 
 </script>
@@ -34,7 +58,8 @@ function save() {
 <template>
     <div class="card">
         <div class="font-semibold text-xl mb-4">Get news</div>
-        <Dialog header="Get news params" v-model:visible="display" :breakpoints="{ '960px': '75vw' }" :style="{ width: '30vw' }"
+        <Dialog header="Get news params" v-model:visible="display" :breakpoints="{ '960px': '75vw' }"
+                :style="{ width: '30vw' }"
                 :modal="true">
             <div class="card">
                 <div
@@ -52,7 +77,7 @@ function save() {
                 </div>
             </div>
             <template #footer>
-                <Button label="Save" @click="save" />
+                <Button label="Get" @click="getNews" />
             </template>
         </Dialog>
         <Button label="Get" style="width: auto" @click="open" />
@@ -116,8 +141,8 @@ function save() {
                 </template>
             </Column>
         </DataTable>
+        <Toast />
     </div>
-
 </template>
 
 <style scoped lang="scss">
