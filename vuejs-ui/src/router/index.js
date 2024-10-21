@@ -31,6 +31,12 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
                 },
                 {
+                    path: '/v1/admin/news-source-management/news-detail',
+                    name: 'news-source-management-news-detail',
+                    component: () => import('@/pages/news-management/NewsDetail.vue'),
+                    meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
+                },
+                {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
                     component: () => import('@/views/uikit/FormLayout.vue')

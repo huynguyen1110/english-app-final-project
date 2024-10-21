@@ -4,10 +4,12 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { NEWS_DOMAIN_NAME, SOURCE_NEWS_NAME } from '@/utils/Constaints';
 import { useToast } from 'primevue/usetoast';
 import { getNewsSourceService } from '@/service/news/NewsService';
+import { format } from 'date-fns';
+import { useRouter } from 'vue-router';
 
 const display = ref(false);
 const keyWord = ref('');
-const customers1 = ref(null);
+const newsSourceData = ref([]);
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
@@ -15,6 +17,7 @@ const filters = ref({
 const dropdownValue = ref(null);
 
 const toast = useToast();
+const router = useRouter();
 
 const dropdownValues = ref([
     { name: SOURCE_NEWS_NAME.BBC_NEWS, domain: NEWS_DOMAIN_NAME.BBC_NEWS },
@@ -35,23 +38,56 @@ async function getNews() {
         return;
     }
 
+    const newsData = await fetchGetNews();
+
+    // Tạo chuỗi mới với trường id tự tăng
+    const newsDataWithId = newsData?.articles.map((article, index) => ({
+        ...article, // Sao chép tất cả các thuộc tính của article
+        id: index + 1 // Thêm trường id tự tăng, bắt đầu từ 1
+    }));
+
+    newsSourceData.value = newsDataWithId;
+
+    console.log(newsSourceData);
+
+    display.value = false; // Assuming this controls some loading or display state
+}
+
+const fetchGetNews = async () => {
     const params = {
         domain: dropdownValue.value?.domain,
         keyWord: keyWord?.value || '' // Providing a default empty string if no keyword
     };
+
     try {
         const response = await getNewsSourceService(params);
         const { data } = response;
-        console.log(data);
         return data;
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Error fetching news', detail: e.message, life: 3000 });
         console.log(e.message);
     }
 
-    console.log(dropdownValue.value?.domain); // This log is still valid for debugging
-    display.value = false; // Assuming this controls some loading or display state
-}
+};
+
+const goToNewsDetail = (newsId) => {
+    // Tìm bản tin có id tương ứng với newsId
+    const news = newsSourceData?.value?.find(article => article.id === newsId);
+
+    console.log(news)
+
+    if (news) {
+        // Điều hướng đến trang chi tiết với thông tin của bản tin
+        router.push({
+            path: `/v1/admin/news-source-management/news-detail`, // Bạn có thể điều hướng bằng id
+            // Hoặc có thể truyền thông tin thêm nếu cần
+            state: { news } // Truyền state nếu bạn muốn sử dụng thông tin chi tiết
+        });
+    } else {
+        console.error(`News with id ${newsId} not found`);
+    }
+};
+
 
 </script>
 
@@ -86,8 +122,8 @@ async function getNews() {
         <div class="font-semibold text-xl mb-4">Filtering</div>
         <DataTable
             ref="dt"
-            :value="customers1"
-            dataKey="userId"
+            :value="newsSourceData"
+            dataKey="id"
             :paginator="true"
             :rows="10"
             :filters="filters"
@@ -107,39 +143,37 @@ async function getNews() {
                 </div>
             </template>
 
-            <Column style="width: 3rem" :exportable="false"></Column>
-            <Column field="userId" header="User Id" sortable style="min-width: 12rem"></Column>
-            <Column field="username" header="User name" sortable style="min-width: 16rem"></Column>
-            <Column field="email" header="Email" sortable style="min-width: 10rem"></Column>
-            <Column field="phoneNumber" header="Phone number" sortable style="min-width: 10rem"></Column>
-            <Column field="address" header="Address" sortable style="min-width: 10rem"></Column>
-            <Column field="createdDate" header="Create date" sortable style="min-width: 10rem">
-                <template #body="slotProps">
-                    {{ formatDate(slotProps?.data?.createdDate) }}
-                </template>
-            </Column>
-            <Column field="userStatus" header="Status" style="min-width: 12rem">
-                <template #body="slotProps">
-                    <Tag :value="slotProps?.data?.userStatus"
-                         :severity="getStatusLabel(slotProps?.data?.userStatus)" />
-                </template>
-            </Column>
-            <Column field="roles" header="Roles" style="min-width: 12rem">
-                <template #body="slotProps">
-                    <div v-for="role in slotProps?.data?.roles" :key="role">
-                        <Tag :value="role"
-                             :severity="getStatusLabel(role)" class="mb-4" />
-                    </div>
-                </template>
-            </Column>
-            <Column :exportable="false" style="min-width: 12rem">
-                <template #body="slotProps">
-                    <Button icon="pi pi-pencil" outlined rounded class="mr-2"
-                            @click="editUser(slotProps.data)" />
-                    <Button icon="pi pi-trash" outlined rounded severity="danger"
-                            @click="confirmDeleteUser(slotProps.data)" />
-                </template>
-            </Column>
+            <div>
+                <Column style="width: 3rem" :exportable="false"></Column>
+                <Column field="urlToImage" header="Image" sortable style="min-width: 12rem">
+                    <template #body="slotProps">
+                        <img :src="slotProps?.data?.urlToImage" alt="Imported Image" />
+                    </template>
+                </Column>
+                <Column field="source" header="Source" sortable style="min-width: 10rem">
+                    <template #body="slotProps">
+                        {{ slotProps?.data?.source?.name }}
+                    </template>
+                </Column>
+                <Column field="title" header="Title" sortable style="min-width: 16rem">
+                    <template #body="slotProps">
+                        <span @click="goToNewsDetail(slotProps?.data?.id)"
+                              style="cursor: pointer;"
+                        > <!-- Gọi phương thức khi nhấn -->
+                            {{ slotProps?.data?.title }}
+                        </span>
+                    </template>
+                </Column>
+
+                <Column field="description" header="Description" sortable style="min-width: 10rem"></Column>
+                <Column field="author" header="Author" sortable style="min-width: 10rem"></Column>
+                <Column field="publishedAt" header="Published date" sortable style="min-width: 10rem">
+                    <template #body="slotProps">
+
+                        {{ format(slotProps?.data?.publishedAt, 'dd-MM-yyyy HH:mm:ss') }}
+                    </template>
+                </Column>
+            </div>
         </DataTable>
         <Toast />
     </div>
