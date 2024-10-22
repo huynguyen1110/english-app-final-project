@@ -44,9 +44,7 @@ const fetchGetArticleContent = async (articleUrl) => {
         <h6 class="title">{{ description }}</h6>
         <div :style="{height: '30px'}"></div>
 
-        <div>
-            {{contentArticle?.value}}
-        </div>
+        <div v-html="content"></div>
         <p class="content">
             <a :href="url" target="_blank">Click here to read more</a>
         </p>
