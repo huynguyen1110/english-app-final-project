@@ -24,7 +24,7 @@ const fetchGetArticleContent = async (articleUrl) => {
     try {
         const response = await getArticleContent(articleUrl);
         const { data } = response;
-        content.value = JSON.stringify(data);
+        content.value = data;
         console.log(content.value)
     } catch (e) {
         console.log(e);
