@@ -231,7 +231,7 @@ public class NewsService implements INewsService {
             Document articleHtml = Jsoup.connect(articleUrl).get();
             Readability4J readability4J = new Readability4J(articleUrl, articleHtml); // url is just needed to resolve relative urls
             Article article = readability4J.parse();
-            String aricleContent = article.getTextContent();
+            String aricleContent = article.getContent();
             return aricleContent;
         } catch (HttpStatusException e) {
             System.out.println("HTTP error: " + e.getStatusCode());
