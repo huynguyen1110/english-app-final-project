@@ -1,11 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { getArticleContent } from '@/service/news/NewsService';
 
 let newsData = ref({});
 let imageUrl = ref(null);
 let title = ref('');
 let description = ref('');
-let content = ref('');
+let contentArticle = ref(null);
+let content = ref(null);
 let url = ref('');
 
 onMounted(() => {
@@ -14,9 +16,20 @@ onMounted(() => {
     imageUrl.value = newsData.value?.urlToImage;
     title.value = newsData.value?.title;
     description.value = newsData.value?.description;
-    content.value = newsData.value?.content;
     url.value = newsData.value?.url;
+    fetchGetArticleContent(url.value);
 });
+
+const fetchGetArticleContent = async (articleUrl) => {
+    try {
+        const response = await getArticleContent(articleUrl);
+        const { data } = response;
+        content.value = JSON.stringify(data);
+        console.log(content.value)
+    } catch (e) {
+        console.log(e);
+    }
+};
 
 </script>
 
@@ -30,6 +43,10 @@ onMounted(() => {
         <div :style="{height: '30px'}"></div>
         <h6 class="title">{{ description }}</h6>
         <div :style="{height: '30px'}"></div>
+
+        <div>
+            {{contentArticle?.value}}
+        </div>
         <p class="content">
             <a :href="url" target="_blank">Click here to read more</a>
         </p>

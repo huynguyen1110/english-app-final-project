@@ -9,6 +9,7 @@ export const AUTHENTICATION_ENPOINT = {
 };
 
 export const NEWS_ENPOINT = {
-    GET_NEWS: "/news/get-everything"
+    GET_NEWS: "/news/get-everything",
+    GET_ARTICLE_CONTENT: '/news/get-news-content'
 }
 

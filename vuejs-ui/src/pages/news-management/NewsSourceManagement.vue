@@ -52,23 +52,6 @@ async function getNews() {
         id: index + 1 // Thêm trường id tự tăng, bắt đầu từ 1
     }));
 
-    console.log(newsDataWithId[0])
-
-    // // ...and download the HTML for it, again with axios
-    // axios.get(newsDataWithId[0].url).then(function(r2) {
-    //
-    //     // We now have the article HTML, but before we can use Readability to locate the article content we need jsdom to convert it into a DOM object
-    //     let dom = new JSDOM(r2.data, {
-    //         url: newsDataWithId[0].url
-    //     });
-    //
-    //     // now pass the DOM document into readability to parse
-    //     let article = new Readability(dom.window.document).parse();
-    //
-    //     // Done! The article content is in the textContent property
-    //     console.log(article.textContent);
-    // })
-
     newsSourceData.value = newsDataWithId;
 
     localStorage.removeItem("newsData")
@@ -104,7 +87,6 @@ const goToNewsDetail = (newsId) => {
             name: 'news-source-management-news-detail',
         });
 
-        console.log(news)
         localStorage.setItem("news", JSON.stringify(news));
     } else {
         console.error(`News with id ${newsId} not found`);
