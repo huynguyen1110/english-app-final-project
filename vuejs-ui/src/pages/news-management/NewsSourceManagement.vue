@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { NEWS_DOMAIN_NAME, SOURCE_NEWS_NAME } from '@/utils/Constaints';
 import { useToast } from 'primevue/usetoast';
@@ -27,6 +27,12 @@ const dropdownValues = ref([
     { name: SOURCE_NEWS_NAME.TECH_CRUNCH, domain: NEWS_DOMAIN_NAME.TECH_CRUNCH }
 ]);
 
+onMounted(() => {
+    if (localStorage.getItem("newsData")) {
+        localStorage.removeItem("news");
+        newsSourceData.value = JSON.parse(localStorage.getItem("newsData"));
+    }
+})
 
 function open() {
     display.value = true;
@@ -46,10 +52,28 @@ async function getNews() {
         id: index + 1 // Thêm trường id tự tăng, bắt đầu từ 1
     }));
 
+    console.log(newsDataWithId[0])
+
+    // // ...and download the HTML for it, again with axios
+    // axios.get(newsDataWithId[0].url).then(function(r2) {
+    //
+    //     // We now have the article HTML, but before we can use Readability to locate the article content we need jsdom to convert it into a DOM object
+    //     let dom = new JSDOM(r2.data, {
+    //         url: newsDataWithId[0].url
+    //     });
+    //
+    //     // now pass the DOM document into readability to parse
+    //     let article = new Readability(dom.window.document).parse();
+    //
+    //     // Done! The article content is in the textContent property
+    //     console.log(article.textContent);
+    // })
+
     newsSourceData.value = newsDataWithId;
 
-    console.log(newsSourceData);
-
+    localStorage.removeItem("newsData")
+    localStorage.setItem("newsData",  JSON.stringify(newsDataWithId));
+    localStorage.removeItem("news")
     display.value = false; // Assuming this controls some loading or display state
 }
 
@@ -74,15 +98,14 @@ const goToNewsDetail = (newsId) => {
     // Tìm bản tin có id tương ứng với newsId
     const news = newsSourceData?.value?.find(article => article.id === newsId);
 
-    console.log(news)
-
     if (news) {
         // Điều hướng đến trang chi tiết với thông tin của bản tin
         router.push({
-            path: `/v1/admin/news-source-management/news-detail`, // Bạn có thể điều hướng bằng id
-            // Hoặc có thể truyền thông tin thêm nếu cần
-            state: { news } // Truyền state nếu bạn muốn sử dụng thông tin chi tiết
+            name: 'news-source-management-news-detail',
         });
+
+        console.log(news)
+        localStorage.setItem("news", JSON.stringify(news));
     } else {
         console.error(`News with id ${newsId} not found`);
     }
