@@ -11,6 +11,8 @@ import com.kwabenaberko.newsapilib.models.request.EverythingRequest;
 import com.kwabenaberko.newsapilib.models.request.TopHeadlinesRequest;
 import com.kwabenaberko.newsapilib.models.response.ArticleResponse;
 import lombok.extern.slf4j.Slf4j;
+import net.dankito.readability4j.Article;
+import net.dankito.readability4j.Readability4J;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -18,7 +20,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.HttpStatusException;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -216,5 +222,23 @@ public class NewsService implements INewsService {
         news.setIsDeleted(true);
 
         newsRepository.save(news);
+    }
+
+    @Override
+    public String getNewsContent(String articleUrl) throws Exception {
+        try {
+            // Bước 1: Gửi yêu cầu đến News API
+            Document articleHtml = Jsoup.connect(articleUrl).get();
+            Readability4J readability4J = new Readability4J(articleUrl, articleHtml); // url is just needed to resolve relative urls
+            Article article = readability4J.parse();
+            String aricleContent = article.getContent();
+            return aricleContent;
+        } catch (HttpStatusException e) {
+            System.out.println("HTTP error: " + e.getStatusCode());
+            throw new Exception(e);
+        } catch (IOException e) {
+            System.out.println("Error fetching data: " + e.getMessage());
+            throw new Exception(e);
+        }
     }
 }

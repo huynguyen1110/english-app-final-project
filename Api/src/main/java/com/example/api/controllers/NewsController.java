@@ -110,4 +110,14 @@ public class NewsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
         }
     }
+
+    @GetMapping("/get-news-content")
+    public ResponseEntity<?> getNewsContent(@RequestParam String articleUrl) {
+        try {
+             String articleContent = newsService.getNewsContent(articleUrl);
+            return ResponseEntity.ok(articleContent);
+        } catch (Exception erException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(erException.getMessage());
+        }
+    }
 }

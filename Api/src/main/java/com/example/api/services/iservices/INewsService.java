@@ -27,4 +27,6 @@ public interface INewsService {
     void updateNews(NewsDto newsDto, long id) throws Exception;
 
     void deleteNews(long id) throws Exception;
+
+    String getNewsContent(String articleUrl) throws Exception;
 }
