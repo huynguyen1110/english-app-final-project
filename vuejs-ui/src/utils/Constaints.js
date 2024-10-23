@@ -14,3 +14,12 @@ export const NEWS_DOMAIN_NAME = {
     TECH_CRUNCH: "techcrunch.com",
     GLOBAL_NEWS: "globalnews.ca",
 }
+
+export const CATEGORY = {
+    EDUCATION: {name: 'Education', id: 1},
+    SCIENCE: {name: 'Science', id: 2},
+    TECHNOLOGY: {name: 'Technology', id: 3},
+    BUSINESS: {name: 'Business', id: 4},
+    TRAVEL: {name: 'Travel', id: 5},
+    SPORT: {name: 'Sport', id: 6},
+}
