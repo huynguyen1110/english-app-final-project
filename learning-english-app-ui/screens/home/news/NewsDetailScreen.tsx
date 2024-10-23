@@ -34,6 +34,7 @@ import {getDefinitionInVietnamesePrompt} from "../../../utils/GptPrompts";
 import {decodeJwtToken, getJwtToken} from "../../../services/AuthenticationService";
 import {addNewsToFavoriteService} from "../../../services/FavoriteService";
 import Toast from 'react-native-toast-message';
+import RenderHtml from 'react-native-render-html';
 
 const NewsDetailScreen = () => {
 
@@ -330,6 +331,66 @@ const NewsDetailScreen = () => {
         }
     }
 
+    // past and display html to word logic
+    // const parseHtmlToWords = (htmlContent: string) => {
+    //     return htmlContent
+    //         .replace(/<\/?[^>]+(>|$)/g, "") // Loại bỏ thẻ HTML
+    //         .split(" ") // Tách chuỗi thành từng từ
+    //         .map((word, index) => (
+    //             <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
+    //                 <Text style={{ fontSize: 18, color: textColor, marginRight: 5 }}>
+    //                     {word}{' '}
+    //                 </Text>
+    //             </TouchableOpacity>
+    //         ));
+    // };
+
+    const parseHtmlToWords = (htmlContent: string) => {
+        // Loại bỏ thẻ HTML
+        const cleanedContent = htmlContent.replace(/<\/?[^>]+(>|$)/g, "").trim();
+        const cleanedString = cleanedContent.replace(/\\\"/g, ''); // Loại bỏ dấu \\\
+        // Tách chuỗi thành từng từ và xử lý ký tự xuống dòng
+        const words = cleanedString.split(" ");
+        console.log(words)
+
+        return words.flatMap((word, index) => {
+            // Kiểm tra xem từ có phải là ký tự xuống dòng hay không
+            if (word === "\\n" || word === "" || word.endsWith("\\n")) {
+                return (
+                    <TouchableOpacity key={index} onPress={() => handleWordPress(word.replace('\n', '').trim())}>
+                        <Text style={{fontSize: 18, color: textColor, marginRight: 5}}>
+                            {word.replace('\\n', '')}{''}
+                        </Text>
+                        <Text key={`newline-${index}`} style={{width: '100%'}}/>
+                    </TouchableOpacity>
+                );
+            } else if(word === "'\\\'" || word.includes("'\\\'")) {
+                return (
+                    <Text style={{fontSize: 18, color: textColor, marginRight: 5}}>
+                        {word.replace("'\\\'", '')}{''}
+                    </Text>
+                )
+            } else {
+                return (
+                    <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
+                        <Text style={{fontSize: 18, color: textColor, marginRight: 5}}>
+                            {word}{' '}
+                        </Text>
+                    </TouchableOpacity>
+                );
+            }
+        });
+    };
+
+
+    const [parsedWords, setParsedWords] = useState<any>();
+
+    useEffect(() => {
+        setParsedWords(parseHtmlToWords(newsContent.join(" ")));
+    }, [newsContent]);
+    // past and display html to word logic
+
+
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             <StatusBar hidden={true}/>
@@ -374,11 +435,17 @@ const NewsDetailScreen = () => {
                     <Image source={{uri: imageUrl || errImageUrl}} style={styles.image}/>
 
                     <Block style={styles.textContainer}>
-                        {newsContent.map((word: any, index: any) => (
-                            <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
-                                <Text style={{fontSize, color: textColor}}>{word} </Text>
-                            </TouchableOpacity>
-                        ))}
+                        {/*{newsContent.map((word: any, index: any) => (*/}
+                        {/*    <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>*/}
+                        {/*        <Text style={{fontSize, color: textColor}}>{word} </Text>*/}
+                        {/*    </TouchableOpacity>*/}
+                        {/*))}*/}
+                        {parsedWords}
+                        {/*<RenderHtml*/}
+                        {/*    contentWidth={200}*/}
+                        {/*    // @ts-ignore*/}
+                        {/*    source={{ html: `${newsContent.join(" ")}` }}*/}
+                        {/*/>*/}
                     </Block>
                 </Block>
                 {/*content view*/}
