@@ -63,7 +63,7 @@ const saveToTheSystemBtn = () => {
     display.value = true;
 };
 
-const  saveBtn = async () => {
+const saveBtn = async () => {
     if (!dropdownCategoryValue.value && !dropdownSourceNewsValue.value) {
         toast.add({ severity: 'info', summary: 'Please select', life: 3000 });
         return;
@@ -78,7 +78,7 @@ const  saveBtn = async () => {
         sourceUrl: url?.value,
         publishedAt: publishedAt?.value,
         topicId: dropdownCategoryValue?.value?.id
-    }
+    };
     try {
         const response = await createNewsService(newsDto);
         const { data } = response;
@@ -130,7 +130,7 @@ const  saveBtn = async () => {
         <div :style="{height: '30px'}"></div>
         <h6 class="title">{{ description }}</h6>
         <div :style="{height: '30px'}"></div>
-        <Button @click="isEditing = !isEditing" >
+        <Button @click="isEditing = !isEditing">
             {{ isEditing ? 'Save' : 'Edit' }}
         </Button>
         <!-- Hiển thị nội dung (khi không chỉnh sửa) -->
@@ -138,12 +138,13 @@ const  saveBtn = async () => {
         <!-- Chế độ chỉnh sửa (khi đang chỉnh sửa) -->
         <div v-else>
             <textarea v-model="content" class="edit-content"></textarea>
-        </div>        <p class="content"
+        </div>
+        <p class="content"
            :style="{flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', display: 'flex'}">
             <a :href="url" target="_blank">Click here to read more</a>
             <Button :style="{width: '15%'}" label="Save to the system" type="button" @click="saveToTheSystemBtn" />
         </p>
-        <Toast/>
+        <Toast />
     </div>
 </template>
 
@@ -174,6 +175,7 @@ const  saveBtn = async () => {
     border: 1px solid #ddd; /* Viền xung quanh */
     border-radius: 5px; /* Bo góc */
 }
+
 .edit-content {
     font-size: 16px; /* Kích thước chữ */
     line-height: 1.5; /* Khoảng cách giữa các dòng */
