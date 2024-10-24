@@ -174,7 +174,6 @@ const goToNewsDetail = (newsId) => {
                 <Column field="author" header="Author" sortable style="min-width: 10rem"></Column>
                 <Column field="publishedAt" header="Published date" sortable style="min-width: 10rem">
                     <template #body="slotProps">
-
                         {{ format(slotProps?.data?.publishedAt, 'dd-MM-yyyy HH:mm:ss') }}
                     </template>
                 </Column>

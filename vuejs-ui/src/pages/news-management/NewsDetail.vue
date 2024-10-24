@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import { getArticleContent } from '@/service/news/NewsService';
+import { createNewsService, getArticleContent } from '@/service/news/NewsService';
 import { CATEGORY, SOURCE_NEWS_NAME } from '@/utils/Constaints';
 
 const toast = useToast();
@@ -14,6 +14,8 @@ let title = ref('');
 let description = ref('');
 let content = ref(null);
 let url = ref('');
+let author = ref('');
+let publishedAt = ref('');
 
 const dropdownSourceNewsValue = ref(null);
 const dropdownSourceNewsValues = ref([
@@ -42,6 +44,8 @@ onMounted(() => {
     title.value = newsData.value?.title;
     description.value = newsData.value?.description;
     url.value = newsData.value?.url;
+    author.value = newsData.value?.author;
+    publishedAt.value = newsData.value?.publishedAt;
     fetchGetArticleContent(url.value);
 });
 
@@ -59,10 +63,33 @@ const saveToTheSystemBtn = () => {
     display.value = true;
 };
 
-const saveBtn = () => {
+const  saveBtn = async () => {
     if (!dropdownCategoryValue.value && !dropdownSourceNewsValue.value) {
         toast.add({ severity: 'info', summary: 'Please select', life: 3000 });
         return;
+    }
+    const newsDto = {
+        title: title?.value,
+        content: JSON.stringify(content?.value),
+        sourceName: dropdownSourceNewsValue?.value?.name,
+        description: description?.value,
+        author: author?.value,
+        imageUrl: imageUrl?.value,
+        sourceUrl: url?.value,
+        publishedAt: publishedAt?.value,
+        topicId: dropdownCategoryValue?.value?.id
+    }
+    try {
+        const response = await createNewsService(newsDto);
+        const { data } = response;
+        if (data) {
+            toast.add({ severity: 'success', summary: 'Add to system successfully', life: 3000 });
+        } else {
+            toast.add({ severity: 'warn', summary: 'Failed to add to system', life: 3000 });
+        }
+    } catch (e) {
+        toast.add({ severity: 'warn', summary: 'Failed to add to system', life: 3000 });
+        console.error(e);
     }
     display.value = false;
 };

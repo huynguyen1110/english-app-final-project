@@ -31,3 +31,18 @@ export const getArticleContent = async (articleUrl) => {
         throw new Error(error.response?.data || 'An error occurred while getting article content');
     }
 };
+
+export const createNewsService = async (newsDto) => {
+    const options = {
+        method: 'POST',
+        url: BASE_URL.concat(NEWS_ENPOINT.CREATE_NEWS),
+        data: newsDto
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while creating news', error);
+        throw new Error(error.response?.data || 'An error occurred while creating news');
+    }
+};
