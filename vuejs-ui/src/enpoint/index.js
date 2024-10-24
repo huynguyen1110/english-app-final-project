@@ -11,6 +11,8 @@ export const AUTHENTICATION_ENPOINT = {
 export const NEWS_ENPOINT = {
     CREATE_NEWS: "/news/create",
     GET_NEWS: "/news/get-everything",
-    GET_ARTICLE_CONTENT: '/news/get-news-content'
+    GET_ARTICLE_CONTENT: '/news/get-news-content',
+    GET_NEWS_FROM_DB: "/news/get-news",
+    GET_NEWS_FROM_DB_BY_SOURCE_NAME: '/news/get-news-source-name',
 }
 

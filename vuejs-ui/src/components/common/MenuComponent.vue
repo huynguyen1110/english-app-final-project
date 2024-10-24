@@ -22,8 +22,9 @@ const model = ref([
         label: "News management",
         items: [
             { label: "News source management", icon: 'pi pi-fw pi-book', to: '/v1/admin/news-source-management' },
+            { label: "System news management", icon: 'pi pi-fw pi-book', to: '/v1/admin/system-news-management' },
         ]
-    },
+    }
     // {
     //     label: 'UI Components',
     //     items: [
