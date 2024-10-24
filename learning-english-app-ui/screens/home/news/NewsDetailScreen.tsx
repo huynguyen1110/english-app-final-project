@@ -7,7 +7,7 @@ import {
     Image,
     SectionList,
     ActivityIndicator,
-    StatusBar
+    StatusBar, Dimensions
 } from "react-native";
 import {SegmentedButtons} from 'react-native-paper';
 import {GlobalStyles} from "../../../styles/GlobalStyles";
@@ -35,6 +35,8 @@ import {decodeJwtToken, getJwtToken} from "../../../services/AuthenticationServi
 import {addNewsToFavoriteService} from "../../../services/FavoriteService";
 import Toast from 'react-native-toast-message';
 import RenderHtml from 'react-native-render-html';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 const NewsDetailScreen = () => {
 
@@ -332,49 +334,37 @@ const NewsDetailScreen = () => {
     }
 
     // past and display html to word logic
-    // const parseHtmlToWords = (htmlContent: string) => {
-    //     return htmlContent
-    //         .replace(/<\/?[^>]+(>|$)/g, "") // Loại bỏ thẻ HTML
-    //         .split(" ") // Tách chuỗi thành từng từ
-    //         .map((word, index) => (
-    //             <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
-    //                 <Text style={{ fontSize: 18, color: textColor, marginRight: 5 }}>
-    //                     {word}{' '}
-    //                 </Text>
-    //             </TouchableOpacity>
-    //         ));
-    // };
-
     const parseHtmlToWords = (htmlContent: string) => {
+        const trimmedContent = htmlContent.replace(/^"|"$/g, '');
         // Loại bỏ thẻ HTML
-        const cleanedContent = htmlContent.replace(/<\/?[^>]+(>|$)/g, "").trim();
+        const cleanedContent = trimmedContent.replace(/<\/?[^>]+(>|$)/g, "").trim();
         const cleanedString = cleanedContent.replace(/\\\"/g, ''); // Loại bỏ dấu \\\
         // Tách chuỗi thành từng từ và xử lý ký tự xuống dòng
         const words = cleanedString.split(" ");
-        console.log(words)
+        // const filteredWords = words.filter(word => word !== "" && word !=="\\n");
+        const filteredWords = words
+            .filter(word => word !== "" && word !== "\\n")  // Lọc bỏ các phần tử trống và "\n"
+            .map(word => word.replace("\\n", "\n"));        // Thay thế "\n" trong từ
 
-        return words.flatMap((word, index) => {
+
+        console.log(filteredWords);
+
+        return filteredWords.flatMap((word, index) => {
+            const containsNewline = word.includes("\n");
             // Kiểm tra xem từ có phải là ký tự xuống dòng hay không
-            if (word === "\\n" || word === "" || word.endsWith("\\n")) {
+            if(word === "'\\\'" || word.includes("'\\\'")) {
                 return (
-                    <TouchableOpacity key={index} onPress={() => handleWordPress(word.replace('\n', '').trim())}>
-                        <Text style={{fontSize: 18, color: textColor, marginRight: 5}}>
-                            {word.replace('\\n', '')}{''}
-                        </Text>
-                        <Text key={`newline-${index}`} style={{width: '100%'}}/>
-                    </TouchableOpacity>
-                );
-            } else if(word === "'\\\'" || word.includes("'\\\'")) {
-                return (
-                    <Text style={{fontSize: 18, color: textColor, marginRight: 5}}>
-                        {word.replace("'\\\'", '')}{''}
-                    </Text>
+                    <Text></Text>
                 )
             } else {
                 return (
                     <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
-                        <Text style={{fontSize: 18, color: textColor, marginRight: 5}}>
-                            {word}{' '}
+                        <Text
+                            style={[
+                                { textColor: textColor , width: containsNewline ? screenWidth : undefined, fontSize: fontSize, marginRight: 5 }
+                            ]}
+                        >
+                            {word}
                         </Text>
                     </TouchableOpacity>
                 );
@@ -387,7 +377,7 @@ const NewsDetailScreen = () => {
 
     useEffect(() => {
         setParsedWords(parseHtmlToWords(newsContent.join(" ")));
-    }, [newsContent]);
+    }, [newsContent, textColor, fontSize]);
     // past and display html to word logic
 
 
