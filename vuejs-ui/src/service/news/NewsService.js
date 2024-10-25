@@ -84,3 +84,18 @@ export const getNewsBySourceNameFromDbService = async (getNewsParams) => {
         throw new Error(error.response?.data || 'An error occurred while getting news from db');
     }
 };
+
+export const deleteNewsService = async (id) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(NEWS_ENPOINT.DELETE_NEWS)
+            .concat('?id=', id)
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while delengti news from db', error);
+        throw new Error(error.response?.data || 'An error occurred while deleting news from db');
+    }
+};

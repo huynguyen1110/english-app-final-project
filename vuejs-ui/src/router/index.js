@@ -43,6 +43,12 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
                 },
                 {
+                    path: '/v1/admin/vocab-pack-management',
+                    name: 'vocab-pack-management',
+                    component: () => import('@/pages/vocab-management/VocabPackList.vue'),
+                    meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
+                },
+                {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
                     component: () => import('@/views/uikit/FormLayout.vue')

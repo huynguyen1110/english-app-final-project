@@ -14,5 +14,6 @@ export const NEWS_ENPOINT = {
     GET_ARTICLE_CONTENT: '/news/get-news-content',
     GET_NEWS_FROM_DB: "/news/get-news",
     GET_NEWS_FROM_DB_BY_SOURCE_NAME: '/news/get-news-source-name',
+    DELETE_NEWS: "/news/delete"
 }
 

@@ -24,6 +24,12 @@ const model = ref([
             { label: "News source management", icon: 'pi pi-fw pi-book', to: '/v1/admin/news-source-management' },
             { label: "System news management", icon: 'pi pi-fw pi-book', to: '/v1/admin/system-news-management' },
         ]
+    },
+    {
+        label: "Vocabulary management",
+        items: [
+            { label: "Vocab pack", icon: 'pi pi-fw pi-folder-open', to: '/v1/admin/vocab-pack-management' },
+        ]
     }
     // {
     //     label: 'UI Components',

@@ -4,22 +4,22 @@ import { FilterMatchMode } from '@primevue/core/api';
 import { CATEGORY, NEWS_DOMAIN_NAME, SOURCE_NEWS_NAME } from '@/utils/Constaints';
 import { useToast } from 'primevue/usetoast';
 import {
+    deleteNewsService,
     getNewsBySourceNameFromDbService,
-    getNewsFromDbService,
-    getNewsSourceService
+    getNewsFromDbService
 } from '@/service/news/NewsService';
 import { format } from 'date-fns';
-import { useRouter } from 'vue-router';
 
 const display = ref(false);
-const keyWord = ref('');
 const newsFromDbData = ref([]);
+const selectedNews = ref();
+const deleteNewsDialog = ref(false);
+
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
 const toast = useToast();
-const router = useRouter();
 
 const dropdownSourceNewsValue = ref(null);
 const dropdownSourceNewsValues = ref([
@@ -39,6 +39,10 @@ onMounted(() => {
 
 function open() {
     display.value = true;
+}
+
+function confirmDeleteSelected() {
+    deleteNewsDialog.value = true;
 }
 
 async function getALlBtn() {
@@ -71,7 +75,7 @@ async function getALlBtn() {
 }
 
 async function getNews() {
-    if (!dropdownSourceNewsValue.value ) {
+    if (!dropdownSourceNewsValue.value) {
         toast.add({ severity: 'info', summary: 'Please select news source', life: 3000 });
         return;
     }
@@ -80,13 +84,13 @@ async function getNews() {
         size: 1000,
         sortField: 'createdAt',
         sortDirection: false,
-        sourceName: dropdownSourceNewsValue?.value
+        sourceName: dropdownSourceNewsValue?.value?.name
     };
     try {
         const response = await getNewsBySourceNameFromDbService(getNewsParams);
         const { data } = response;
         newsFromDbData.value = data?.content;
-        const newsDataWithId = newsFromDbData?.map((article, index) => ({
+        const newsDataWithId = newsFromDbData.value?.map((article, index) => ({
             ...article, // Sao chép tất cả các thuộc tính của article
             id: index + 1 // Thêm trường id tự tăng, bắt đầu từ 1
         }));
@@ -102,30 +106,28 @@ async function getNews() {
         toast.add({ severity: 'error', summary: 'Cat not get news', life: 3000 });
         console.log(e);
     }
-
-    localStorage.removeItem('newsData');
-    localStorage.setItem('newsData', JSON.stringify(newsDataWithId));
-    localStorage.removeItem('news');
     display.value = false; // Assuming this controls some loading or display state
 }
 
-
-// const goToNewsDetail = (newsId) => {
-//     // Tìm bản tin có id tương ứng với newsId
-//     const news = newsSourceData?.value?.find(article => article.id === newsId);
-//
-//     if (news) {
-//         // Điều hướng đến trang chi tiết với thông tin của bản tin
-//         router.push({
-//             name: 'news-source-management-news-detail'
-//         });
-//
-//         localStorage.setItem('news', JSON.stringify(news));
-//     } else {
-//         console.error(`News with id ${newsId} not found`);
-//     }
-// };
-
+async function deleteSelectedNews() {
+    try {
+        for (const news of selectedNews.value) {
+            const response = await deleteNewsService(news?.newsId);
+            const { data } = response;
+            if (data) {
+                // Re-assign filtered array to newsFromDbData.value to update it
+                newsFromDbData.value = newsFromDbData.value.filter(
+                    newsItem => newsItem?.newsId !== news?.newsId
+                );
+            }
+        }
+        deleteNewsDialog.value = false;
+        localStorage.removeItem('newsFromDb');
+        localStorage.setItem('newsFromDb', newsFromDbData);
+    } catch (e) {
+        console.error(e);
+    }
+}
 
 </script>
 
@@ -140,7 +142,8 @@ async function getNews() {
                     :style="{flexDirection: 'column', width: '100%', display: 'flex'}">
                     <p :style="{fontSize: '20px'}">Select source news:</p>
                     <div :style="{width: '12px'}"></div>
-                    <Select v-model="dropdownSourceNewsValue" :options="dropdownSourceNewsValues" optionLabel="name" placeholder="Select" />
+                    <Select v-model="dropdownSourceNewsValue" :options="dropdownSourceNewsValues" optionLabel="name"
+                            placeholder="Select" />
                 </div>
             </div>
             <template #footer>
@@ -151,9 +154,17 @@ async function getNews() {
         <Button label="Get all" style="width: auto" @click="getALlBtn" />
     </div>
     <div class="card">
+        <Toolbar class="mb-6">
+            <template #start>
+                <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="confirmDeleteSelected"
+                        :disabled="!selectedNews || !selectedNews.length" />
+            </template>
+        </Toolbar>
+
         <div class="font-semibold text-xl mb-4">Filtering</div>
         <DataTable
             ref="dt"
+            v-model:selection="selectedNews"
             :value="newsFromDbData"
             dataKey="id"
             :paginator="true"
@@ -176,7 +187,7 @@ async function getNews() {
             </template>
 
             <div>
-                <Column style="width: 3rem" :exportable="false"></Column>
+                <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
                 <Column field="imageUrl" header="Image" sortable style="min-width: 12rem">
                     <template #body="slotProps">
                         <img :src="slotProps?.data?.imageUrl" alt="Imported Image" />
@@ -206,6 +217,17 @@ async function getNews() {
                 </Column>
             </div>
         </DataTable>
+
+        <Dialog v-model:visible="deleteNewsDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+            <div class="flex items-center gap-4">
+                <i class="pi pi-exclamation-triangle !text-3xl" />
+                <span v-if="selectedNews">Are you sure you want to delete the selected news?</span>
+            </div>
+            <template #footer>
+                <Button label="No" icon="pi pi-times" text @click="deleteNewsDialog = false" />
+                <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedNews" />
+            </template>
+        </Dialog>
         <Toast />
     </div>
 </template>
