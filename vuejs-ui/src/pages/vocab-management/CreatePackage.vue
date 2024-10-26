@@ -1,9 +1,12 @@
 <script setup>
 import { ref } from 'vue';
+import { getImageFromGoogleService } from '@/service/third-party/ThirdParyService';
 
 const words = ref([
     { id: 0, name: 'Hello', meaning: 'xin chao', image: 'ddddd', showImage: false }
 ]);
+
+const imageFromGoogle = ref(null);
 
 function addRow() {
     words.value.push({
@@ -11,7 +14,7 @@ function addRow() {
         name: '',
         meaning: '',
         image: '',
-        showImage: false,
+        showImage: false
     });
 }
 
@@ -25,6 +28,19 @@ function save() {
 
 function toggleImage(word) {
     word.showImage = !word.showImage;
+    if (word.showImage) {
+        fetchGetImagesFromGoogle(word?.name);
+    }
+}
+
+async function fetchGetImagesFromGoogle(keyWord) {
+    try {
+        const response = await getImageFromGoogleService(keyWord)
+        const { data } = response;
+        console.log("images:", data);
+    } catch (e) {
+        console.error(e);
+    }
 }
 
 </script>
@@ -72,7 +88,7 @@ function toggleImage(word) {
                             <label :for="'meaning-' + word.id">Meaning</label>
                         </FloatLabel>
                         <div class="border-dashed w-40 h-16 border-2 flex items-center justify-center">
-                            <button  @click="toggleImage(word)">
+                            <button @click="toggleImage(word)">
                                 <i class="pi pi-image" style="font-size: 3rem" />
                             </button>
                         </div>

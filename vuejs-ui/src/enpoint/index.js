@@ -20,3 +20,7 @@ export const NEWS_ENPOINT = {
 export const VOCAB_ENTPOINT = {
     GET_PACKAGE: "/package/get-all"
 }
+
+export const THIRT_PARTY_API = {
+    SERPER_DEV_API: "https://google.serper.dev"
+}
