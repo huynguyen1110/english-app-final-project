@@ -2,14 +2,17 @@
 
 import { onMounted, ref } from 'vue';
 import { getPackageService } from '@/service/vocabulary/VocabularyService';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const packages = ref([]);
 
 onMounted(() => {
-    fetchGetPackageApi()
-})
+    fetchGetPackageApi();
+});
 
-async function fetchGetPackageApi () {
+async function fetchGetPackageApi() {
     const params = {
         page: 1,
         size: 1000,
@@ -19,9 +22,8 @@ async function fetchGetPackageApi () {
     };
     try {
         const response = await getPackageService(params);
-        const {data} = response;
+        const { data } = response;
         packages.value = data?.content;
-        console.log(packages?.value);
     } catch (e) {
         console.error(e);
     }
@@ -43,20 +45,37 @@ async function fetchGetPackageApi () {
         </div>
 
         <div>
-            <Button>
+            <Button @click="router.push({ name: 'vocab-pack-management-create-package' })">
                 <i class="pi pi-plus"></i>
             </Button>
         </div>
 
         <div class="mt-16">
-            <div class="border rounded-md min-h-24">
+            <div
+                v-for="(item, index) in packages"
+                :key="item.id"
+                class="border rounded-md min-h-24 mb-4"
+            >
                 <div class="flex flex-wrap items-center mt-2 ml-2">
-                    <p class="mr-4">2 words</p>
+                    <p class="mr-4">{{ item?.words?.length }} words</p>
                     <div class="w-1 h-4 bg-current"></div>
-                    <img class="inline-block h-8 w-8 rounded-full ring-2 ring-white ml-4" src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="" />
-                    <p class="ml-4">Huy6969</p>
+                    <img
+                        v-if="item.image"
+                        :src="item.image"
+                        class="inline-block h-8 w-8 rounded-full ring-2 ring-white ml-4"
+                        alt="User avatar"
+                    />
+                    <img
+                        v-else
+                        src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?t=st=1729918577~exp=1729922177~hmac=185707299177428531797d03a47468ca7d8e4347364cf0215fd7821e2129005b&w=826"
+                        class="inline-block h-8 w-8 rounded-full ring-2 ring-white ml-4"
+                        alt="Placeholder image"
+                    />
+                    <p class="ml-4">{{ item?.createBy?.split('@')[0] }}</p>
                 </div>
-                <div class="ml-2 mt-2 font-bold text-lg"><p>Noun</p></div>
+                <div class="ml-2 mt-2 font-bold text-lg">
+                    <p>{{ item?.name || 'Untitled' }}</p>
+                </div>
             </div>
         </div>
     </div>
