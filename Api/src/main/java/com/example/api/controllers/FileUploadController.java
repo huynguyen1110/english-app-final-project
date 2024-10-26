@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v1/files")
+@CrossOrigin(origins = "*")
 public class FileUploadController {
 
     private final CloudinarySerivce cloudinarySerivce;
