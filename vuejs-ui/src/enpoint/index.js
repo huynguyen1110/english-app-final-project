@@ -17,3 +17,6 @@ export const NEWS_ENPOINT = {
     DELETE_NEWS: "/news/delete"
 }
 
+export const VOCAB_ENTPOINT = {
+    GET_PACKAGE: "/package/get-all"
+}
