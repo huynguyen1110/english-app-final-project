@@ -22,7 +22,6 @@ export const getPackageService = async (params) => {
 };
 
 export const createPackageService = async (packageData, userEmail) => {
-    console.log(packageData)
     const options = {
         method: 'POST',
         url: BASE_URL.concat(VOCAB_ENTPOINT.CREATE_PACKAGE)
@@ -35,6 +34,22 @@ export const createPackageService = async (packageData, userEmail) => {
     } catch (error) {
         console.error('err while creating package', error);
         throw new Error(error.response?.data || 'An error occurred while creating package');
+    }
+};
+
+export const updatePackageService = async (packageDto, packageId) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(VOCAB_ENTPOINT.UPDATE_PACKAGE)
+            .concat('?id=' + packageId),
+        data: packageDto
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while updating package', error);
+        throw new Error(error.response?.data || 'An error occurred while updating package');
     }
 };
 
@@ -66,5 +81,21 @@ export const addWordToPackageService = async (wordId, packageId) => {
     } catch (error) {
         console.error('err while adding word to package', error);
         throw new Error(error.response?.data || 'An error occurred while adding word to package');
+    }
+};
+
+export const removeWordFromPackageService = async (wordId, packageId) => {
+    const options = {
+        method: 'POST',
+        url: BASE_URL.concat(VOCAB_ENTPOINT.REMOVE_WORD_FROM_PACKAGE)
+            .concat('?wordId=', wordId)
+            .concat('&packageId=', packageId)
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while removing word from package', error);
+        throw new Error(error.response?.data || 'An error occurred while remove word from package');
     }
 };

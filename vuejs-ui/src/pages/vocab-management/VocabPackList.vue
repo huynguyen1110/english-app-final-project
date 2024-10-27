@@ -9,6 +9,7 @@ const router = useRouter();
 const packages = ref([]);
 
 onMounted(() => {
+    localStorage.removeItem('packageData');
     fetchGetPackageApi();
 });
 
@@ -27,6 +28,11 @@ async function fetchGetPackageApi() {
     } catch (e) {
         console.error(e);
     }
+}
+
+function navigateToPackageDetail (packageData) {
+    localStorage.setItem('packageData', JSON.stringify(packageData));
+    router.push({ name: 'vocab-pack-management-edit-package' });
 }
 
 </script>
@@ -54,7 +60,8 @@ async function fetchGetPackageApi() {
             <div
                 v-for="(item, index) in packages"
                 :key="item.id"
-                class="border rounded-md min-h-24 mb-4"
+                class="border rounded-md min-h-24 mb-4 hover:border-b-2 hover:border-blue-500 cursor-pointer"
+                @click="navigateToPackageDetail(item)"
             >
                 <div class="flex flex-wrap items-center mt-2 ml-2">
                     <p class="mr-4">{{ item?.words?.length }} words</p>

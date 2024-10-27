@@ -1,17 +1,22 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { getImageFromGoogleService } from '@/service/third-party/ThirdParyService';
 import { useToast } from 'primevue/usetoast';
 import {
     addWordToPackageService,
     createPackageService,
-    createWordService
+    createWordService, removeWordFromPackageService, updatePackageService
 } from '@/service/vocabulary/VocabularyService';
 import { decodeJWT } from '@/service/auth/AuthService';
 import { useRouter } from 'vue-router';
-const router = useRouter();
 
+const router = useRouter();
 const toast = useToast();
+
+onMounted(() => {
+    packageData.value = JSON.parse(localStorage.getItem('packageData'));
+    getPackageData();
+});
 
 const words = ref([
     {
@@ -27,10 +32,13 @@ const words = ref([
         showImage: false
     }
 ]);
+
+const wordsToRemove = ref([]);
 const packageName = ref('');
 const description = ref('');
 const imageFromGoogle = ref(null);
 const userEmail = ref('');
+const packageData = ref(null);
 
 function addRow() {
     words.value.push({
@@ -47,8 +55,9 @@ function addRow() {
     });
 }
 
-function deleteRow(id) {
-    words.value = words.value.filter(word => word.id !== id);
+function deleteRow(wordToRemove) {
+    words.value = words.value.filter(word => word.id !== wordToRemove?.id);
+    wordsToRemove.value.push(wordToRemove);
 }
 
 async function save() {
@@ -110,8 +119,84 @@ async function save() {
     } catch (e) {
         console.error('Error creating package:', e);
     }
-
 }
+
+//save data when edit is finished
+async function saveEdit() {
+    try {
+
+        if (wordsToRemove.value.length > 0) {
+            await Promise.all(
+                wordsToRemove.value.map(async (word) => {
+                    if (word?.wordId) {
+                        try {
+                            await removeWordFromPackageService(word?.wordId, packageData?.value?.id);
+                        } catch (error) {
+                            console.error('Error creating word:', error);
+                        }
+                    }
+                })
+            );
+        }
+
+        const packageDto = {
+            name: packageName?.value,
+            description: description?.value,
+            isPublished: true
+        };
+
+        const { data } = await updatePackageService(packageDto, packageData?.value?.id);
+
+        const wordsId = [];
+
+        if (packageData?.value?.id) {
+            await Promise.all(
+                words.value.map(async (word) => {
+                    if (!word?.wordId) {
+                        try {
+                            const { data: createdWord } = await createWordService(word);
+                            if (createdWord?.wordId) wordsId.push(createdWord.wordId);
+                        } catch (error) {
+                            console.error('Error creating word:', error);
+                        }
+                    }
+                })
+            );
+        }
+
+        if (wordsId.length > 0) {
+            const addWordResponses = await Promise.all(
+                wordsId.map(async (wordId) => {
+                    try {
+                        const { data: addedWord } = await addWordToPackageService(wordId, packageData?.value?.id);
+                        return addedWord;
+                    } catch (error) {
+                        console.error('Error adding word to package:', error);
+                        return null;
+                    }
+                })
+            );
+
+            const allWordsAdded = addWordResponses.every(response => response);
+            if (allWordsAdded) {
+                toast.add({ severity: 'success', summary: 'Package edited!', life: 3000 });
+                router.back();
+                return;
+            } else {
+                toast.add({ severity: 'error', summary: 'Failed to edit package!', life: 3000 });
+            }
+        }
+        if (data) {
+            toast.add({ severity: 'success', summary: 'Package edited!', life: 3000 });
+            router.back();
+        } else {
+            toast.add({ severity: 'error', summary: 'Failed to edit package!', life: 3000 });
+        }
+    } catch (error) {
+        console.error('Error editing package:', error);
+    }
+}
+
 
 function toggleImage(word) {
     word.showImage = !word.showImage;
@@ -130,14 +215,28 @@ async function fetchGetImagesFromGoogle(keyWord) {
     }
 }
 
+function getPackageData() {
+    if (!packageData.value) {
+        return;
+    }
+    packageName.value = packageData?.value?.name;
+    description.value = packageData?.value?.description;
+    words.value = packageData?.value?.words?.map((word, index) => ({
+        ...word,
+        id: index + 1 // Hoặc bạn có thể dùng `Math.random()` hoặc `Date.now()` để tạo id duy nhất
+    }));
+}
+
 </script>
 
 <template>
 
     <div class="card">
         <div class="flex justify-between items-center">
-            <p class="font-bold text-xl">Create news your new package</p>
-            <Button @click="save">Save</Button>
+            <p v-if="!packageData" class="font-bold text-xl">Create news your new package</p>
+            <p v-else class="font-bold text-xl">Edit your package</p>
+            <Button v-if="!packageData" @click="save">Save</Button>
+            <Button v-else @click="saveEdit">Save</Button>
         </div>
         <div class="mt-6">
             <FloatLabel>
@@ -158,10 +257,8 @@ async function fetchGetImagesFromGoogle(keyWord) {
                 <div class="rounded-md min-h-40 border-2 mt-6">
                     <div class="min-h-12 flex justify-between items-center">
                         <div class="ml-4">{{ index + 1 }}</div>
-                        <button class="mr-4" @click="deleteRow(word?.id)">
-                            <InputIcon>
-                                <i class="pi pi-trash" />
-                            </InputIcon>
+                        <button class="mr-4" @click="deleteRow(word)">
+                            <i class="pi pi-trash" />
                         </button>
                     </div>
                     <div class="border-b-4 border-indigo-500"></div>
