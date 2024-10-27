@@ -1,6 +1,6 @@
 <script setup>
 
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { getPackageService } from '@/service/vocabulary/VocabularyService';
 import { useRouter } from 'vue-router';
 
@@ -8,9 +8,17 @@ const router = useRouter();
 
 const packages = ref([]);
 
+const filterPackages = ref([]);
+
+const searchQuery = ref('');
+
 onMounted(() => {
     localStorage.removeItem('packageData');
     fetchGetPackageApi();
+});
+
+watch(searchQuery, (newSearchQuery) => {
+    filterPackages.value = filteredPackagesFunction(newSearchQuery);
 });
 
 async function fetchGetPackageApi() {
@@ -25,14 +33,29 @@ async function fetchGetPackageApi() {
         const response = await getPackageService(params);
         const { data } = response;
         packages.value = data?.content;
+        filterPackages.value = data?.content;
     } catch (e) {
         console.error(e);
     }
 }
 
-function navigateToPackageDetail (packageData) {
+function navigateToPackageDetail(packageData) {
     localStorage.setItem('packageData', JSON.stringify(packageData));
     router.push({ name: 'vocab-pack-management-edit-package' });
+}
+
+function filteredPackagesFunction(searchKey) {
+    if (searchKey === '') {
+        return packages?.value;
+    } else {
+        // Lọc các package dựa trên từ khóa tìm kiếm
+        return packages?.value?.filter((item) => {
+            return (
+                item?.name?.toLowerCase().includes(searchKey.toLowerCase()) || // Kiểm tra tên package
+                item?.createBy?.toLowerCase().includes(searchKey.toLowerCase()) // Kiểm tra người tạo package
+            );
+        });
+    }
 }
 
 </script>
@@ -46,7 +69,7 @@ function navigateToPackageDetail (packageData) {
                 <InputIcon>
                     <i class="pi pi-search" />
                 </InputIcon>
-                <InputText placeholder="Search..." />
+                <InputText v-model="searchQuery" placeholder="Search..." />
             </IconField>
         </div>
 
@@ -58,7 +81,7 @@ function navigateToPackageDetail (packageData) {
 
         <div class="mt-16">
             <div
-                v-for="(item, index) in packages"
+                v-for="(item, index) in filterPackages"
                 :key="item.id"
                 class="border rounded-md min-h-24 mb-4 hover:border-b-2 hover:border-blue-500 cursor-pointer"
                 @click="navigateToPackageDetail(item)"

@@ -53,6 +53,21 @@ export const updatePackageService = async (packageDto, packageId) => {
     }
 };
 
+export const deletePackageService = async (packageId) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(VOCAB_ENTPOINT.DELETE_PACKAGE)
+            .concat('?id=' + packageId)
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while deleting package', error);
+        throw new Error(error.response?.data || 'An error occurred while deleting package');
+    }
+}
+
 export const createWordService = async (wordData) => {
     const options = {
         method: 'POST',

@@ -21,6 +21,7 @@ export const VOCAB_ENTPOINT = {
     CREATE_PACKAGE: '/package/create',
     GET_PACKAGE: "/package/get-all",
     UPDATE_PACKAGE: "/package/update",
+    DELETE_PACKAGE: '/package/delete',
     CREATE_WORD: "/word/create",
     ADD_WORD_TO_PACKAGE: '/word/add-word-to-package',
     REMOVE_WORD_FROM_PACKAGE: '/word/remove-word-from-package'

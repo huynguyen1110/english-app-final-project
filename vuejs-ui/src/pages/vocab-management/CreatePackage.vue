@@ -5,7 +5,7 @@ import { useToast } from 'primevue/usetoast';
 import {
     addWordToPackageService,
     createPackageService,
-    createWordService, removeWordFromPackageService, updatePackageService
+    createWordService, deletePackageService, removeWordFromPackageService, updatePackageService
 } from '@/service/vocabulary/VocabularyService';
 import { decodeJWT } from '@/service/auth/AuthService';
 import { useRouter } from 'vue-router';
@@ -227,16 +227,44 @@ function getPackageData() {
     }));
 }
 
+async function deletePackage() {
+    const userConfirmed = confirm('Are you sure you want to delete this package?');
+
+    if (userConfirmed) {
+        try {
+            const { data } = await deletePackageService(packageData?.value?.id);
+            if (data) {
+                toast.add({ severity: 'success', summary: 'Deleted package', life: 3000 });
+                router.back();
+            } else {
+                toast.add({ severity: 'error', summary: 'Failed to delete package', life: 3000 });
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    } else {
+        // Hủy xóa gói
+        console.log('Delete canceled.');
+    }
+}
+
 </script>
 
 <template>
 
     <div class="card">
         <div class="flex justify-between items-center">
-            <p v-if="!packageData" class="font-bold text-xl">Create news your new package</p>
-            <p v-else class="font-bold text-xl">Edit your package</p>
-            <Button v-if="!packageData" @click="save">Save</Button>
-            <Button v-else @click="saveEdit">Save</Button>
+            <div>
+                <p v-if="!packageData" class="font-bold text-xl">Create news your new package</p>
+                <p v-else class="font-bold text-xl">Edit your package</p>
+            </div>
+            <div>
+                <Button v-if="!packageData" @click="save">Save</Button>
+                <div v-else>
+                    <Button class="mr-4" @click="deletePackage">Delete package</Button>
+                    <Button @click="saveEdit">Save</Button>
+                </div>
+            </div>
         </div>
         <div class="mt-6">
             <FloatLabel>
