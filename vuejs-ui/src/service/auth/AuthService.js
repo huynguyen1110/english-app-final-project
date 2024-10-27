@@ -55,7 +55,7 @@ export const validatePhoneNumber = (value) => {
             return 'Invalid phone number';
         }
     } else {
-        return 'Phone number is required'
+        return 'Phone number is required';
     }
 };
 
@@ -101,7 +101,7 @@ export const updateUserService = async (updateUserDto, userEmail) => {
     const options = {
         method: 'PUT',
         url: BASE_URL.concat(AUTHENTICATION_ENPOINT.UPDATE_USER)
-            .concat("?userEmail=" + userEmail),
+            .concat('?userEmail=' + userEmail),
         data: updateUserDto
     };
 
@@ -117,10 +117,10 @@ export const getAllUsersService = async (params) => {
     const options = {
         method: 'GET',
         url: BASE_URL.concat(AUTHENTICATION_ENPOINT.GET_ALL_USERS)
-            .concat("?page=" + params?.page)
-            .concat("&size=" + params?.size)
-            .concat("&sortField=" + params?.sortField)
-            .concat("&sortDirection=" + params?.sortDirection),
+            .concat('?page=' + params?.page)
+            .concat('&size=' + params?.size)
+            .concat('&sortField=' + params?.sortField)
+            .concat('&sortDirection=' + params?.sortDirection)
     };
 
     try {
@@ -135,7 +135,7 @@ export const deleteUserService = async (userEmail) => {
     const options = {
         method: 'PUT',
         url: BASE_URL.concat(AUTHENTICATION_ENPOINT.DELETE_USER)
-            .concat("?userEmail=" + userEmail)
+            .concat('?userEmail=' + userEmail)
     };
 
     try {
@@ -143,5 +143,14 @@ export const deleteUserService = async (userEmail) => {
     } catch (error) {
         console.error('err while deleting users', error);
         throw new Error(error.response?.data || 'An error occurred while deleting user');
+    }
+};
+
+export const decodeJWT = (token) => {
+    try {
+        return jwtDecode(token);
+    } catch (error) {
+        console.error('Invalid JWT token:', error);
+        return null;
     }
 };

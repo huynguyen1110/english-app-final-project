@@ -18,7 +18,10 @@ export const NEWS_ENPOINT = {
 }
 
 export const VOCAB_ENTPOINT = {
-    GET_PACKAGE: "/package/get-all"
+    CREATE_PACKAGE: '/package/create',
+    GET_PACKAGE: "/package/get-all",
+    CREATE_WORD: "/word/create",
+    ADD_WORD_TO_PACKAGE: '/word/add-word-to-package'
 }
 
 export const THIRT_PARTY_API = {
