@@ -38,7 +38,7 @@ public class GrammarService implements IGrammarService {
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        return grammarRepository.findAll(pageable);
+        return grammarRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
