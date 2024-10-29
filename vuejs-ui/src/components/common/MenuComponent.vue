@@ -30,6 +30,12 @@ const model = ref([
         items: [
             { label: "Vocab pack", icon: 'pi pi-fw pi-folder-open', to: '/v1/admin/vocab-pack-management' },
         ]
+    },
+    {
+        label: "Content management",
+        items: [
+            { label: "Grammar content management", icon: 'pi pi-fw pi-list', to: '/v1/admin/content-management/grammar' },
+        ]
     }
     // {
     //     label: 'UI Components',

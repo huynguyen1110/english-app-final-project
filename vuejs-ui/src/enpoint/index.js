@@ -30,3 +30,7 @@ export const VOCAB_ENTPOINT = {
 export const THIRT_PARTY_API = {
     SERPER_DEV_API: "https://google.serper.dev"
 }
+
+export const GRAMMAR_ENTPOINT = {
+    GET_GRAMMARS: '/grammar/get-grammars',
+}

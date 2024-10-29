@@ -61,6 +61,12 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
                 },
                 {
+                    path: '/v1/admin/content-management/grammar',
+                    name: 'grammar-management',
+                    component: () => import('@/pages/content-management/GrammarManagement.vue'),
+                    meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
+                },
+                {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
                     component: () => import('@/views/uikit/FormLayout.vue')
