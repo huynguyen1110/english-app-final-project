@@ -19,6 +19,23 @@ export const getGrammarsService = async (params) => {
     }
 };
 
+export const createGrammarService = async (grammarDto) => {
+    const options = {
+        method: 'POST',
+        url: BASE_URL.concat(GRAMMAR_ENTPOINT.CREATE_GRAMMAR),
+        data: grammarDto
+    };
+
+    console.log(grammarDto)
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while creating grammar', error);
+        throw new Error(error.response?.data || 'An error occurred while creating grammar');
+    }
+};
+
 export const deleteGrammarService = async (id) => {
     const options = {
         method: 'PUT',

@@ -33,5 +33,6 @@ export const THIRT_PARTY_API = {
 
 export const GRAMMAR_ENTPOINT = {
     GET_GRAMMARS: '/grammar/get-grammars',
+    CREATE_GRAMMAR: '/grammar/create',
     DELETE_GRAMMAR: '/grammar/delete',
 }

@@ -8,10 +8,15 @@ import Heading from '@tiptap/extension-heading';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
+import { decodeJWT } from '@/service/auth/AuthService';
+import { createGrammarService } from '@/service/content/ContentService';
+import { useToast } from 'primevue/usetoast';
 
-const title = ref();
-const description = ref();
-const content = ref();
+const toast = useToast();
+
+const title = ref("");
+const description = ref("");
+const isPublished = ref(false);
 
 let editor = useEditor({
     content: '<p>Let create your content</p>' +
@@ -38,13 +43,31 @@ let editor = useEditor({
     }
 });
 
-const saveContentData = () => {
+const saveContentData = async () => {
+
+    const decodedToken = decodeJWT(localStorage.getItem('jwt')?.toString());
+    const userEmail = decodedToken?.sub;
+
     const grammarData = {
         title: title.value,
         description: description.value,
-        content: editor.value.getHTML()
+        content: editor.value.getHTML(),
+        createBy: userEmail,
+        isDeleted: false,
+        isPublished: isPublished.value
     };
 
+    try {
+        const {data} = await createGrammarService(grammarData);
+        if (data) {
+            toast.add({ severity: 'success', summary: 'Saved successfully', life: 3000 });
+        } else {
+            toast.add({ severity: 'error', summary: 'Failed to save', life: 3000 });
+        }
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Failed to save', life: 3000 });
+        console.error(e);
+    }
 };
 
 
@@ -125,6 +148,7 @@ const saveContentData = () => {
             <editor-content class="content-editor-style mt-2" :editor="editor" />
         </div>
     </div>
+    <Toast/>
 </template>
 
 <style scoped lang="scss">
