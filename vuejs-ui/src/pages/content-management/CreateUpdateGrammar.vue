@@ -9,6 +9,10 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 
+const title = ref();
+const description = ref();
+const content = ref();
+
 let editor = useEditor({
     content: '<p>Let create your content</p>' +
         '<p></p>' +
@@ -34,17 +38,35 @@ let editor = useEditor({
     }
 });
 
+const saveContentData = () => {
+    const grammarData = {
+        title: title.value,
+        description: description.value,
+        content: editor.value.getHTML()
+    };
+
+};
+
+
 </script>
 
 <template>
     <div class="card">
+        <Toolbar>
+            <template #end>
+                <div class="mr-4">
+                    <Button>Publish</Button>
+                </div>
+                <Button @click="saveContentData">Save</Button>
+            </template>
+        </Toolbar>
         <div class="w-full">
             <p>Title</p>
-            <Textarea class="w-full" />
+            <Textarea v-model="title" class="w-full" />
         </div>
         <div class="mt-6 w-full">
             <p>Description</p>
-            <Textarea class="w-full" />
+            <Textarea v-model="description" class="w-full" />
         </div>
         <div v-if="editor" class="content-container mt-6">
             <div class="control-group">
