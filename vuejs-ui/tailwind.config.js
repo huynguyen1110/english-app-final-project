@@ -2,7 +2,7 @@
 module.exports = {
     darkMode: ['selector', '[class*="app-dark"]'],
     content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-    plugins: [require('tailwindcss-primeui')],
+    plugins: [require('tailwindcss-primeui'), require('@tailwindcss/typography')],
     theme: {
         screens: {
             sm: '576px',

@@ -1,56 +1,65 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
 import StarterKit from '@tiptap/starter-kit';
-import Document from '@tiptap/extension-document'
-import Heading from '@tiptap/extension-heading'
-import Paragraph from '@tiptap/extension-paragraph'
-import Text from '@tiptap/extension-text'
+import Document from '@tiptap/extension-document';
+import Heading from '@tiptap/extension-heading';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 
-const editor = useEditor({
-    content: '<p>I’m running Tiptap with Vue.js. 🎉</p>',
+let editor = useEditor({
+    content: '<p>Let create your content</p>' +
+        '<p></p>' +
+        '<p></p>' +
+        '<p></p>' +
+        '<p></p>',
     extensions: [
         StarterKit,
         Text,
         Heading.configure({
-            levels: [1, 2, 3],
+            levels: [1, 2, 3]
         }),
         Document,
         Paragraph,
         TextAlign.configure({
             types: ['heading', 'paragraph']
         }),
-        Highlight]
+        Highlight],
+    editorProps: {
+        attributes: {
+            class: 'prose max-w-none [&_ol]:list-decimal [&_ul]:list-disc'
+        }
+    }
 });
 
 </script>
 
 <template>
     <div class="card">
-        <div v-if="editor" class="container">
+        <div class="w-full">
+            <p>Title</p>
+            <Textarea class="w-full" />
+        </div>
+        <div class="mt-6 w-full">
+            <p>Description</p>
+            <Textarea class="w-full" />
+        </div>
+        <div v-if="editor" class="content-container mt-6">
             <div class="control-group">
+                <label>Content:</label>
                 <div class="button-group">
-<!--                    <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"-->
-<!--                            :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">-->
-<!--                        H1-->
-<!--                    </button>-->
-<!--                    <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"-->
-<!--                            :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">-->
-<!--                        H2-->
-<!--                    </button>-->
-<!--                    <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"-->
-<!--                            :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">-->
-<!--                        H3-->
-<!--                    </button>-->
-                    <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
+                    <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+                            :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
                         H1
                     </button>
-                    <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
+                    <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+                            :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
                         H2
                     </button>
-                    <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()" :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">
+                    <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+                            :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">
                         H3
                     </button>
                     <button @click="editor.chain().focus().setParagraph().run()"
@@ -91,7 +100,7 @@ const editor = useEditor({
                     </button>
                 </div>
             </div>
-            <editor-content :editor="editor" />
+            <editor-content class="content-editor-style mt-2" :editor="editor" />
         </div>
     </div>
 </template>
@@ -123,7 +132,8 @@ h5,
 h6 {
     line-height: 1.1;
     margin-top: 2.5rem;
-    text-wrap: pretty;
+    //text-wrap: pretty;
+    white-space: pre-line;
 }
 
 h1,
@@ -218,5 +228,11 @@ hr {
 .button-group button.is-active {
     background-color: #9b59b6; /* Màu nền tím khi nút đang hoạt động */
     color: white; /* Màu chữ trắng khi nút đang hoạt động */
+}
+
+.content-editor-style {
+    border-width: 2px;
+    border-radius: 10px;
+    min-height: 250px;
 }
 </style>

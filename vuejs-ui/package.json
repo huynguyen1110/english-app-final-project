@@ -33,6 +33,7 @@
     "devDependencies": {
         "@primevue/auto-import-resolver": "^4.0.1",
         "@rushstack/eslint-patch": "^1.8.0",
+        "@tailwindcss/typography": "^0.5.15",
         "@vitejs/plugin-vue": "^5.0.5",
         "@vue/eslint-config-prettier": "^9.0.0",
         "autoprefixer": "^10.4.19",
