@@ -35,4 +35,6 @@ public class Grammar {
     private LocalDateTime deletedDate;
 
     private Boolean isDeleted;
+
+    private Boolean isPublished;
 }

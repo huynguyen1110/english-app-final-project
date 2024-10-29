@@ -30,4 +30,6 @@ public class GrammarDto {
     private LocalDateTime deletedDate;
 
     private Boolean isDeleted;
+
+    private Boolean isPublished;
 }

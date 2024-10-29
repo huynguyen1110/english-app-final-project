@@ -51,6 +51,7 @@ public class GrammarService implements IGrammarService {
             grammar.setCreateBy(grammarDto.getCreateBy());
             grammar.setCreatedDate(LocalDateTime.now());
             grammar.setIsDeleted(false);
+            grammar.setIsPublished(grammarDto.getIsPublished());
 
             return grammarRepository.save(grammar);
         } catch (Exception e) {
@@ -70,6 +71,7 @@ public class GrammarService implements IGrammarService {
         grammar.setContent(grammarDto.getContent());
         grammar.setUpdateBy(grammarDto.getUpdateBy());
         grammar.setUpdatedDate(LocalDateTime.now());
+        grammar.setIsPublished(grammarDto.getIsPublished());
 
         // Lưu lại Grammar đã cập nhật
         return grammarRepository.save(grammar);
