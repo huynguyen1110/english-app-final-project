@@ -1,8 +1,13 @@
 <script setup>
 import { format } from 'date-fns';
-import { getGrammarsService } from '@/service/content/ContentService';
+import { deleteGrammarService, getGrammarsService } from '@/service/content/ContentService';
 import { onMounted, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
+import { useToast } from 'primevue/usetoast';
+import { useRouter } from 'vue-router';
+
+const toast = useToast();
+const router = useRouter();
 
 const grammarsData = ref([]);
 const selectedGrammars = ref();
@@ -16,25 +21,47 @@ onMounted(() => {
     fetchGetGrammarApi();
 });
 
-async function fetchGetGrammarApi () {
+async function fetchGetGrammarApi() {
     try {
         const params = {
             page: 1,
             size: 1000,
             sortField: 'title',
-            sortDirection: true,
-        }
-        const {data} = await getGrammarsService(params);
+            sortDirection: true
+        };
+        const { data } = await getGrammarsService(params);
         grammarsData.value = data?.content;
     } catch (e) {
         console.error(e);
     }
 }
 
-function deleteSelectedGrammar () {
+async function deleteSelectedGrammar() {
+    try {
+        const deleteGrammarResponse = await Promise.all(
+            selectedGrammars?.value?.map(async (item) => {
+                const { grammarId } = item;
+                const { data } = await deleteGrammarService(grammarId);
+                return data; // trả về dữ liệu của từng yêu cầu xóa (nếu cần)
+            })
+        );
 
+        if (deleteGrammarResponse.length > 0) {
+            toast.add({ severity: 'success', summary: 'Deleted successfully', life: 3000 });
+            fetchGetGrammarApi();
+            deleteGrammarDialog.value = false;
+        } else {
+            toast.add({ severity: 'error', summary: 'Failed to delete', life: 3000 });
+        }
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Failed to delete', life: 3000 });
+        console.error('Error deleting selected grammars:', e);
+    }
 }
 
+function navigateToCreatePage() {
+    router.push({ name: 'create-grammar' });
+}
 
 </script>
 
@@ -43,7 +70,10 @@ function deleteSelectedGrammar () {
         <Toolbar class="mb-6">
             <template #start>
                 <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="deleteGrammarDialog = true"
-                :disabled="!selectedGrammars || !selectedGrammars.length" />
+                        :disabled="!selectedGrammars || !selectedGrammars.length" />
+            </template>
+            <template #end>
+                <Button label="Create new" icon="pi pi-plus" severity="secondary" @click="navigateToCreatePage" />
             </template>
         </Toolbar>
 
@@ -98,6 +128,7 @@ function deleteSelectedGrammar () {
             </template>
         </Dialog>
     </div>
+    <Toast />
 </template>
 
 <style scoped lang="scss">

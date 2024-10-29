@@ -13,9 +13,23 @@ export const getGrammarsService = async (params) => {
 
     try {
         return await axios.request(options);
-        // images[index].thumbnailUrl
     } catch (error) {
-        console.error('err while getting images from google', error);
-        throw new Error(error.response?.data || 'An error occurred while getting user');
+        console.error('err while getting grammar from google', error);
+        throw new Error(error.response?.data || 'An error occurred while getting grammar');
+    }
+};
+
+export const deleteGrammarService = async (id) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(GRAMMAR_ENTPOINT.DELETE_GRAMMAR)
+            .concat('?id=', id)
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while deleting grammar', error);
+        throw new Error(error.response?.data || 'An error occurred while deleting grammar');
     }
 };
