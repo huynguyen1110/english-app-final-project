@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
 import { useRouter } from 'vue-router';
+import { USER_ROLE, USER_STATUSES } from '@/Constaints/Constaints';
 
 const toast = useToast();
 const router = useRouter();
@@ -17,7 +18,20 @@ const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
+function getStatusLabel(status) {
+    switch (status) {
+        case true:
+            return 'success';
+        case false:
+            return 'danger';
+        default:
+            return 'unknown'; // Trả về một giá trị mặc định nếu không khớp
+    }
+}
+
+
 onMounted(() => {
+    localStorage.removeItem('grammarToEdit');
     fetchGetGrammarApi();
 });
 
@@ -63,6 +77,22 @@ function navigateToCreatePage() {
     router.push({ name: 'create-grammar' });
 }
 
+function navigateToEditPage(grammarId) {
+    const grammarToEdit = grammarsData.value?.find((grammar) => grammar?.grammarId === grammarId);
+
+    if (!grammarToEdit) {
+        console.warn('Grammar not found!');
+        return;
+    }
+
+    // Chuyển đối tượng grammarToEdit thành chuỗi JSON trước khi lưu vào localStorage
+    localStorage.setItem('grammarToEdit', JSON.stringify(grammarToEdit));
+
+    // Điều hướng đến trang chỉnh sửa
+    router.push({ name: 'edit-grammar' });
+}
+
+
 </script>
 
 <template>
@@ -105,13 +135,36 @@ function navigateToCreatePage() {
 
             <div>
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                <Column field="title" header="Title" sortable style="min-width: 10rem"></Column>
+                <div class="column-wrapper">
+                    <Column field="title" header="Title" sortable style="min-width: 10rem">
+                        <template #body="slotProps">
+                            <span @click="navigateToEditPage(slotProps.data?.grammarId)"
+                                  class="tooltip">{{ slotProps.data.title }}
+                                <span class="tooltip-text">Click here to edit</span>
+                            </span>
+                        </template>
+                    </Column>
+
+                </div>
                 <Column field="description" header="Description" sortable style="min-width: 16rem"></Column>
                 <Column field="createBy" header="Create by" sortable style="min-width: 16rem"></Column>
                 <Column field="updateBy" header="Update by" sortable style="min-width: 16rem"></Column>
                 <Column field="createdDate" header="Created date" sortable style="min-width: 10rem">
                     <template #body="slotProps">
-                        {{ format(slotProps?.data?.createdDate, 'dd-MM-yyyy HH:mm:ss') }}
+                        {{ slotProps?.data?.createdDate ? format(slotProps.data.createdDate, 'dd-MM-yyyy HH:mm:ss') : ''
+                        }}
+                    </template>
+                </Column>
+                <Column field="updatedDate" header="Updated date" sortable style="min-width: 10rem">
+                    <template #body="slotProps">
+                        {{ slotProps?.data?.updatedDate ? format(slotProps.data.updatedDate, 'dd-MM-yyyy HH:mm:ss') : ''
+                        }}
+                    </template>
+                </Column>
+                <Column field="isPublished" header="Is published" style="min-width: 12rem">
+                    <template #body="slotProps">
+                        <Tag :value="slotProps?.data?.isPublished"
+                             :severity="getStatusLabel(slotProps?.data?.isPublished)" class="mb-4" />
                     </template>
                 </Column>
             </div>
@@ -133,4 +186,40 @@ function navigateToCreatePage() {
 
 <style scoped lang="scss">
 
+.bold-header {
+    font-weight: bold; /* Đặt độ đậm cho chữ */
+}
+
+.column-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip {
+    position: relative;
+    cursor: pointer;
+    color: #333;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%; /* Đặt tooltip bên trên văn bản */
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
 </style>

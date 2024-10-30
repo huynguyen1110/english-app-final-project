@@ -26,13 +26,27 @@ export const createGrammarService = async (grammarDto) => {
         data: grammarDto
     };
 
-    console.log(grammarDto)
-
     try {
         return await axios.request(options);
     } catch (error) {
         console.error('err while creating grammar', error);
         throw new Error(error.response?.data || 'An error occurred while creating grammar');
+    }
+};
+
+export const updateGrammarService = async (grammarDto, grammarId) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(GRAMMAR_ENTPOINT.UPDATE_GRAMMAR)
+            .concat('?id=', grammarId),
+        data: grammarDto
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while updating grammar', error);
+        throw new Error(error.response?.data || 'An error occurred while updating grammar');
     }
 };
 

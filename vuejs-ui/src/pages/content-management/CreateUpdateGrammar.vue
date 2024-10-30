@@ -9,21 +9,24 @@ import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import { decodeJWT } from '@/service/auth/AuthService';
-import { createGrammarService } from '@/service/content/ContentService';
+import { createGrammarService, updateGrammarService } from '@/service/content/ContentService';
 import { useToast } from 'primevue/usetoast';
 
 const toast = useToast();
 
-const title = ref("");
-const description = ref("");
+const title = ref('');
+const description = ref('');
 const isPublished = ref(false);
+const grammarToEdit = ref(null);
+const content = ref('');
+const isEditing = ref(false);
 
-let editor = useEditor({
-    content: '<p>Let create your content</p>' +
-        '<p></p>' +
-        '<p></p>' +
-        '<p></p>' +
-        '<p></p>',
+onMounted(() => {
+    getGrammarToEditData();
+});
+
+const editor = useEditor({
+    content: '<h1>Let create your content</h1>',
     extensions: [
         StarterKit,
         Text,
@@ -43,33 +46,67 @@ let editor = useEditor({
     }
 });
 
-const saveContentData = async () => {
-
+const saveContentData = async (grammarToEdit) => {
     const decodedToken = decodeJWT(localStorage.getItem('jwt')?.toString());
     const userEmail = decodedToken?.sub;
 
-    const grammarData = {
+    const buildGrammarData = (isUpdate = false) => ({
         title: title.value,
         description: description.value,
         content: editor.value.getHTML(),
-        createBy: userEmail,
+        ...(isUpdate ? { updateBy: userEmail } : { createBy: userEmail }), // Thêm updateBy nếu là chỉnh sửa
         isDeleted: false,
         isPublished: isPublished.value
-    };
+    });
+
+    const grammarData = buildGrammarData();
 
     try {
-        const {data} = await createGrammarService(grammarData);
-        if (data) {
-            toast.add({ severity: 'success', summary: 'Saved successfully', life: 3000 });
-        } else {
-            toast.add({ severity: 'error', summary: 'Failed to save', life: 3000 });
+        if (grammarToEdit) {
+            const grammarDto = buildGrammarData(true); // Gọi hàm với tham số true để thêm updateBy
+            const { data } = await updateGrammarService(grammarDto, grammarToEdit?.grammarId);
+            toast.add({
+                severity: data ? 'success' : 'error',
+                summary: data ? 'Saved successfully' : 'Failed to save',
+                life: 3000
+            });
+            return;
         }
+
+        const { data } = await createGrammarService(grammarData);
+        toast.add({
+            severity: data ? 'success' : 'error',
+            summary: data ? 'Saved successfully' : 'Failed to save',
+            life: 3000
+        });
     } catch (e) {
         toast.add({ severity: 'error', summary: 'Failed to save', life: 3000 });
         console.error(e);
     }
 };
 
+
+const getGrammarToEditData = () => {
+    grammarToEdit.value = JSON.parse(localStorage.getItem('grammarToEdit'));
+    if (!grammarToEdit.value) {
+        return;
+    }
+    // Thiết lập các giá trị cho các biến
+    title.value = grammarToEdit.value?.title;
+    description.value = grammarToEdit.value?.description;
+    content.value = grammarToEdit.value?.content;
+    isPublished.value = grammarToEdit.value?.isPublished;
+};
+
+const editBtn = () => {
+    isEditing.value = !isEditing.value;
+    editor.value.commands.setContent(content.value);
+};
+
+const saveEditContent = () => {
+    isEditing.value = !isEditing.value;
+    content.value = editor.value.getHTML();
+};
 
 </script>
 
@@ -78,9 +115,10 @@ const saveContentData = async () => {
         <Toolbar>
             <template #end>
                 <div class="mr-4">
-                    <Button>Publish</Button>
+                    <Button v-if="!isPublished" @click="isPublished = true">Publish</Button>
+                    <Button v-else @click="isPublished = false">Published</Button>
                 </div>
-                <Button @click="saveContentData">Save</Button>
+                <Button @click="saveContentData(grammarToEdit)">Save</Button>
             </template>
         </Toolbar>
         <div class="w-full">
@@ -91,64 +129,78 @@ const saveContentData = async () => {
             <p>Description</p>
             <Textarea v-model="description" class="w-full" />
         </div>
-        <div v-if="editor" class="content-container mt-6">
-            <div class="control-group">
-                <label>Content:</label>
-                <div class="button-group">
-                    <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-                            :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
-                        H1
-                    </button>
-                    <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-                            :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
-                        H2
-                    </button>
-                    <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
-                            :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">
-                        H3
-                    </button>
-                    <button @click="editor.chain().focus().setParagraph().run()"
-                            :class="{ 'is-active': editor.isActive('paragraph') }">
-                        Paragraph
-                    </button>
-                    <button @click="editor.chain().focus().toggleBold().run()"
-                            :class="{ 'is-active': editor.isActive('bold') }">
-                        Bold
-                    </button>
-                    <button @click="editor.chain().focus().toggleItalic().run()"
-                            :class="{ 'is-active': editor.isActive('italic') }">
-                        Italic
-                    </button>
-                    <button @click="editor.chain().focus().toggleStrike().run()"
-                            :class="{ 'is-active': editor.isActive('strike') }">
-                        Strike
-                    </button>
-                    <button @click="editor.chain().focus().toggleHighlight().run()"
-                            :class="{ 'is-active': editor.isActive('highlight') }">
-                        Highlight
-                    </button>
-                    <button @click="editor.chain().focus().setTextAlign('left').run()"
-                            :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }">
-                        Left
-                    </button>
-                    <button @click="editor.chain().focus().setTextAlign('center').run()"
-                            :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }">
-                        Center
-                    </button>
-                    <button @click="editor.chain().focus().setTextAlign('right').run()"
-                            :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }">
-                        Right
-                    </button>
-                    <button @click="editor.chain().focus().setTextAlign('justify').run()"
-                            :class="{ 'is-active': editor.isActive({ textAlign: 'justify' }) }">
-                        Justify
-                    </button>
+        <div v-if="grammarToEdit" class="mt-6">
+            <Button v-if="isEditing" @click="saveEditContent">
+                Save
+            </Button>
+            <Button v-else @click="editBtn">
+                Edit
+            </Button>
+        </div>
+        <div v-if="!grammarToEdit || isEditing">
+            <div v-if="editor" class="content-container mt-6">
+                <div class="control-group">
+                    <label>Content:</label>
+                    <div class="button-group">
+                        <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
+                                :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
+                            H1
+                        </button>
+                        <button @click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
+                                :class="{ 'is-active': editor.isActive('heading', { level: 2 }) }">
+                            H2
+                        </button>
+                        <button @click="editor.chain().focus().toggleHeading({ level: 3 }).run()"
+                                :class="{ 'is-active': editor.isActive('heading', { level: 3 }) }">
+                            H3
+                        </button>
+                        <button @click="editor.chain().focus().setParagraph().run()"
+                                :class="{ 'is-active': editor.isActive('paragraph') }">
+                            Paragraph
+                        </button>
+                        <button @click="editor.chain().focus().toggleBold().run()"
+                                :class="{ 'is-active': editor.isActive('bold') }">
+                            Bold
+                        </button>
+                        <button @click="editor.chain().focus().toggleItalic().run()"
+                                :class="{ 'is-active': editor.isActive('italic') }">
+                            Italic
+                        </button>
+                        <button @click="editor.chain().focus().toggleStrike().run()"
+                                :class="{ 'is-active': editor.isActive('strike') }">
+                            Strike
+                        </button>
+                        <button @click="editor.chain().focus().toggleHighlight().run()"
+                                :class="{ 'is-active': editor.isActive('highlight') }">
+                            Highlight
+                        </button>
+                        <button @click="editor.chain().focus().setTextAlign('left').run()"
+                                :class="{ 'is-active': editor.isActive({ textAlign: 'left' }) }">
+                            Left
+                        </button>
+                        <button @click="editor.chain().focus().setTextAlign('center').run()"
+                                :class="{ 'is-active': editor.isActive({ textAlign: 'center' }) }">
+                            Center
+                        </button>
+                        <button @click="editor.chain().focus().setTextAlign('right').run()"
+                                :class="{ 'is-active': editor.isActive({ textAlign: 'right' }) }">
+                            Right
+                        </button>
+                        <button @click="editor.chain().focus().setTextAlign('justify').run()"
+                                :class="{ 'is-active': editor.isActive({ textAlign: 'justify' }) }">
+                            Justify
+                        </button>
+                    </div>
                 </div>
+                <editor-content class="content-editor-style mt-2" :editor="editor" />
             </div>
-            <editor-content class="content-editor-style mt-2" :editor="editor" />
+        </div>
+        <div v-else class="mt-6">
+            <p class="mb-2">Content:</p>
+            <div class="prose" v-html="content"></div>
         </div>
     </div>
-    <Toast/>
+    <Toast />
 </template>
 
 <style scoped lang="scss">
