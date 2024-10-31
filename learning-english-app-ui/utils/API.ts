@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.1.173:9000';
+export const BASE_URL = 'http://192.168.6.173:9000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -40,4 +40,8 @@ export const FAVORITE_ENPOINT = {
 
 export const FILE_ENPOINT = {
     UPLOAD_IMAGE: "/api/v1/files/upload/image",
+}
+
+export const GRAMMAR_ENTPOINT = {
+    GET_GRAMMARS: "/api/v1/grammar/get-grammars",
 }

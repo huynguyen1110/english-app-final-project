@@ -16,6 +16,7 @@ import CreateNewVocabPackScreen from "../screens/vocab/CreateNewVocabPackScreen"
 import FlashCardScreen from "../screens/vocab/FlashCardScreen";
 import TestOptionScreen from "../screens/vocab/TestOptionScreen";
 import TestScreen from "../screens/vocab/TestScreen";
+import GrammarListScreen from "../screens/home/grammar/GrammarListScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -46,6 +47,7 @@ const Navigation = () => {
                 <Stack.Screen name="FlashCardScreen" component={FlashCardScreen} />
                 <Stack.Screen name="TestOptionScreen" component={TestOptionScreen} options={{ animation: "slide_from_right" }} />
                 <Stack.Screen name="TestScreen" component={TestScreen} options={{ animation: "slide_from_right" }} />
+                <Stack.Screen name="GrammarListScreen" component={GrammarListScreen} options={{ animation: "simple_push" }} />
                 {/* vocab screens */}
 
             </Stack.Navigator>
