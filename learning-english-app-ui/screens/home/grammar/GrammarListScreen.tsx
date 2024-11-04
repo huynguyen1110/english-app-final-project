@@ -43,6 +43,12 @@ const GrammarListScreen = () => {
         setRefreshing(false);
     };
 
+    const navigateToGrammarDetailScreen = (grammarData: any) => {
+        console.log(grammarData)
+        // @ts-ignore
+        navigation.navigate("GrammarDetailScreen", {grammarData: grammarData, name: "test"});
+    }
+
     useEffect(() => {
         getGrammars();
     }, []);
@@ -69,7 +75,9 @@ const GrammarListScreen = () => {
                     <View style={[GlobalStyles.main_container, {flex: 1}]}>
                         {Array.isArray(grammars) && grammars.length > 0 ? (
                             grammars.map((grammar, index) => (
-                                <TouchableOpacity key={grammar.id} style={styles.grammarTagContainer}>
+                                <TouchableOpacity key={grammar.id} style={styles.grammarTagContainer} onPress={() => {
+                                    navigateToGrammarDetailScreen(grammar)
+                                }}>
                                     <View style={{width: 12}}/>
                                     <Text size={18}>{index + 1}. </Text>
                                     <Text size={18}>{grammar.title}</Text>
