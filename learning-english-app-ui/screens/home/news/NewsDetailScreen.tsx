@@ -358,7 +358,11 @@ const NewsDetailScreen = () => {
                 )
             } else {
                 return (
-                    <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
+                    <TouchableOpacity key={index} onPress={() => {
+                        // Xóa các ký tự đặc biệt khỏi từ trước khi gọi handleWordPress
+                        const cleanedWord = word.replace(/[^\w\s]/g, '');
+                        handleWordPress(cleanedWord);
+                    }}>
                         <Text
                             style={[
                                 { textColor: textColor , width: containsNewline ? screenWidth : undefined, fontSize: fontSize, marginRight: 5 }

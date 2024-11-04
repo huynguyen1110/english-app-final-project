@@ -44,7 +44,6 @@ const GrammarListScreen = () => {
     };
 
     const navigateToGrammarDetailScreen = (grammarData: any) => {
-        console.log(grammarData)
         // @ts-ignore
         navigation.navigate("GrammarDetailScreen", {grammarData: grammarData, name: "test"});
     }
@@ -74,19 +73,24 @@ const GrammarListScreen = () => {
                 <Layout level='3' style={{flex: 1}}>
                     <View style={[GlobalStyles.main_container, {flex: 1}]}>
                         {Array.isArray(grammars) && grammars.length > 0 ? (
-                            grammars.map((grammar, index) => (
-                                <TouchableOpacity key={grammar.id} style={styles.grammarTagContainer} onPress={() => {
-                                    navigateToGrammarDetailScreen(grammar)
-                                }}>
-                                    <View style={{width: 12}}/>
-                                    <Text size={18}>{index + 1}. </Text>
-                                    <Text size={18}>{grammar.title}</Text>
-                                </TouchableOpacity>
-                            ))
+                            grammars
+                                .filter((grammar) => grammar.isPublished === true) // Lọc chỉ các grammar có isPublished = true
+                                .map((grammar, index) => (
+                                    <TouchableOpacity
+                                        key={grammar.id}
+                                        style={styles.grammarTagContainer}
+                                        onPress={() => {
+                                            navigateToGrammarDetailScreen(grammar);
+                                        }}
+                                    >
+                                        <View style={{ width: 12 }} />
+                                        <Text size={18}>{index + 1}. </Text>
+                                        <Text size={18}>{grammar.title}</Text>
+                                    </TouchableOpacity>
+                                ))
                         ) : (
                             <Text>No grammar items available</Text>
                         )}
-
                     </View>
                 </Layout>
             </ScrollView>
