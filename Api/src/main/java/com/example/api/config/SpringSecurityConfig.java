@@ -49,6 +49,7 @@ public class   SpringSecurityConfig {
                             .requestMatchers("/api/v1/favorite/**").permitAll()
                             .requestMatchers("api/v1/files/**").permitAll()
                             .requestMatchers("api/v1/grammar/**").permitAll()
+                            .requestMatchers("api/v1/stories/**").permitAll()
                             .requestMatchers(HttpMethod.POST, "/api/v1/user/register").permitAll()
                             .anyRequest().authenticated();
                 });
