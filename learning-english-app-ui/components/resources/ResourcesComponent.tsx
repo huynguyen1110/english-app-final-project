@@ -67,6 +67,17 @@ const ResourcesComponent = () => {
                     </TouchableOpacity>
                     <Text bold size={14}>Grammar</Text>
                 </Block>
+                <Block style={{padding: 10}} flexDirection="column" justifyContent="center" alignItems="center">
+                    <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#0aabcf"}]} onPress={() => {
+                        // @ts-ignore
+                        navigation.navigate("VocabularyPackScreen");
+                    }}>
+                        <Image style={[GlobalStyles.icon_button]}
+                               source={require('../../assets/icon-png/dictionary.png')}
+                        />
+                    </TouchableOpacity>
+                    <Text bold size={14}>Vocab</Text>
+                </Block>
             </Block>
         </View>
     );

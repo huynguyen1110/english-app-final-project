@@ -6,7 +6,6 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import React, {useEffect, useState} from "react";
 import {useNavigation, useRoute} from "@react-navigation/native";
 import RenderHtml from "react-native-render-html";
-import * as Clipboard from 'expo-clipboard';
 
 const GrammarDetailScreen = () => {
 

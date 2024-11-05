@@ -18,6 +18,7 @@ import TestOptionScreen from "../screens/vocab/TestOptionScreen";
 import TestScreen from "../screens/vocab/TestScreen";
 import GrammarListScreen from "../screens/home/grammar/GrammarListScreen";
 import GrammarDetailScreen from "../screens/home/grammar/GrammarDetailScreen";
+import VocabularyPackScreen from "../screens/home/VocabularyPackScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -41,6 +42,9 @@ const Navigation = () => {
                 <Stack.Screen name="NewsDetailScreen" component={NewsDetailScreen} />
                 <Stack.Screen name="SaveNewWordScreen" component={SaveNewWordScreen} />
                 <Stack.Screen name="ListNewsBySourceNameScreen" component={ListNewsBySourceNameScreen} />
+                <Stack.Screen name="GrammarListScreen" component={GrammarListScreen} options={{ animation: "simple_push" }} />
+                <Stack.Screen name="GrammarDetailScreen" component={GrammarDetailScreen} options={{ animation: "simple_push" }} />
+                <Stack.Screen name="VocabularyPackScreen" component={VocabularyPackScreen} options={{ animation: "simple_push" }} />
                 {/* vocab screens */}
                 <Stack.Screen name="VocabMainScreen" component={VocabMainScreen} />
                 <Stack.Screen name="ListWordsScreen" component={ListWordsScreen} />
@@ -48,8 +52,6 @@ const Navigation = () => {
                 <Stack.Screen name="FlashCardScreen" component={FlashCardScreen} />
                 <Stack.Screen name="TestOptionScreen" component={TestOptionScreen} options={{ animation: "slide_from_right" }} />
                 <Stack.Screen name="TestScreen" component={TestScreen} options={{ animation: "slide_from_right" }} />
-                <Stack.Screen name="GrammarListScreen" component={GrammarListScreen} options={{ animation: "simple_push" }} />
-                <Stack.Screen name="GrammarDetailScreen" component={GrammarDetailScreen} options={{ animation: "simple_push" }} />
                 {/* vocab screens */}
 
             </Stack.Navigator>
