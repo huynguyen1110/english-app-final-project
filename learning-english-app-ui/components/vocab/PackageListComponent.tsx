@@ -5,7 +5,6 @@ import {Block} from "galio-framework";
 import {GlobalStyles} from "../../styles/GlobalStyles";
 import {getPackageService} from "../../services/VocabService";
 import {decodeJwtToken} from "../../services/AuthenticationService";
-import navigation from "../../utils/Navigation";
 import {useNavigation} from "@react-navigation/native";
 
 const PackageListComponent = () => {
@@ -31,7 +30,7 @@ const PackageListComponent = () => {
         'Name: Z to A': 'Z_TO_A'
     }; // sort option
 
-    // fetch create package api
+    // fetch get package api
     const fetchGetPackagesApi = async () => {
         try {
             const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";

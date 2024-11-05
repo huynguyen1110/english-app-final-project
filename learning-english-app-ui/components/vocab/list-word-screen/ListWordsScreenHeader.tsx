@@ -96,11 +96,18 @@ const ListWordsScreenHeader = (data: any) => {
                 <TouchableOpacity onPress={backButton}>
                     <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {
-                    setIsVisible(true)
-                }}>
-                    <Text size={18}> <Entypo name="dots-three-vertical" size={18}/> </Text>
-                </TouchableOpacity>
+                {
+                    !packageData?.isPublished ?
+                        (
+                            <TouchableOpacity onPress={() => {
+                                setIsVisible(true)
+                            }}>
+                                <Text size={18}> <Entypo name="dots-three-vertical" size={18}/> </Text>
+                            </TouchableOpacity>
+                        )  : (
+                            <View></View>
+                        )
+                }
             </Block>
             <Block height={12}></Block>
             <Block style={GlobalStyles.under_line}></Block>

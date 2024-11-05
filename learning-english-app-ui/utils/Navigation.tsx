@@ -18,7 +18,7 @@ import TestOptionScreen from "../screens/vocab/TestOptionScreen";
 import TestScreen from "../screens/vocab/TestScreen";
 import GrammarListScreen from "../screens/home/grammar/GrammarListScreen";
 import GrammarDetailScreen from "../screens/home/grammar/GrammarDetailScreen";
-import VocabularyPackScreen from "../screens/home/VocabularyPackScreen";
+import VocabularyPackScreen from "../screens/home/vocab/VocabularyPackScreen";
 
 
 const Stack = createNativeStackNavigator();

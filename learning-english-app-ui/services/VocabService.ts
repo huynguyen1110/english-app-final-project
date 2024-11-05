@@ -53,11 +53,13 @@ export const getPackageService = async (params: any) => {
             .concat("&size=" + params.size)
             .concat("&sortBy=" + params.sortBy)
             .concat("&direction=" + params.direction)
-            .concat("&createBy=" + params.createBy),
+            .concat(params.createBy ? "&createBy=" + params.createBy : "")
+            .concat(params.isPublished !== undefined ? "&isPublished=" + params.isPublished : ""),
         headers: {
             'Content-Type': 'application/json'
         }
     };
+
 
     try {
         return await axios.request(options);
