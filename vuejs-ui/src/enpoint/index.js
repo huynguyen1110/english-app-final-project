@@ -37,3 +37,8 @@ export const GRAMMAR_ENTPOINT = {
     UPDATE_GRAMMAR: '/grammar/update',
     DELETE_GRAMMAR: '/grammar/delete',
 }
+
+export const STORY_ENTPOINT = {
+    GET_STORIES: '/stories/get-all',
+    DELETE_STORY: '/stories/delete',
+}

@@ -1,6 +1,11 @@
 <script setup>
 import { format } from 'date-fns';
-import { deleteGrammarService, getGrammarsService } from '@/service/content/ContentService';
+import {
+    deleteGrammarService,
+    deleteStoryService,
+    getGrammarsService,
+    getStoriesService
+} from '@/service/content/ContentService';
 import { onMounted, ref } from 'vue';
 import { FilterMatchMode } from '@primevue/core/api';
 import { useToast } from 'primevue/usetoast';
@@ -9,9 +14,9 @@ import { useRouter } from 'vue-router';
 const toast = useToast();
 const router = useRouter();
 
-const grammarsData = ref([]);
-const selectedGrammars = ref();
-const deleteGrammarDialog = ref(false);
+const storiesData = ref([]);
+const selectedStories = ref();
+const deleteStoryDialog = ref(false);
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
@@ -28,22 +33,21 @@ function getStatusLabel(status) {
     }
 }
 
-
 onMounted(() => {
-    localStorage.removeItem('grammarToEdit');
-    fetchGetGrammarApi();
+    fetchGetStoryApi();
 });
 
-async function fetchGetGrammarApi() {
+async function fetchGetStoryApi() {
     try {
         const params = {
             page: 1,
             size: 1000,
-            sortField: 'title',
-            sortDirection: true
+            sortBy: 'vnTitle',
+            direction: true
         };
-        const { data } = await getGrammarsService(params);
-        grammarsData.value = data?.content;
+        const { data } = await getStoriesService(params);
+        storiesData.value = data?.content;
+        console.log(storiesData);
     } catch (e) {
         console.error(e);
     }
@@ -51,18 +55,18 @@ async function fetchGetGrammarApi() {
 
 async function deleteSelectedGrammar() {
     try {
-        const deleteGrammarResponse = await Promise.all(
-            selectedGrammars?.value?.map(async (item) => {
-                const { grammarId } = item;
-                const { data } = await deleteGrammarService(grammarId);
+        const deleteStoryResponses = await Promise.all(
+            selectedStories?.value?.map(async (item) => {
+                const { id } = item;
+                const { data } = await deleteStoryService(id);
                 return data; // trả về dữ liệu của từng yêu cầu xóa (nếu cần)
             })
         );
 
-        if (deleteGrammarResponse.length > 0) {
+        if (deleteStoryResponses.length > 0) {
             toast.add({ severity: 'success', summary: 'Deleted successfully', life: 3000 });
-            fetchGetGrammarApi();
-            deleteGrammarDialog.value = false;
+            fetchGetStoryApi();
+            deleteStoryDialog.value = false;
         } else {
             toast.add({ severity: 'error', summary: 'Failed to delete', life: 3000 });
         }
@@ -73,23 +77,23 @@ async function deleteSelectedGrammar() {
 }
 
 function navigateToCreatePage() {
-    router.push({ name: 'create-grammar' });
+    router.push({ name: 'create-story' });
 }
 
-function navigateToEditPage(grammarId) {
-    const grammarToEdit = grammarsData.value?.find((grammar) => grammar?.grammarId === grammarId);
-
-    if (!grammarToEdit) {
-        console.warn('Grammar not found!');
-        return;
-    }
-
-    // Chuyển đối tượng grammarToEdit thành chuỗi JSON trước khi lưu vào localStorage
-    localStorage.setItem('grammarToEdit', JSON.stringify(grammarToEdit));
-
-    // Điều hướng đến trang chỉnh sửa
-    router.push({ name: 'edit-grammar' });
-}
+// function navigateToEditPage(grammarId) {
+//     const grammarToEdit = grammarsData.value?.find((grammar) => grammar?.grammarId === grammarId);
+//
+//     if (!grammarToEdit) {
+//         console.warn('Grammar not found!');
+//         return;
+//     }
+//
+//     // Chuyển đối tượng grammarToEdit thành chuỗi JSON trước khi lưu vào localStorage
+//     localStorage.setItem('grammarToEdit', JSON.stringify(grammarToEdit));
+//
+//     // Điều hướng đến trang chỉnh sửa
+//     router.push({ name: 'edit-grammar' });
+// }
 
 
 </script>
@@ -98,8 +102,8 @@ function navigateToEditPage(grammarId) {
     <div class="card">
         <Toolbar class="mb-6">
             <template #start>
-                <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="deleteGrammarDialog = true"
-                        :disabled="!selectedGrammars || !selectedGrammars.length" />
+                <Button label="Delete" icon="pi pi-trash" severity="secondary" @click="deleteStoryDialog = true"
+                        :disabled="!selectedStories || !selectedStories.length" />
             </template>
             <template #end>
                 <Button label="Create new" icon="pi pi-plus" severity="secondary" @click="navigateToCreatePage" />
@@ -110,9 +114,9 @@ function navigateToEditPage(grammarId) {
 
         <DataTable
             ref="dt"
-            v-model:selection="selectedGrammars"
-            :value="grammarsData"
-            dataKey="grammarId"
+            v-model:selection="selectedStories"
+            :value="storiesData"
+            dataKey="id"
             :paginator="true"
             :rows="10"
             :filters="filters"
@@ -122,7 +126,7 @@ function navigateToEditPage(grammarId) {
         >
             <template #header>
                 <div class="flex flex-wrap gap-2 items-center justify-between">
-                    <h4 class="m-0">Grammar content</h4>
+                    <h4 class="m-0">Stories content</h4>
                     <IconField>
                         <InputIcon>
                             <i class="pi pi-search" />
@@ -134,48 +138,47 @@ function navigateToEditPage(grammarId) {
 
             <div>
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false"></Column>
-                <div class="column-wrapper">
-                    <Column field="title" header="Title" sortable style="min-width: 10rem">
-                        <template #body="slotProps">
-                            <span @click="navigateToEditPage(slotProps.data?.grammarId)"
-                                  class="tooltip">{{ slotProps.data.title }}
+                <Column field="engTitle" header="Eng title" sortable style="min-width: 10rem">
+                    <template #body="slotProps">
+                        <div class="grid grid-cols-1 gap-4"> <!-- sử dụng grid-cols-1 để có một cột -->
+                            <div class="tooltip">
+                                {{ slotProps.data.engTitle }}
                                 <span class="tooltip-text">Click here to edit</span>
-                            </span>
-                        </template>
-                    </Column>
+                            </div>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="vnTitle" header="VN title" sortable style="min-width: 12rem">
+                    <template #body="slotProps">
+                        <div class="grid grid-cols-1 gap-4"> <!-- sử dụng grid-cols-1 để có một cột -->
+                            <div class="tooltip">
+                                {{ slotProps.data.vnTitle }}
+                                <span class="tooltip-text">Click here to edit</span>
+                            </div>
+                        </div>
+                    </template>
+                </Column>
+                <Column field="image" header="Image" sortable style="min-width: 12rem">
+                    <template #body="slotProps">
+                        <img :src="slotProps.data.image" alt="Image" class="w-28 h-28 object-cover rounded" />
+                    </template>
+                </Column>
 
-                </div>
-                <Column field="description" header="Description" sortable style="min-width: 16rem"></Column>
-                <Column field="createBy" header="Create by" sortable style="min-width: 16rem"></Column>
-                <Column field="updateBy" header="Update by" sortable style="min-width: 16rem"></Column>
-                <Column field="createdDate" header="Created date" sortable style="min-width: 10rem">
+                <Column field="createdAt" header="Created Date" sortable style="min-width: 10rem">
                     <template #body="slotProps">
-                        {{ slotProps?.data?.createdDate ? format(slotProps.data.createdDate, 'dd-MM-yyyy HH:mm:ss') : ''
-                        }}
-                    </template>
-                </Column>
-                <Column field="updatedDate" header="Updated date" sortable style="min-width: 10rem">
-                    <template #body="slotProps">
-                        {{ slotProps?.data?.updatedDate ? format(slotProps.data.updatedDate, 'dd-MM-yyyy HH:mm:ss') : ''
-                        }}
-                    </template>
-                </Column>
-                <Column field="isPublished" header="Is published" style="min-width: 12rem">
-                    <template #body="slotProps">
-                        <Tag :value="slotProps?.data?.isPublished"
-                             :severity="getStatusLabel(slotProps?.data?.isPublished)" class="mb-4" />
+                        {{ slotProps?.data?.createdAt ? format(slotProps.data.createdAt, 'dd-MM-yyyy HH:mm:ss') : '' }}
                     </template>
                 </Column>
             </div>
         </DataTable>
 
-        <Dialog v-model:visible="deleteGrammarDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
+        <Dialog v-model:visible="deleteStoryDialog" :style="{ width: '450px' }" header="Confirm" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="selectedGrammars">Are you sure you want to delete the selected Grammars?</span>
+                <span v-if="selectedStories">Are you sure you want to delete the selected Stories?</span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" text @click="deleteGrammarDialog = false" />
+                <Button label="No" icon="pi pi-times" text @click="deleteStoryDialog = false" />
                 <Button label="Yes" icon="pi pi-check" text @click="deleteSelectedGrammar" />
             </template>
         </Dialog>

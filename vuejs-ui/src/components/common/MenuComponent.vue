@@ -15,26 +15,35 @@ const model = ref([
     {
         label: SUPER_ADMIN_PERMISSION.USER_MANAGEMANT,
         items: [
-            { label: SUPER_ADMIN_PERMISSION.USER_LIST, icon: 'pi pi-fw pi-users', to: '/v1/super-admin/user-management' }
+            {
+                label: SUPER_ADMIN_PERMISSION.USER_LIST,
+                icon: 'pi pi-fw pi-users',
+                to: '/v1/super-admin/user-management'
+            }
         ]
     },
     {
-        label: "News management",
+        label: 'News management',
         items: [
-            { label: "News source management", icon: 'pi pi-fw pi-book', to: '/v1/admin/news-source-management' },
-            { label: "System news management", icon: 'pi pi-fw pi-book', to: '/v1/admin/system-news-management' },
+            { label: 'News source management', icon: 'pi pi-fw pi-book', to: '/v1/admin/news-source-management' },
+            { label: 'System news management', icon: 'pi pi-fw pi-book', to: '/v1/admin/system-news-management' }
         ]
     },
     {
-        label: "Vocabulary management",
+        label: 'Vocabulary management',
         items: [
-            { label: "Vocab pack", icon: 'pi pi-fw pi-folder-open', to: '/v1/admin/vocab-pack-management' },
+            { label: 'Vocab pack', icon: 'pi pi-fw pi-folder-open', to: '/v1/admin/vocab-pack-management' }
         ]
     },
     {
-        label: "Content management",
+        label: 'Content management',
         items: [
-            { label: "Grammar content management", icon: 'pi pi-fw pi-list', to: '/v1/admin/content-management/grammar' },
+            {
+                label: 'Grammar content management',
+                icon: 'pi pi-fw pi-list',
+                to: '/v1/admin/content-management/grammar'
+            },
+            { label: 'Stories  management', icon: 'pi pi-fw pi-file-edit', to: '/v1/admin/content-management/stories' }
         ]
     }
     // {
