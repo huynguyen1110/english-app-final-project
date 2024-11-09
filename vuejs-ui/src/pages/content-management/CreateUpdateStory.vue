@@ -50,7 +50,7 @@ const saveContentData = async (storyToEdit) => {
     const storyDto = {
         vnTitle: vnTitle.value,
         engTitle: engTitle.value,
-        content: editor.value.getText(),
+        content: editor.value.getHTML(),
         isDeleted: false
     };
 
@@ -104,8 +104,7 @@ const editBtn = () => {
 
 const saveEditContent = () => {
     isEditing.value = !isEditing.value;
-    content.value = editor.value.getJSON();
-    console.log(content.value);
+    content.value = editor.value.getHTML();
 };
 
 </script>

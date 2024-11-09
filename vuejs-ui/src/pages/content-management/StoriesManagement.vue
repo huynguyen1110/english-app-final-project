@@ -15,7 +15,7 @@ const toast = useToast();
 const router = useRouter();
 
 const storiesData = ref([]);
-const selectedStories = ref();
+const selectedStories = ref(null);
 const deleteStoryDialog = ref(false);
 
 const filters = ref({
