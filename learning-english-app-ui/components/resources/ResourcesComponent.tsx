@@ -36,7 +36,10 @@ const ResourcesComponent = () => {
                     <Text bold size={14}>News</Text>
                 </Block>
                 <Block flexDirection="column" justifyContent="center" alignItems="center">
-                    <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#8f8b8b"}]}>
+                    <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#8f8b8b"}]} onPress={() => {
+                        // @ts-ignore
+                        navigation.navigate("StoryScreen");
+                    }} >
                         <Icon1 size={30} color="white" name="bookshelf"></Icon1>
                     </TouchableOpacity>
                     <Text bold size={14}>Truyện chêm</Text>

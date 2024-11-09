@@ -45,3 +45,7 @@ export const FILE_ENPOINT = {
 export const GRAMMAR_ENTPOINT = {
     GET_GRAMMARS: "/api/v1/grammar/get-grammars",
 }
+
+export const STORY_ENPOINT = {
+    GET_STORY: "/api/v1/stories/get-all",
+}

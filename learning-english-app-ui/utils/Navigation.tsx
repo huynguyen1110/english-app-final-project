@@ -19,6 +19,7 @@ import TestScreen from "../screens/vocab/TestScreen";
 import GrammarListScreen from "../screens/home/grammar/GrammarListScreen";
 import GrammarDetailScreen from "../screens/home/grammar/GrammarDetailScreen";
 import VocabularyPackScreen from "../screens/home/vocab/VocabularyPackScreen";
+import StoryScreen from "../screens/home/story/StoryScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -31,28 +32,37 @@ const Navigation = () => {
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true,
-            }}>
-                <Stack.Screen name="RegisterScreen" component={RegisterScreen} />
-                <Stack.Screen name="LoginScreen" component={LoginScreen} />
-                <Stack.Screen name="WellcomeScreen" component={WellcomeScreen} />
-                <Stack.Screen name="HomeScreen" component={HomeScreen} />
-                <Stack.Screen name="NewsScreen" component={NewsScreen} />
-                <Stack.Screen name="ByTopicsScreen" component={ByTopicsScreen} />
-                <Stack.Screen name="ByNewsWebSiteScreen" component={ByNewsWebSiteScreen} />
-                <Stack.Screen name="NewsDetailScreen" component={NewsDetailScreen} />
-                <Stack.Screen name="SaveNewWordScreen" component={SaveNewWordScreen} />
-                <Stack.Screen name="ListNewsBySourceNameScreen" component={ListNewsBySourceNameScreen} />
-                <Stack.Screen name="GrammarListScreen" component={GrammarListScreen} options={{ animation: "simple_push" }} />
-                <Stack.Screen name="GrammarDetailScreen" component={GrammarDetailScreen} options={{ animation: "simple_push" }} />
-                <Stack.Screen name="VocabularyPackScreen" component={VocabularyPackScreen} options={{ animation: "simple_push" }} />
+                }}>
+                <Stack.Screen name="RegisterScreen" component={RegisterScreen}/>
+                <Stack.Screen name="LoginScreen" component={LoginScreen}/>
+                <Stack.Screen name="WellcomeScreen" component={WellcomeScreen}/>
+                <Stack.Screen name="HomeScreen" component={HomeScreen}/>
+                <Stack.Screen name="NewsScreen" component={NewsScreen}/>
+                <Stack.Screen name="ByTopicsScreen" component={ByTopicsScreen}/>
+                <Stack.Screen name="ByNewsWebSiteScreen" component={ByNewsWebSiteScreen}/>
+                <Stack.Screen name="NewsDetailScreen" component={NewsDetailScreen}/>
+                <Stack.Screen name="SaveNewWordScreen" component={SaveNewWordScreen}/>
+                <Stack.Screen name="ListNewsBySourceNameScreen" component={ListNewsBySourceNameScreen}/>
+                <Stack.Screen name="GrammarListScreen" component={GrammarListScreen}
+                              options={{animation: "simple_push"}}/>
+                <Stack.Screen name="GrammarDetailScreen" component={GrammarDetailScreen}
+                              options={{animation: "simple_push"}}/>
+                <Stack.Screen name="VocabularyPackScreen" component={VocabularyPackScreen}
+                              options={{animation: "simple_push"}}/>
                 {/* vocab screens */}
-                <Stack.Screen name="VocabMainScreen" component={VocabMainScreen} />
-                <Stack.Screen name="ListWordsScreen" component={ListWordsScreen} />
-                <Stack.Screen name="CreateNewVocabPackScreen" component={CreateNewVocabPackScreen} />
-                <Stack.Screen name="FlashCardScreen" component={FlashCardScreen} />
-                <Stack.Screen name="TestOptionScreen" component={TestOptionScreen} options={{ animation: "slide_from_right" }} />
-                <Stack.Screen name="TestScreen" component={TestScreen} options={{ animation: "slide_from_right" }} />
+                <Stack.Screen name="VocabMainScreen" component={VocabMainScreen}/>
+                <Stack.Screen name="ListWordsScreen" component={ListWordsScreen}/>
+                <Stack.Screen name="CreateNewVocabPackScreen" component={CreateNewVocabPackScreen}/>
+                <Stack.Screen name="FlashCardScreen" component={FlashCardScreen}/>
+                <Stack.Screen name="TestOptionScreen" component={TestOptionScreen}
+                              options={{animation: "slide_from_right"}}/>
+                <Stack.Screen name="TestScreen" component={TestScreen} options={{animation: "slide_from_right"}}/>
                 {/* vocab screens */}
+
+                {/*  Story  */}
+                <Stack.Screen name="StoryScreen" component={StoryScreen}/>
+                {/*  Story  */}
+
 
             </Stack.Navigator>
         </NavigationContainer>
