@@ -91,6 +91,12 @@ const router = createRouter({
                     meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
                 },
                 {
+                    path: '/v1/admin/content-management/stories/edit',
+                    name: 'edit-story',
+                    component: () => import('@/pages/content-management/CreateUpdateStory.vue'),
+                    meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
+                },
+                {
                     path: '/uikit/formlayout',
                     name: 'formlayout',
                     component: () => import('@/views/uikit/FormLayout.vue')

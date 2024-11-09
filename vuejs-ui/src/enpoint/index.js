@@ -39,6 +39,8 @@ export const GRAMMAR_ENTPOINT = {
 }
 
 export const STORY_ENTPOINT = {
+    CREATE_STORY: '/stories/create',
     GET_STORIES: '/stories/get-all',
+    UPDATE_STORY: '/stories/update',
     DELETE_STORY: '/stories/delete',
 }

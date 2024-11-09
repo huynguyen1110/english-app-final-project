@@ -8,20 +8,20 @@ import Heading from '@tiptap/extension-heading';
 import Paragraph from '@tiptap/extension-paragraph';
 import Text from '@tiptap/extension-text';
 import { useEditor, EditorContent } from '@tiptap/vue-3';
-import { decodeJWT } from '@/service/auth/AuthService';
-import { createGrammarService, updateGrammarService } from '@/service/content/ContentService';
 import { useToast } from 'primevue/usetoast';
+import { createStoryService, updateStoryService } from '@/service/content/ContentService';
+import router from '@/router';
 
 const toast = useToast();
 
-const engTitle = ref('');
-const vnTitle = ref('');
+const engTitle = ref(null);
+const vnTitle = ref(null);
+const content = ref(null);
 const storyToEdit = ref(null);
-const content = ref('');
 const isEditing = ref(false);
 
 onMounted(() => {
-    getGrammarToEditData();
+    getStoryToEditData();
 });
 
 const editor = useEditor({
@@ -45,57 +45,56 @@ const editor = useEditor({
     }
 });
 
-const saveContentData = async (grammarToEdit) => {
-    console.log(editor.value.getText());
-    // const decodedToken = decodeJWT(localStorage.getItem('jwt')?.toString());
-    // const userEmail = decodedToken?.sub;
-    //
-    // const buildGrammarData = (isUpdate = false) => ({
-    //     title: title.value,
-    //     description: description.value,
-    //     content: editor.value.getHTML(),
-    //     ...(isUpdate ? { updateBy: userEmail } : { createBy: userEmail }), // Thêm updateBy nếu là chỉnh sửa
-    //     isDeleted: false,
-    //     isPublished: isPublished.value
-    // });
-    //
-    // const grammarData = buildGrammarData();
-    //
-    // try {
-    //     if (grammarToEdit) {
-    //         const grammarDto = buildGrammarData(true); // Gọi hàm với tham số true để thêm updateBy
-    //         const { data } = await updateGrammarService(grammarDto, grammarToEdit?.grammarId);
-    //         toast.add({
-    //             severity: data ? 'success' : 'error',
-    //             summary: data ? 'Saved successfully' : 'Failed to save',
-    //             life: 3000
-    //         });
-    //         return;
-    //     }
-    //
-    //     const { data } = await createGrammarService(grammarData);
-    //     toast.add({
-    //         severity: data ? 'success' : 'error',
-    //         summary: data ? 'Saved successfully' : 'Failed to save',
-    //         life: 3000
-    //     });
-    // } catch (e) {
-    //     toast.add({ severity: 'error', summary: 'Failed to save', life: 3000 });
-    //     console.error(e);
-    // }
+const saveContentData = async (storyToEdit) => {
+
+    const storyDto = {
+        vnTitle: vnTitle.value,
+        engTitle: engTitle.value,
+        content: editor.value.getText(),
+        isDeleted: false
+    };
+
+    if (!storyDto.vnTitle || !storyDto.engTitle || !storyDto.content) {
+        toast.add({ severity: 'info', summary: 'All fields can not be empty', life: 3000 });
+        return; // Dừng lại nếu có bất kỳ trường nào là chuỗi rỗng
+    }
+
+    try {
+        if (storyToEdit) {
+            const { data } = await updateStoryService(storyDto, storyToEdit?.id);
+            toast.add({
+                severity: data ? 'success' : 'error',
+                summary: data ? 'Saved successfully' : 'Failed to save',
+                life: 3000
+            });
+            router.back();
+            return;
+        }
+
+        const { data } = await createStoryService(storyDto);
+        toast.add({
+            severity: data ? 'success' : 'error',
+            summary: data ? 'Saved successfully' : 'Failed to save',
+            life: 3000
+        });
+        if (data) {
+            router.back();
+        }
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Failed to save', life: 3000 });
+        console.error(e);
+    }
 };
 
 
-const getGrammarToEditData = () => {
+const getStoryToEditData = () => {
     storyToEdit.value = JSON.parse(localStorage.getItem('storyToEdit'));
     if (!storyToEdit.value) {
         return;
     }
-    // Thiết lập các giá trị cho các biến
-    // title.value = grammarToEdit.value?.title;
-    // description.value = grammarToEdit.value?.description;
-    // content.value = grammarToEdit.value?.content;
-    // isPublished.value = grammarToEdit.value?.isPublished;
+    vnTitle.value = storyToEdit.value?.vnTitle;
+    engTitle.value = storyToEdit.value?.engTitle;
+    content.value = storyToEdit.value?.content;
 };
 
 const editBtn = () => {
@@ -105,7 +104,8 @@ const editBtn = () => {
 
 const saveEditContent = () => {
     isEditing.value = !isEditing.value;
-    content.value = editor.value.getText();
+    content.value = editor.value.getJSON();
+    console.log(content.value);
 };
 
 </script>
@@ -114,9 +114,10 @@ const saveEditContent = () => {
     <div class="card">
         <Toolbar>
             <template #end>
-                <Button @click="saveContentData(grammarToEdit)">Save</Button>
+                <Button @click="saveContentData(storyToEdit)">Save</Button>
             </template>
         </Toolbar>
+
         <div class="w-full mt-4">
             <p>English title</p>
             <InputText v-model="engTitle" class="w-full" />
@@ -133,7 +134,14 @@ const saveEditContent = () => {
                 Edit
             </Button>
         </div>
-
+        <div v-if="storyToEdit" class="mt-6">
+            <Button v-if="isEditing" @click="saveEditContent">
+                Save
+            </Button>
+            <Button v-else @click="editBtn">
+                Edit
+            </Button>
+        </div>
         <div class="mt-6" v-if="!storyToEdit || isEditing">
             <div v-if="editor" class="content-container mt-6">
                 <div class="control-group">

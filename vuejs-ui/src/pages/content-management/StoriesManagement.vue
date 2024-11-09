@@ -22,18 +22,9 @@ const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS }
 });
 
-function getStatusLabel(status) {
-    switch (status) {
-        case true:
-            return 'success';
-        case false:
-            return 'danger';
-        default:
-            return 'unknown'; // Trả về một giá trị mặc định nếu không khớp
-    }
-}
 
 onMounted(() => {
+    localStorage.removeItem("storyToEdit");
     fetchGetStoryApi();
 });
 
@@ -80,20 +71,20 @@ function navigateToCreatePage() {
     router.push({ name: 'create-story' });
 }
 
-// function navigateToEditPage(grammarId) {
-//     const grammarToEdit = grammarsData.value?.find((grammar) => grammar?.grammarId === grammarId);
-//
-//     if (!grammarToEdit) {
-//         console.warn('Grammar not found!');
-//         return;
-//     }
-//
-//     // Chuyển đối tượng grammarToEdit thành chuỗi JSON trước khi lưu vào localStorage
-//     localStorage.setItem('grammarToEdit', JSON.stringify(grammarToEdit));
-//
-//     // Điều hướng đến trang chỉnh sửa
-//     router.push({ name: 'edit-grammar' });
-// }
+function navigateToEditPage(id) {
+    const storyToEdit = storiesData.value?.find((story) => story?.id === id);
+
+    if (!storyToEdit) {
+        console.warn('Grammar not found!');
+        return;
+    }
+
+    // Chuyển đối tượng grammarToEdit thành chuỗi JSON trước khi lưu vào localStorage
+    localStorage.setItem('storyToEdit', JSON.stringify(storyToEdit));
+
+    // Điều hướng đến trang chỉnh sửa
+    router.push({ name: 'edit-story' });
+}
 
 
 </script>
@@ -141,7 +132,7 @@ function navigateToCreatePage() {
                 <Column field="engTitle" header="Eng title" sortable style="min-width: 10rem">
                     <template #body="slotProps">
                         <div class="grid grid-cols-1 gap-4"> <!-- sử dụng grid-cols-1 để có một cột -->
-                            <div class="tooltip">
+                            <div class="tooltip" @click="navigateToEditPage(slotProps.data.id)">
                                 {{ slotProps.data.engTitle }}
                                 <span class="tooltip-text">Click here to edit</span>
                             </div>
@@ -151,19 +142,13 @@ function navigateToCreatePage() {
                 <Column field="vnTitle" header="VN title" sortable style="min-width: 12rem">
                     <template #body="slotProps">
                         <div class="grid grid-cols-1 gap-4"> <!-- sử dụng grid-cols-1 để có một cột -->
-                            <div class="tooltip">
+                            <div class="tooltip" @click="navigateToEditPage(slotProps.data.id)">
                                 {{ slotProps.data.vnTitle }}
                                 <span class="tooltip-text">Click here to edit</span>
                             </div>
                         </div>
                     </template>
                 </Column>
-                <Column field="image" header="Image" sortable style="min-width: 12rem">
-                    <template #body="slotProps">
-                        <img :src="slotProps.data.image" alt="Image" class="w-28 h-28 object-cover rounded" />
-                    </template>
-                </Column>
-
                 <Column field="createdAt" header="Created Date" sortable style="min-width: 10rem">
                     <template #body="slotProps">
                         {{ slotProps?.data?.createdAt ? format(slotProps.data.createdAt, 'dd-MM-yyyy HH:mm:ss') : '' }}

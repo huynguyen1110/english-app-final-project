@@ -65,6 +65,37 @@ export const deleteGrammarService = async (id) => {
     }
 };
 
+export const createStoryService = async (storyDto) => {
+    const options = {
+        method: 'POST',
+        url: BASE_URL.concat(STORY_ENTPOINT.CREATE_STORY),
+        data: storyDto
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while creating stories', error);
+        throw new Error(error.response?.data || 'An error occurred while creating stories');
+    }
+};
+
+export const updateStoryService = async (storyDto, id) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(STORY_ENTPOINT.UPDATE_STORY)
+            .concat("?id=", id),
+        data: storyDto
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error('err while updating stories', error);
+        throw new Error(error.response?.data || 'An error occurred while updating stories');
+    }
+};
+
 export const getStoriesService = async (params) => {
     const options = {
         method: 'GET',
