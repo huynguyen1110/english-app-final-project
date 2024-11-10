@@ -1,11 +1,13 @@
-import {RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View} from "react-native";
+import {RefreshControl, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View} from "react-native";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
-import {Block, Text} from "galio-framework";
-import {Layout} from "@ui-kitten/components";
+import {Text} from "galio-framework";
 import React, {useEffect} from "react";
 import {getStoriesService} from "../../../services/StoryService";
+import {useNavigation} from "@react-navigation/native";
 
 const ListStoryScreen = () => {
+
+    const navigation = useNavigation();
 
     const [stories, setStories] = React.useState<any []>([]);
 
@@ -18,10 +20,15 @@ const ListStoryScreen = () => {
                 direction: false
             };
             const {data} = await getStoriesService(params);
-            console.log(data?.content);
+            setStories(data?.content);
         } catch (e) {
             console.log(e);
         }
+    }
+
+    const navigateToGrammarDetailScreen = (storyData: any) => {
+        // @ts-ignore
+        navigation.navigate("StoryDetailScreen", {storyData: storyData})
     }
 
     useEffect(() => {
@@ -31,32 +38,42 @@ const ListStoryScreen = () => {
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             <ScrollView style={GlobalStyles.main_container}>
-                {/*<Layout level='3' style={{flex: 1}}>*/}
-                {/*    <View style={[GlobalStyles.main_container, {flex: 1}]}>*/}
-                {/*        {Array.isArray(grammars) && grammars.length > 0 ? (*/}
-                {/*            grammars*/}
-                {/*                .filter((grammar) => grammar.isPublished === true) // Lọc chỉ các grammar có isPublished = true*/}
-                {/*                .map((grammar, index) => (*/}
-                {/*                    <TouchableOpacity*/}
-                {/*                        key={grammar.id}*/}
-                {/*                        style={styles.grammarTagContainer}*/}
-                {/*                        onPress={() => {*/}
-                {/*                            navigateToGrammarDetailScreen(grammar);*/}
-                {/*                        }}*/}
-                {/*                    >*/}
-                {/*                        <View style={{width: 12}}/>*/}
-                {/*                        <Text size={18}>{index + 1}. </Text>*/}
-                {/*                        <Text size={18}>{grammar.title}</Text>*/}
-                {/*                    </TouchableOpacity>*/}
-                {/*                ))*/}
-                {/*        ) : (*/}
-                {/*            <Text>No grammar items available</Text>*/}
-                {/*        )}*/}
-                {/*    </View>*/}
-                {/*</Layout>*/}
+                <View style={[{flex: 1}]}>
+                    {Array.isArray(stories) && stories.length > 0 ? (
+                        stories
+                            .map((story, index) => (
+                                <TouchableOpacity
+                                    key={story.id}
+                                    style={styles.storyTagContainer}
+                                    onPress={() => {
+                                        navigateToGrammarDetailScreen(story);
+                                    }}
+                                >
+                                    <View style={{width: 12}}/>
+                                    <Text size={18}>{index + 1}. </Text>
+                                    <Text size={18}>{story.vnTitle}</Text>
+                                </TouchableOpacity>
+                            ))
+                    ) : (
+                        <Text>No grammar items available</Text>
+                    )}
+                </View>
             </ScrollView>
         </SafeAreaView>
     )
 }
 
 export default ListStoryScreen;
+
+const styles = StyleSheet.create({
+    storyTagContainer: {
+        width: "100%",
+        height: 45,
+        borderRadius: 30,
+        borderWidth: 1,
+        alignItems: "center",
+        marginTop: 16,
+        backgroundColor: 'white',
+        flexDirection: 'row'
+    }
+});

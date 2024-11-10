@@ -20,6 +20,7 @@ import GrammarListScreen from "../screens/home/grammar/GrammarListScreen";
 import GrammarDetailScreen from "../screens/home/grammar/GrammarDetailScreen";
 import VocabularyPackScreen from "../screens/home/vocab/VocabularyPackScreen";
 import StoryScreen from "../screens/home/story/StoryScreen";
+import StoryDetailScreen from "../screens/home/story/StoryDetailScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -61,6 +62,7 @@ const Navigation = () => {
 
                 {/*  Story  */}
                 <Stack.Screen name="StoryScreen" component={StoryScreen}/>
+                <Stack.Screen name="StoryDetailScreen" component={StoryDetailScreen}/>
                 {/*  Story  */}
 
 
