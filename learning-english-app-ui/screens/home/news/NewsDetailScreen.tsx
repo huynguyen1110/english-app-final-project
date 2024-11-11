@@ -82,7 +82,7 @@ const NewsDetailScreen = () => {
     const [englishMeaning, setEnglishMeaning] = useState<any []>([]);
 
     // translation of field meaning in free dic
-    const [vietnameseMeaning, setVietnameseMeaning] = useState<any []>([])
+    const [vietnameseMeaning, setVietnameseMeaning] = useState<any []>([]);
 
     // state of showing toast or not
     const [isShowToast, setIsShowToast] = useState<boolean>(false);

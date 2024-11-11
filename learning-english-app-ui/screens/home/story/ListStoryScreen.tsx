@@ -55,7 +55,7 @@ const ListStoryScreen = () => {
                                 </TouchableOpacity>
                             ))
                     ) : (
-                        <Text>No grammar items available</Text>
+                        <Text>No story items available</Text>
                     )}
                 </View>
             </ScrollView>
