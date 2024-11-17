@@ -1,6 +1,7 @@
 package com.example.api.entities;
 
 import com.example.api.entities.enums.StoryStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,6 +42,7 @@ public class Stories {
     @Enumerated(EnumType.STRING)
     private StoryStatus status;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "stories", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserStory> userStories;
 }

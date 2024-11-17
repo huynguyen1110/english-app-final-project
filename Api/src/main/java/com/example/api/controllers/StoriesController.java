@@ -1,12 +1,16 @@
 package com.example.api.controllers;
 
 import com.example.api.dtos.stories.StoriesDto;
+import com.example.api.entities.Stories;
 import com.example.api.services.impservices.StoriesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/stories")
@@ -71,4 +75,27 @@ public class StoriesController {
         }
     }
 
+    @PostMapping("/set-is-read")
+    public ResponseEntity<?> setIsReadStory(@RequestParam String userEmail, @RequestParam Long storyId) {
+        try {
+            storiesService.setIsReadStory(userEmail, storyId);
+            return ResponseEntity.ok("set successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/finished")
+    public ResponseEntity<?> getFinishedStories(@RequestParam String userEmail) {
+        try {
+            Optional<List<Stories>> stories = storiesService.getFinishedStoriesByUserId(userEmail);
+
+            // Trả về danh sách truyện nếu tồn tại
+            return ResponseEntity.ok(stories.orElseThrow());
+        } catch (Exception e) {
+            // Trả về thông báo lỗi nếu không tìm thấy
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 }
+

@@ -2,7 +2,10 @@ package com.example.api.services.impservices;
 
 import com.example.api.dtos.stories.StoriesDto;
 import com.example.api.entities.Stories;
+import com.example.api.entities.UserStory;
+import com.example.api.entities.Users;
 import com.example.api.repositories.StoriesRepository;
+import com.example.api.repositories.UserStoryRepository;
 import com.example.api.services.iservices.IStoriesService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +16,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import java.lang.reflect.Field;
@@ -25,6 +30,12 @@ public class StoriesService implements IStoriesService {
 
     @Autowired
     private final StoriesRepository storiesRepository;
+
+    @Autowired
+    private final UserService userService;
+
+    @Autowired
+    private final UserStoryRepository userStoryRepository;
 
     @Override
     public Stories createStory(StoriesDto storyDto) {
@@ -88,5 +99,44 @@ public class StoriesService implements IStoriesService {
 
         // Lấy danh sách Story có isDeleted = false
         return storiesRepository.findAllByIsDeletedFalse(pageable);
+    }
+
+    @Override
+    public void setIsReadStory(String userEmail, Long storyId) throws Exception {
+        Stories story = storiesRepository.findById(storyId)
+                .orElseThrow(() -> new Exception("Story not found with id " + storyId));
+
+        Users user = userService.findUserByEmail(userEmail);
+
+
+        // Kiểm tra xem đã có bản ghi UserStory chưa
+        boolean exists = userStoryRepository.findByUserAndStory(user.getUserId(), storyId).isPresent();
+        if (exists) {
+            throw new RuntimeException("UserStory already exists");
+        }
+
+        // Tạo mới UserStory
+        UserStory userStory = new UserStory();
+        userStory.setUser(user);
+        userStory.setStories(story);
+        userStory.setFinishedDate(LocalDateTime.now());
+        userStory.setIsFinished(false); // Mặc định chưa hoàn thành
+
+        // Lưu vào database
+        userStoryRepository.save(userStory);
+    }
+
+    @Override
+    public Optional<List<Stories>> getFinishedStoriesByUserId(String userEmail) throws Exception {
+        // Tìm kiếm user dựa trên email
+        Users user = userService.findUserByEmail(userEmail);
+
+        // Lấy danh sách truyện đã đọc xong
+        List<Stories> stories = userStoryRepository.findFinishedStoriesByUserId(user.getUserId());
+
+        // Trả về Optional chứa danh sách rỗng nếu không có dữ liệu
+        return Optional.ofNullable(
+                stories.isEmpty() ? new ArrayList<>() : stories
+        );
     }
 }
