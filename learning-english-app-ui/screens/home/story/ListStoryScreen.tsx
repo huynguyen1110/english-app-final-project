@@ -65,15 +65,15 @@ const ListStoryScreen = () => {
 
 export default ListStoryScreen;
 
-const styles = StyleSheet.create({
-    storyTagContainer: {
-        width: "100%",
-        height: 45,
-        borderRadius: 30,
-        borderWidth: 1,
-        alignItems: "center",
-        marginTop: 16,
-        backgroundColor: 'white',
-        flexDirection: 'row'
-    }
-});
+    const styles = StyleSheet.create({
+        storyTagContainer: {
+            width: "100%",
+            height: 45,
+            borderRadius: 30,
+            borderWidth: 1,
+            alignItems: "center",
+            marginTop: 16,
+            backgroundColor: 'white',
+            flexDirection: 'row'
+        }
+    });

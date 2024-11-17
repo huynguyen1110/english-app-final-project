@@ -31,26 +31,26 @@ const HomeScreen = () => {
 
                     <Block height={12}></Block>
 
-                    <Block style={GlobalStyles.main_container}>
-                        <Block>
-                            <Block>
-                                <Text bold size={20}>Dictionary</Text>
-                            </Block>
-                            <Block>
-                                <Input rounded
-                                       icon="search"
-                                       family="Feather"
-                                       borderless={true}
-                                       bgColor={theme.COLORS?.NAVBAR}
-                                       placeholder="Search"></Input>
-                            </Block>
-                            <Block height={12}></Block>
-                            <Block row>
-                                <Text> <Input placeholder="Hello" rounded editable={false}></Input> </Text>
-                                <Text> <Input placeholder="Information" rounded editable={false}></Input> </Text>
-                            </Block>
-                        </Block>
-                    </Block>
+                    {/*<Block style={GlobalStyles.main_container}>*/}
+                    {/*    <Block>*/}
+                    {/*        <Block>*/}
+                    {/*            <Text bold size={20}>Dictionary</Text>*/}
+                    {/*        </Block>*/}
+                    {/*        <Block>*/}
+                    {/*            <Input rounded*/}
+                    {/*                   icon="search"*/}
+                    {/*                   family="Feather"*/}
+                    {/*                   borderless={true}*/}
+                    {/*                   bgColor={theme.COLORS?.NAVBAR}*/}
+                    {/*                   placeholder="Search"></Input>*/}
+                    {/*        </Block>*/}
+                    {/*        <Block height={12}></Block>*/}
+                    {/*        <Block row>*/}
+                    {/*            <Text> <Input placeholder="Hello" rounded editable={false}></Input> </Text>*/}
+                    {/*            <Text> <Input placeholder="Information" rounded editable={false}></Input> </Text>*/}
+                    {/*        </Block>*/}
+                    {/*    </Block>*/}
+                    {/*</Block>*/}
 
                     <Block height={12}></Block>
                     <Block style={[GlobalStyles.gray_background]} height={12}></Block>

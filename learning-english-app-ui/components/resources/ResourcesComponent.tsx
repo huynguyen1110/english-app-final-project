@@ -51,15 +51,6 @@ const ResourcesComponent = () => {
                     <Text bold size={14}>Videos</Text>
                 </Block>
                 <Block flexDirection="column" justifyContent="center" alignItems="center">
-                    <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#0aabcf"}]}>
-                        <Octicons name="book" size={30} color="white"/>
-                    </TouchableOpacity>
-                    <Text bold size={14}>Book</Text>
-                </Block>
-            </Block>
-
-            <Block flexDirection="row" >
-                <Block style={{padding: 10}} flexDirection="column" justifyContent="center" alignItems="center">
                     <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#0aabcf"}]} onPress={() => {
                         // @ts-ignore
                         navigation.navigate("GrammarListScreen");
@@ -70,7 +61,10 @@ const ResourcesComponent = () => {
                     </TouchableOpacity>
                     <Text bold size={14}>Grammar</Text>
                 </Block>
-                <Block style={{padding: 10}} flexDirection="column" justifyContent="center" alignItems="center">
+            </Block>
+
+            <Block flexDirection="row" >
+                <Block style={{padding: 16}} flexDirection="column" justifyContent="center" alignItems="center">
                     <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#0aabcf"}]} onPress={() => {
                         // @ts-ignore
                         navigation.navigate("VocabularyPackScreen");

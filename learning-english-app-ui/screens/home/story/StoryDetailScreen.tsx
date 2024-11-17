@@ -20,6 +20,13 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import {Modalize} from "react-native-modalize";
 import {SegmentedButtons} from "react-native-paper";
 import {Audio} from "expo-av";
+import {setIsReadStoryService} from "../../../services/StoryService";
+import {decodeJwtToken, getJwtToken} from "../../../services/AuthenticationService";
+import Toast from 'react-native-toast-message';
+import axios from "axios";
+import {ENGLISH_DIC_API, TRANSLATION_API} from "../../../utils/API";
+import {getDefinitionInVietnamesePrompt} from "../../../utils/GptPrompts";
+import {askChatGpt} from "../../../services/GptService";
 
 const StoryDetailScreen = () => {
 
@@ -78,6 +85,61 @@ const StoryDetailScreen = () => {
         openModal();
     };
 
+    // get english word meaning
+    const fetchEngDicResponse = async (word: string) => {
+        try {
+
+            setTranslateErr("")
+
+            setEnglishMeaning([]);
+
+            const response = await axios.get(ENGLISH_DIC_API.concat("/" + word));
+            const {data} = response;
+
+
+            const englishMeaningTransformed = data[0].meanings.map((meaning: any) => ({
+                partOfSpeech: meaning.partOfSpeech,
+                data: meaning.definitions.map((def: any) => def.definition)
+            }))
+
+            setEnglishMeaning(englishMeaningTransformed);
+
+            getPhoneticField(data);
+        } catch (error) {
+            setTranslateErr("No translation data");
+            console.log(translateErr)
+            console.log("err while fetching free dic api" + error);
+        }
+    }
+
+    // get phonetic field in free dic response
+    const getPhoneticField = (data: any) => {
+        let selectedPhonetic = null;
+        setPhonetic(null);
+        if (data[0].phonetics && data[0].phonetics.length > 0) {
+            for (let item of data[0].phonetics) {
+                if (item.text && item.audio) {
+                    selectedPhonetic = item;
+                    setPhonetic(selectedPhonetic);
+                    break;
+                } else if (item.text && !selectedPhonetic) {
+                    selectedPhonetic = item;
+                    setPhonetic(selectedPhonetic);
+                }
+            }
+        }
+    }
+
+    const fetchChatGptResponse = async () => {
+        setChatGptResponse("");
+        if (segmentButtonValue === "ChatGPT") {
+            const prompt = getDefinitionInVietnamesePrompt(translateWord);
+            const response = await askChatGpt(prompt);
+            const {data}: any = response;
+            setChatGptResponse(data.choices[0].message.content);
+        }
+    };
+
     // past and display html to word logic
     const parseHtmlToWords = (htmlContent: string) => {
         const trimmedContent = htmlContent.replace(/^"|"$/g, '');
@@ -124,6 +186,121 @@ const StoryDetailScreen = () => {
     }
 
     useEffect(() => {
+        return sound
+            ? () => {
+                sound.unloadAsync();
+            }
+            : undefined;
+    }, [sound]);
+    // handle play sound
+
+    // fetch data whenever click on word
+    useEffect(() => {
+        setSegmentButtonValue("VI");
+        fetchEngDicResponse(translateWord);
+    }, [translateWord]);
+
+    // translate dic's response
+    useEffect(() => {
+        if (englishMeaning) {
+            transformAndTranslate(englishMeaning, "en", "vi");
+        }
+    }, [englishMeaning]);
+
+    // update phonetic state if not null call play sound btn
+    useEffect(() => {
+        playAudioBtn();
+    }, [phonetic]);
+
+    // ask chatGpt for definition of the word. call askChatgpt funct
+    useEffect(() => {
+        fetchChatGptResponse();
+    }, [segmentButtonValue]);
+
+    // hide toast after 2 second
+    useEffect(() => {
+        let timer: any;
+        if (isShowToast) {
+            timer = setTimeout(() => {
+                setIsShowToast(false);
+            }, 2000); // 2000ms = 2 seconds
+        }
+        return () => clearTimeout(timer);
+    }, [isShowToast]);
+
+    // call translation api
+    const translateFunction = async (text: string, sourceLanguage: string, targetLanguage: string) => {
+        try {
+            const response = await axios.post(TRANSLATION_API.concat("?text=" + text, "&sourceLanguage=" + sourceLanguage + "&targetLanguage=" + targetLanguage));
+            const {data} = response;
+            return data;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    // handle data and translate it into Vietnamese
+    const transformAndTranslate = async (data: any, sourceLanguage: string, targetLanguage: string) => {
+        try {
+            setVietnameseMeaning([]);
+            const result = await Promise.all(
+                data.map(async (item: any) => {
+                    const translatedPartOfSpeech = await translateFunction(item.partOfSpeech, sourceLanguage, targetLanguage);
+
+                    const translatedDefinitions = await Promise.all(
+                        item.data.map(async (def: any) => {
+                            return await translateFunction(def, sourceLanguage, targetLanguage);
+                        })
+                    );
+                    return {
+                        partOfSpeech: translatedPartOfSpeech,
+                        data: translatedDefinitions
+                    };
+                })
+            );
+            if (result) {
+                setVietnameseMeaning(result);
+            }
+            return result;
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
+    const setIsReadBtn = async (storyId: any) => {
+        try {
+            const token = await getJwtToken();
+            const decodedToken = decodeJwtToken(token);
+
+            const userEmail: any = decodedToken?.sub;
+            const {data} = await setIsReadStoryService("huy696981@gmail.com", storyId);
+            if (data) {
+                Toast.show({
+                    type: 'success',
+                    text1: 'Success',
+                    text2: 'added to is read successfully 👌',
+                    position: 'bottom',
+                    visibilityTime: 3000,
+                    text1Style: {fontSize: 18},
+                    text2Style: {fontSize: 16},
+                });
+            }
+        } catch (e) {
+            Toast.show({
+                type: 'error',
+                text1: 'Failed',
+                text2: 'failed to add story to is read',
+                position: 'bottom',
+                visibilityTime: 3000,
+                text1Style: {fontSize: 18},
+                text2Style: {fontSize: 16},
+            });
+            console.log(e);
+        }
+    }
+
+    useEffect(() => {
         setStoryData(paramsData?.storyData);
     }, [storyData]);
 
@@ -142,7 +319,9 @@ const StoryDetailScreen = () => {
                 </TouchableOpacity>
                 <View>
                 </View>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    setIsReadBtn(storyData?.id);
+                }}>
                     <Text size={20}> <AntDesign size={26} name="check"/> </Text>
                 </TouchableOpacity>
             </Block>
@@ -151,9 +330,21 @@ const StoryDetailScreen = () => {
             <ScrollView>
                 <View style={GlobalStyles.main_container}>
                     <Block height={16}></Block>
-                    <Text size={26} bold>{storyData?.vnTitle}</Text>
+                    <View style={styles.textContainer}>
+                        {storyData?.vnTitle.split(" ").map((word: any, index: any) => (
+                            <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
+                                <Text bold size={26}>{word} </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                     <Block height={16}></Block>
-                    <Text size={26} italic>{storyData?.engTitle}</Text>
+                    <View style={styles.textContainer}>
+                        {storyData?.engTitle?.split(" ").map((word: any, index: any) => (
+                            <TouchableOpacity key={index} onPress={() => handleWordPress(word)}>
+                                <Text italic size={26}>{word} </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
                     <Block height={16}></Block>
                     <View style={styles.textContainer}>
                         {parsedWords}
@@ -239,17 +430,17 @@ const StoryDetailScreen = () => {
                                                     <TouchableOpacity style={{padding: 10}}
                                                                       onPress={() => {
                                                                           // @ts-ignore
-                                                                          // const saveWordData = {
-                                                                          //     // @ts-ignore
-                                                                          //     word: translateWord,
-                                                                          //     partOfSpeech: partOfSpeech,
-                                                                          //     definition: item,
-                                                                          //     example: null,
-                                                                          //     audio: phonetic?.audio,
-                                                                          //     phonetic: phonetic?.text
-                                                                          // }
-                                                                          // // @ts-ignore
-                                                                          // navigation.navigate("SaveNewWordScreen", saveWordData)
+                                                                          const saveWordData = {
+                                                                              // @ts-ignore
+                                                                              word: translateWord,
+                                                                              partOfSpeech: partOfSpeech,
+                                                                              definition: item,
+                                                                              example: null,
+                                                                              audio: phonetic?.audio,
+                                                                              phonetic: phonetic?.text
+                                                                          }
+                                                                          // @ts-ignore
+                                                                          navigation.navigate("SaveNewWordScreen", saveWordData)
                                                                       }}
                                                     >
                                                         <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
@@ -295,17 +486,17 @@ const StoryDetailScreen = () => {
                                                     <TouchableOpacity style={{padding: 10}}
                                                                       onPress={() => {
                                                                           // // @ts-ignore
-                                                                          // const saveWordData = {
-                                                                          //     // @ts-ignore
-                                                                          //     word: translateWord,
-                                                                          //     partOfSpeech: partOfSpeech,
-                                                                          //     definition: item,
-                                                                          //     example: null,
-                                                                          //     audio: phonetic?.audio,
-                                                                          //     phonetic: phonetic?.text
-                                                                          // }
-                                                                          // // @ts-ignore
-                                                                          // navigation.navigate("SaveNewWordScreen", saveWordData)
+                                                                          const saveWordData = {
+                                                                              // @ts-ignore
+                                                                              word: translateWord,
+                                                                              partOfSpeech: partOfSpeech,
+                                                                              definition: item,
+                                                                              example: null,
+                                                                              audio: phonetic?.audio,
+                                                                              phonetic: phonetic?.text
+                                                                          }
+                                                                          // @ts-ignore
+                                                                          navigation.navigate("SaveNewWordScreen", saveWordData)
                                                                       }}
                                                     >
                                                         <Text size={18}> <AntDesign size={18} name="addfolder"/> </Text>
@@ -354,6 +545,7 @@ const StoryDetailScreen = () => {
                 </View>
             </Modalize>
             {/* dictionary modal */}
+            <Toast/>
         </SafeAreaView>
     );
 }

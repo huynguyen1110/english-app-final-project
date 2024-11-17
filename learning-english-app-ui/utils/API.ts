@@ -1,4 +1,4 @@
-export const BASE_URL = 'http://192.168.24.173:9000';
+export const BASE_URL = 'http://192.168.125.173:9000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -48,4 +48,6 @@ export const GRAMMAR_ENTPOINT = {
 
 export const STORY_ENPOINT = {
     GET_STORY: "/api/v1/stories/get-all",
+    SET_IS_READ: "/api/v1/stories/set-is-read",
+    GET_IS_READ: "/api/v1/stories/finished",
 }
