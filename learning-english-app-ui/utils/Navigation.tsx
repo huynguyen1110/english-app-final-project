@@ -21,6 +21,7 @@ import GrammarDetailScreen from "../screens/home/grammar/GrammarDetailScreen";
 import VocabularyPackScreen from "../screens/home/vocab/VocabularyPackScreen";
 import StoryScreen from "../screens/home/story/StoryScreen";
 import StoryDetailScreen from "../screens/home/story/StoryDetailScreen";
+import VideoScreen from "../screens/home/video/VideoScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -65,6 +66,9 @@ const Navigation = () => {
                 <Stack.Screen name="StoryDetailScreen" component={StoryDetailScreen}/>
                 {/*  Story  */}
 
+                {/* video */}
+                <Stack.Screen name="VideoScreen" component={VideoScreen}/>
+                {/* video */}
 
             </Stack.Navigator>
         </NavigationContainer>

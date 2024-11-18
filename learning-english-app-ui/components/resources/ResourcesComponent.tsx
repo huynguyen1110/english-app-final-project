@@ -45,7 +45,10 @@ const ResourcesComponent = () => {
                     <Text bold size={14}>Truyện chêm</Text>
                 </Block>
                 <Block flexDirection="column" justifyContent="center" alignItems="center">
-                    <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#fa3123"}]}>
+                    <TouchableOpacity style={[GlobalStyles.icon_button, {backgroundColor: "#fa3123"}]} onPress={() => {
+                        //@ts-ignore
+                        navigation.navigate("VideoScreen");
+                    }}>
                         <Octicons name="video" size={30} color="white"/>
                     </TouchableOpacity>
                     <Text bold size={14}>Videos</Text>

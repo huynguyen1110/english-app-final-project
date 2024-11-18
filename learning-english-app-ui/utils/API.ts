@@ -21,6 +21,9 @@ export const CHAT_GPT_API = "https://chatgpt-best-price.p.rapidapi.com/v1/chat/c
 // api to search result from google
 export const SERPER_DEV_API = "https://google.serper.dev";
 
+// api getting ytb videos
+export const YTB_API = "yt-api.p.rapidapi.com"
+
 export const PACAKGE_ENPOINT = {
     CREATE_PACKAGE: "/api/v1/package/create",
     GET_PACKAGES: "/api/v1/package/get-all",
