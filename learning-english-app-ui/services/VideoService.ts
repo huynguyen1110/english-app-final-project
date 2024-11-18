@@ -4,10 +4,10 @@ import axios from "axios";
 
 export const getYtbVideosService = async (params: any) => {
     const options = {
-        method: 'POST',
+        method: 'GET',
         url: YTB_API.concat("/search")
             .concat('?query=', params?.query)
-            .concat('&type=', params?.videos)
+            .concat('&type=', params?.type)
             .concat('&duration=', params?.duration),
         headers: {
             'x-rapidapi-key': RAPID_API_KEY,

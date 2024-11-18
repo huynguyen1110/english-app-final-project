@@ -26,30 +26,6 @@ const VideoScreen = () => {
         navigation.goBack();
     }
 
-    // const changeItems = [
-    //     {
-    //         imagePath: '../../../assets/image-video/TED_ED_THUB.jpg',
-    //         keyWord: 'TED ed',
-    //     },
-    //     {
-    //         imagePath: '../../../assets/image-video/TED_THUMB.jpg',
-    //         keyWord: 'TED talk',
-    //     },
-    //     {
-    //         imagePath: '../../../assets/image-video/BBC_6_MIN_ENG_THUB.jpg',
-    //         keyWord: 'BBC 6 minutes english',
-    //     },
-    //     {
-    //         imagePath: '../../../assets/image-video/NATIONAL_GEOGRAPHIC_THUMB.jpg',
-    //         keyWord: 'National geographic',
-    //     },
-    //     {
-    //         imagePath: '../../../assets/image-video/VOX_THUMB.jpg',
-    //         keyWord: 'Vox'
-    //     },
-    // ]
-
-
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             <Block style={GlobalStyles.main_container} flexDirection="row" justifyContent="space-between"
@@ -68,23 +44,38 @@ const VideoScreen = () => {
                 <View style={GlobalStyles.main_container}>
                     <Text size={26} bold>Channels</Text>
                     <View style={styles.channel_container}>
-                        <TouchableOpacity style={styles.channel_items}>
+                        <TouchableOpacity style={styles.channel_items} onPress={() => {
+                            // @ts-ignore
+                            navigation.navigate("VideoDetailScreen", {channelName: "TED ed"});
+                        }}>
                             <ImageBackground style={styles.background} source={require('../../../assets/image-video/TED_ED_THUB.jpg')}/>
                             <Text style={styles.text}>TED ed</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.channel_items}>
+                        <TouchableOpacity style={styles.channel_items} onPress={() => {
+                            // @ts-ignore
+                            navigation.navigate("VideoDetailScreen", {channelName: "BBC 6 minute english"});
+                        }}>
                             <ImageBackground style={styles.background} source={require('../../../assets/image-video/BBC_6_MIN_ENG_THUB.jpg')}/>
                             <Text style={styles.text}>BBC 6 minutes english</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.channel_items}>
+                        <TouchableOpacity style={styles.channel_items} onPress={() => {
+                            // @ts-ignore
+                            navigation.navigate("VideoDetailScreen", {channelName: "National geographic"});
+                        }}>
                             <ImageBackground style={styles.background} source={require('../../../assets/image-video/NATIONAL_GEOGRAPHIC_THUMB.jpg')}/>
                             <Text style={styles.text}>National geographic</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.channel_items}>
+                        <TouchableOpacity style={styles.channel_items} onPress={() => {
+                            // @ts-ignore
+                            navigation.navigate("VideoDetailScreen", {channelName: "TED talk"});
+                        }}>
                             <ImageBackground style={styles.background} source={require('../../../assets/image-video/TED_THUMB.jpg')}/>
                             <Text style={styles.text}>TED talk</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.channel_items}>
+                        <TouchableOpacity style={styles.channel_items} onPress={() => {
+                            // @ts-ignore
+                            navigation.navigate("VideoDetailScreen", {channelName: "Vox"});
+                        }}>
                             <ImageBackground style={styles.background} source={require('../../../assets/image-video/VOX_THUMB.png')}/>
                             <Text style={styles.text}>Vox</Text>
                         </TouchableOpacity>

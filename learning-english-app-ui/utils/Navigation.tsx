@@ -22,6 +22,8 @@ import VocabularyPackScreen from "../screens/home/vocab/VocabularyPackScreen";
 import StoryScreen from "../screens/home/story/StoryScreen";
 import StoryDetailScreen from "../screens/home/story/StoryDetailScreen";
 import VideoScreen from "../screens/home/video/VideoScreen";
+import VideoDetailScreen from "../screens/home/video/VideoDetailScreen";
+import VideoPlayScreen from "../screens/home/video/VideoPlayScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -68,6 +70,8 @@ const Navigation = () => {
 
                 {/* video */}
                 <Stack.Screen name="VideoScreen" component={VideoScreen}/>
+                <Stack.Screen name="VideoDetailScreen" component={VideoDetailScreen}/>
+                <Stack.Screen name="VideoPlayScreen" component={VideoPlayScreen}/>
                 {/* video */}
 
             </Stack.Navigator>
