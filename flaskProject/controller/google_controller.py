@@ -1,26 +1,42 @@
+import io
 import os
 
-from flask import Blueprint, jsonify, request, send_from_directory
+from flask import Blueprint, jsonify, request, send_from_directory, send_file
+
+from entity.audio import Audio
 from service.google_service import GoogleService
 
 google_controller = Blueprint("google_controller", __name__, url_prefix="/google")
 
 @google_controller.route("/convert-to-speech", methods=["POST"])
 def text_to_speech():
-    try:
-        data = request.get_json()
-        text = data.get("text")
-        language = data.get("language", "en")  # Mặc định là tiếng Anh
+    data = request.json
+    text = data.get('text')
+    language = data.get('language', 'en')
+    slow = data.get('slow', False)
 
-        if not text:
-            return jsonify({"message": "Text is required"}), 400
+    if not text:
+        return jsonify({'error': 'Text is required'}), 400
 
-        # Gọi hàm trong service để chuyển văn bản thành giọng nói
-        output_file = GoogleService.text_to_speech(text, language, False)
+    audio_id = GoogleService.text_to_speech(text, language, slow)
+    if audio_id:
+        return jsonify({'message': 'Audio saved successfully', 'audio_id': audio_id}), 201
+    else:
+        return jsonify({'error': 'Failed to convert text to speech'}), 500
 
-        # Trả về file âm thanh cho client (bạn có thể gửi file dưới dạng đính kèm)
-        return jsonify({"message": "Text to speech conversion successful", "file": output_file}), 200
+@google_controller.route("/text-to-speech", methods=["GET"])
+def get_audio():
+    audio_id = request.args.get("audio_id")  # None nếu không có param
+    audio = Audio.query.get(audio_id)
+    if not audio:
+        return jsonify({'error': 'Audio not found'}), 404
 
-    except Exception as e:
-        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+    # Tạo file từ dữ liệu binary
+    return send_file(
+        io.BytesIO(audio.file_data),
+        mimetype='audio/mpeg',
+        as_attachment=False,  # Không tải xuống, chỉ phát trực tiếp
+        download_name=audio.filename
+    )
+
 
