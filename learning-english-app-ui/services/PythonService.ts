@@ -8,7 +8,6 @@ export const getYtbVideoScriptService = async (videoId: string) => {
             .concat('?video_id=' + videoId)
     };
 
-    console.log(options);
 
     try {
         return await axios.request(options);
@@ -17,3 +16,21 @@ export const getYtbVideoScriptService = async (videoId: string) => {
         throw new Error("Err while getting script");
     }
 }
+
+export const translateService = async (params: any, text: any) => {
+    const options = {
+        method: 'POST',
+        url: BASE_PYTHON_URL.concat(PYTHON_ENTPOINT.TRANSLATE)
+            .concat("?source=" + params.source)
+            .concat("&target=", params.target),
+        data: {text: text}
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+        throw new Error("Err while translating");
+    }
+}
+

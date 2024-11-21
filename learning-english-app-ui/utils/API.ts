@@ -59,4 +59,5 @@ export const STORY_ENPOINT = {
 
 export const PYTHON_ENTPOINT = {
     GET_YTB_SCRIPT: '/video/get-script',
+    TRANSLATE: '/translate'
 }
