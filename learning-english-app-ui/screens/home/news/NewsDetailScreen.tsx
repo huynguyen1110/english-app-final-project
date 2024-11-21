@@ -144,6 +144,33 @@ const NewsDetailScreen = () => {
     }, [newsData]);
 
     // get english word meaning
+    // const fetchEngDicResponse = async (word: string) => {
+    //     try {
+    //
+    //         setTranslateErr("")
+    //
+    //         setEnglishMeaning([]);
+    //
+    //         const response = await axios.get(ENGLISH_DIC_API.concat("/" + word));
+    //         const {data} = response;
+    //
+    //
+    //         const englishMeaningTransformed = data[0].meanings.map((meaning: any) => ({
+    //             partOfSpeech: meaning.partOfSpeech,
+    //             data: meaning.definitions.map((def: any) => def.definition)
+    //         }))
+    //
+    //         setEnglishMeaning(englishMeaningTransformed);
+    //
+    //         getPhoneticField(data);
+    //     } catch (error) {
+    //         setTranslateErr("No translation data");
+    //         console.log(translateErr)
+    //         console.log("err while fetching free dic api" + error);
+    //     }
+    // }
+
+    // get english word meaning
     const fetchEngDicResponse = async (word: string) => {
         try {
 

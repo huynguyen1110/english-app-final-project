@@ -28,7 +28,7 @@ const NewsScreen = () => {
                 </TouchableOpacity>
                 <Text size={20} bold>News</Text>
                 <TouchableOpacity>
-                    <Text size={20}> <FontAwesome name="search" size={24}/> </Text>
+                    <Text size={20}></Text>
                 </TouchableOpacity>
             </Block>
             <NewsTopTabsComponent/>

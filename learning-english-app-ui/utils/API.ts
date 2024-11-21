@@ -1,6 +1,6 @@
-export const BASE_URL = 'http://192.168.125.173:9000';
+export const BASE_URL = 'http://192.168.65.173:9000';
 
-export const BASE_PYTHON_URL = 'http://192.168.36.173:5000';
+export const BASE_PYTHON_URL = 'http://192.168.65.173:5000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -59,5 +59,7 @@ export const STORY_ENPOINT = {
 
 export const PYTHON_ENTPOINT = {
     GET_YTB_SCRIPT: '/video/get-script',
-    TRANSLATE: '/translate'
+    TRANSLATE: '/translate',
+    CONVER_TEXT_TO_SPEECH: '/google/convert-to-speech',
+    READ_MP3_SPEECH: '/google/text-to-speech'
 }

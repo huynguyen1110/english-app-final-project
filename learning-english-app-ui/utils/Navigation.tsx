@@ -32,7 +32,7 @@ const Navigation = () => {
     return (
         <NavigationContainer>
             <Stack.Navigator
-                initialRouteName='VocabMainScreen'
+                initialRouteName='LoginScreen'
                 screenOptions={{
                     headerShown: false,
                     gestureEnabled: true,

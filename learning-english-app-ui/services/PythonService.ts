@@ -34,3 +34,35 @@ export const translateService = async (params: any, text: any) => {
     }
 }
 
+export const convertTextToSpeechService = async (data: any) => {
+    const options = {
+        method: 'POST',
+        url: BASE_PYTHON_URL.concat(PYTHON_ENTPOINT.CONVER_TEXT_TO_SPEECH),
+        data: data
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+        throw new Error("Err while converting text to Speech");
+    }
+}
+
+export const readMp3TextToSpeechService = async (audioId: any) => {
+    const options = {
+        method: 'GET',
+        url: BASE_PYTHON_URL.concat(PYTHON_ENTPOINT.READ_MP3_SPEECH)
+            .concat('?audio_id=' + audioId),
+        responseType: 'arraybuffer',
+    };
+
+    try {
+        // @ts-ignore
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+        throw new Error("Err while readding mp3 text to Speech");
+    }
+}
+

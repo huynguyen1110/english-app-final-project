@@ -35,7 +35,7 @@ const VideoScreen = () => {
                 </TouchableOpacity>
                 <Text size={20} bold>Video</Text>
                 <TouchableOpacity>
-                    <Text size={20}> <Feather size={20} name='search'/> </Text>
+                    <Text size={20}> </Text>
                 </TouchableOpacity>
             </Block>
             <Block height={12}></Block>

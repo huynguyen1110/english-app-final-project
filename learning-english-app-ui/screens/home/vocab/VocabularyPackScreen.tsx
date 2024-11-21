@@ -8,6 +8,7 @@ import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import {getPackageService} from "../../../services/VocabService";
 import {Avatar, Input, Layout, Text as TextUiKitten} from "@ui-kitten/components";
 
+
 const VocabularyPackScreen = () => {
 
     const navigation = useNavigation();
