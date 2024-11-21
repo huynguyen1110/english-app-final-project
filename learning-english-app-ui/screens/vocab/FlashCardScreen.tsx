@@ -28,7 +28,6 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import {themeAppColor} from "../../utils/constant";
 import {convertTextToSpeechService, readMp3TextToSpeechService} from "../../services/PythonService";
-import SoundPlayer from 'react-native-sound-player'
 
 const FlashCardScreen = () => {
 
