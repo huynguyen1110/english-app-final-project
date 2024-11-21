@@ -1,5 +1,7 @@
 export const BASE_URL = 'http://192.168.125.173:9000';
 
+export const BASE_PYTHON_URL = 'http://192.168.36.173:5000';
+
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
 export const LOGIN_URI = '/api/v1/user/login';
@@ -53,4 +55,8 @@ export const STORY_ENPOINT = {
     GET_STORY: "/api/v1/stories/get-all",
     SET_IS_READ: "/api/v1/stories/set-is-read",
     GET_IS_READ: "/api/v1/stories/finished",
+}
+
+export const PYTHON_ENTPOINT = {
+    GET_YTB_SCRIPT: '/video/get-script',
 }
