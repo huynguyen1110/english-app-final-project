@@ -8,8 +8,15 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {Block, Text} from "galio-framework";
 import {useEffect, useState} from "react";
 import {decodeJwtToken, getJwtToken, getUserByEmailService} from "../../services/AuthenticationService";
+import {useNavigation} from "@react-navigation/native";
+import {logout} from "../../features/authentication/AuthenticationSlice";
+import {useDispatch} from "react-redux";
 
 const AccountScreen = () => {
+
+    const navigation = useNavigation();
+
+    const dispatch = useDispatch();
 
     const [user, setUser] = useState<any>();
 
@@ -25,6 +32,23 @@ const AccountScreen = () => {
                 console.log(e);
             }
         }
+    }
+
+    const navigateToUpdateUserInfo = () => {
+        // @ts-ignore
+        navigation.navigate("UpdateUserInfoScreen", {user: user});
+    }
+
+    const navigateToFavoriteNews = () => {
+        // @ts-ignore
+        navigation.navigate("FavoriteNewsScreen")
+    }
+
+    const handleLogout =  () => {
+        // @ts-ignore
+        dispatch(logout());
+        // @ts-ignore
+        navigation.navigate("LoginScreen")
     }
 
     useEffect(() => {
@@ -49,7 +73,7 @@ const AccountScreen = () => {
                                 <Text size={18}>{user?.email}</Text>
                                 <Text size={18}>{user?.userId}</Text>
                             </View>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={navigateToUpdateUserInfo}>
                                 <Text size={18}> <FontAwesome size={30} name='chevron-right'/> </Text>
                             </TouchableOpacity>
                         </View>
@@ -60,14 +84,20 @@ const AccountScreen = () => {
                     <View style={GlobalStyles.main_container}>
                         <View style={GlobalStyles.under_line}></View>
                         <Block height={6}></Block>
-                        <TouchableOpacity style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
+                        <TouchableOpacity style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}
+                        onPress={navigateToFavoriteNews}
+                        >
                             <Text size={18}>Favorite news</Text>
                             <Text size={18}> <FontAwesome size={20} name='chevron-right'/> </Text>
                         </TouchableOpacity>
                         <Block height={6}></Block>
                         <View style={GlobalStyles.under_line}></View>
                         <Block height={6}></Block>
-                        <TouchableOpacity style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}>
+                        <TouchableOpacity style={[GlobalStyles.flex_row, GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between]}
+                        onPress={() => {
+                            handleLogout();
+                        }}
+                        >
                             <Text size={18}>LOG OUT</Text>
                             <Text size={18}> <FontAwesome size={20} name='chevron-right'/> </Text>
                         </TouchableOpacity>

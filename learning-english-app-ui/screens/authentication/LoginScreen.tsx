@@ -148,21 +148,21 @@ const LoginScreen = () => {
                     <Block safe flex middle>
                         <Block style={styles.loginContainer}>
                             <Block flex={0.25} middle style={styles.socialConnect}>
-                                <Text color="#8898AA" size={12}>
-                                    Sign in with
-                                </Text>
+                                {/*<Text color="#8898AA" size={12}>*/}
+                                {/*    Sign in with*/}
+                                {/*</Text>*/}
                                 <Block row style={{marginTop: theme.SIZES?.BASE}}>
                                     <Button style={{...styles.socialButtons, marginRight: 30}}>
-                                        <Block row>
-                                            <Icon
-                                                name="facebook-square"
-                                                family="AntDesign"
-                                                size={16}
-                                                color={"black"}
-                                                style={{marginTop: 2, marginRight: 5}}
-                                            />
-                                            <Text style={styles.socialTextButtons}>FACEBOOK</Text>
-                                        </Block>
+                                        {/*<Block row>*/}
+                                        {/*    <Icon*/}
+                                        {/*        name="facebook-square"*/}
+                                        {/*        family="AntDesign"*/}
+                                        {/*        size={16}*/}
+                                        {/*        color={"black"}*/}
+                                        {/*        style={{marginTop: 2, marginRight: 5}}*/}
+                                        {/*    />*/}
+                                        {/*    <Text style={styles.socialTextButtons}>FACEBOOK</Text>*/}
+                                        {/*</Block>*/}
                                     </Button>
                                     <Toast isShow={isShowLoginErr} positionIndicator="top" round={true}
                                            color="warning"> Login failed, this account is not existed </Toast>
@@ -170,14 +170,14 @@ const LoginScreen = () => {
                                            color="success"> Login successfully </Toast>
                                     <Button style={styles.socialButtons}>
                                         <Block row>
-                                            <Icon
-                                                name="google"
-                                                family="AntDesign"
-                                                size={16}
-                                                color={"black"}
-                                                style={{marginTop: 2, marginRight: 5}}
-                                            />
-                                            <Text style={styles.socialTextButtons}>GOOGLE</Text>
+                                            {/*<Icon*/}
+                                            {/*    name="google"*/}
+                                            {/*    family="AntDesign"*/}
+                                            {/*    size={16}*/}
+                                            {/*    color={"black"}*/}
+                                            {/*    style={{marginTop: 2, marginRight: 5}}*/}
+                                            {/*/>*/}
+                                            {/*<Text style={styles.socialTextButtons}>GOOGLE</Text>*/}
                                         </Block>
                                     </Button>
                                 </Block>

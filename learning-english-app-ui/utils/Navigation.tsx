@@ -25,6 +25,8 @@ import VideoScreen from "../screens/home/video/VideoScreen";
 import VideoDetailScreen from "../screens/home/video/VideoDetailScreen";
 import VideoPlayScreen from "../screens/home/video/VideoPlayScreen";
 import AccountScreen from "../screens/account/AccountScreen";
+import UpdateUserInfoScreen from "../screens/account/UpdateUserInfoScreen";
+import FavoriteNewsScreen from "../screens/account/FavoriteNewsScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -77,6 +79,8 @@ const Navigation = () => {
 
                 {/*  account screen  */}
                 <Stack.Screen name="AccountScreen" component={AccountScreen}/>
+                <Stack.Screen name="UpdateUserInfoScreen" component={UpdateUserInfoScreen}/>
+                <Stack.Screen name="FavoriteNewsScreen" component={FavoriteNewsScreen}/>
                 {/*  account screen  */}
 
             </Stack.Navigator>

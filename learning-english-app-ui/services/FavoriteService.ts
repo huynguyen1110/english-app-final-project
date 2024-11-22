@@ -25,3 +25,22 @@ export const addNewsToFavoriteService = async (userEmail: string | null | undefi
     }
 }
 
+export const getFavoriteNewsService = async (params: any) => {
+    const options = {
+        method: 'GET',
+        url: BASE_URL.concat(FAVORITE_ENPOINT.GET_FAVORITE_NEWS)
+            .concat("?page=" + params?.page)
+            .concat("&size=" + params?.size)
+            .concat("&sortField=" + params.sortField)
+            .concat("&sortDirection=" + params.sortDirection)
+            .concat("&userEmail=" + params.userEmail),
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+

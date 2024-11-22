@@ -1,6 +1,6 @@
-export const BASE_URL = 'http://192.168.119.173:9000';
+export const BASE_URL = 'http://192.168.171.173:9000';
 
-export const BASE_PYTHON_URL = 'http://192.168.119.173:5000';
+export const BASE_PYTHON_URL = 'http://192.168.171.173:5000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -66,4 +66,5 @@ export const PYTHON_ENTPOINT = {
 
 export const USER_ENPOINT = {
     GET_USER: "/api/v1/user/get-user",
+    UPDATE_USER: "/api/v1/user/update-user",
 }

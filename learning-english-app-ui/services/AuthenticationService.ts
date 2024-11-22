@@ -79,6 +79,22 @@ export const getUserByEmailService = async (userEmail: any) => {
     }
 }
 
+export const updateUserService = async (userDto: any, userEmail: any) => {
+    const options = {
+        method: 'PUT',
+        url: BASE_URL.concat(USER_ENPOINT.UPDATE_USER)
+            .concat("?userEmail=", userEmail),
+        data: userDto
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+        throw new Error("Err while updating user" + error);
+    }
+}
+
 // decode jwt handler
 export const decodeJwtToken = (token: any) => {
     try {

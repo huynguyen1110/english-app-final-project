@@ -4,7 +4,7 @@ import {
     ImageBackground,
     Dimensions,
     StatusBar,
-    KeyboardAvoidingView, AppRegistry
+    KeyboardAvoidingView,
 } from 'react-native';
 import React, {
     useEffect,
@@ -163,33 +163,33 @@ const RegisterScreen = () => {
                     <Block safe flex middle>
                         <Block style={styles.registerContainer}>
                             <Block flex={0.25} middle style={styles.socialConnect}>
-                                <Text color="#8898AA" size={12}>
-                                    Sign up with
-                                </Text>
+                                {/*<Text color="#8898AA" size={12}>*/}
+                                {/*    Sign up with*/}
+                                {/*</Text>*/}
                                 <Block row style={{marginTop: theme.SIZES?.BASE}}>
                                     <Button style={{...styles.socialButtons, marginRight: 30}}>
-                                        <Block row>
-                                            <Icon
-                                                name="facebook-square"
-                                                family="AntDesign"
-                                                size={16}
-                                                color={"black"}
-                                                style={{marginTop: 2, marginRight: 5}}
-                                            />
-                                            <Text style={styles.socialTextButtons}>FACEBOOK</Text>
-                                        </Block>
+                                        {/*<Block row>*/}
+                                        {/*    <Icon*/}
+                                        {/*        name="facebook-square"*/}
+                                        {/*        family="AntDesign"*/}
+                                        {/*        size={16}*/}
+                                        {/*        color={"black"}*/}
+                                        {/*        style={{marginTop: 2, marginRight: 5}}*/}
+                                        {/*    />*/}
+                                        {/*    <Text style={styles.socialTextButtons}>FACEBOOK</Text>*/}
+                                        {/*</Block>*/}
                                     </Button>
                                     <Button style={styles.socialButtons}>
-                                        <Block row>
-                                            <Icon
-                                                name="google"
-                                                family="AntDesign"
-                                                size={16}
-                                                color={"black"}
-                                                style={{marginTop: 2, marginRight: 5}}
-                                            />
-                                            <Text style={styles.socialTextButtons}>GOOGLE</Text>
-                                        </Block>
+                                        {/*<Block row>*/}
+                                        {/*    <Icon*/}
+                                        {/*        name="google"*/}
+                                        {/*        family="AntDesign"*/}
+                                        {/*        size={16}*/}
+                                        {/*        color={"black"}*/}
+                                        {/*        style={{marginTop: 2, marginRight: 5}}*/}
+                                        {/*    />*/}
+                                        {/*    <Text style={styles.socialTextButtons}>GOOGLE</Text>*/}
+                                        {/*</Block>*/}
                                     </Button>
                                 </Block>
                             </Block>
