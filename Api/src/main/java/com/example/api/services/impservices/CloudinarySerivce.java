@@ -20,9 +20,22 @@ public class CloudinarySerivce implements ICloudinaryService {
     // upload image
     @Override
     public Map uploadFile(MultipartFile file, String folderName) throws IOException {
+        String contentType = file.getContentType();
+
+        String resourceType;
+        if (contentType != null && contentType.startsWith("image/")) {
+            resourceType = "image";
+        } else if (contentType != null && contentType.startsWith("audio/")) {
+            resourceType = "video"; // Dùng "video" để hỗ trợ phát MP3
+        } else {
+            throw new IllegalArgumentException("Chỉ hỗ trợ ảnh hoặc file MP3.");
+        }
+
         return cloudinary.uploader().upload(file.getBytes(),
                 ObjectUtils.asMap(
+                        "resource_type", resourceType,
                         "folder", folderName
                 ));
     }
+
 }
