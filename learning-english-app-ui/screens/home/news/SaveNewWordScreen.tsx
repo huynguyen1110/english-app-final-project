@@ -128,13 +128,15 @@ const SaveNewWordScreen = () => {
 
     // fetch create package api
     const fetchCreatePackageApi = async () => {
+        const token = await getJwtToken();
+        const decodedToken: any = decodeJwtToken(token);
         const data: any = {
             name: packageName,
             description: "",
             isPublished: false
         }
         try {
-            const response = await createPackageService(data);
+            const response = await createPackageService(data, decodedToken);
             if (response) {
                 setCreatePakageModalVisible(false);
                 fetchGetPackagesApi();
@@ -152,7 +154,7 @@ const SaveNewWordScreen = () => {
     // fetch create package api
     const fetchGetPackagesApi = async () => {
         // const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
-        const token = getJwtToken();
+        const token = await getJwtToken();
         const decodedToken = decodeJwtToken(token);
         const params: any = {
             page: 1,

@@ -1,12 +1,10 @@
 import axios from "axios";
 import {BASE_URL, PACAKGE_ENPOINT, WORD_ENPOINT} from "../utils/API";
-import {decodeJwtToken} from "./AuthenticationService";
+import {decodeJwtToken, getJwtToken} from "./AuthenticationService";
 
 // create package service
-export const createPackageService = async (packageDto: any) => {
-    const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
-    // const token = getJwtToken();
-    const decodedToken = decodeJwtToken(testToken);
+export const createPackageService = async (packageDto: any, decodedToken: any) => {
+    // const testToken = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJIdXk2OTY4MEBnbWFpbC5jb20iLCJyb2xlIjpbIkFETUlOIiwiVVNFUiJdLCJpYXQiOjE3MjM0NzgyNjAsImV4cCI6MTcyMzUxNDI2MH0.R5jR28VDxncQ5Xi99CH6vK--mMQAO5zBLhhREYOaXBU";
     const options = {
         method: 'POST',
         url: BASE_URL.concat(PACAKGE_ENPOINT.CREATE_PACKAGE.concat("?userEmail=" + decodedToken?.sub)),

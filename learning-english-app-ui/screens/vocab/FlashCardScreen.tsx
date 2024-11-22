@@ -27,7 +27,6 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 // @ts-ignore
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import {themeAppColor} from "../../utils/constant";
-import {convertTextToSpeechService, readMp3TextToSpeechService} from "../../services/PythonService";
 
 const FlashCardScreen = () => {
 
@@ -48,8 +47,6 @@ const FlashCardScreen = () => {
     const [isPlaying, setIsPlaying] = React.useState(false);
 
     const [modalVisible, setModalVisible] = React.useState(false);
-
-    const [sound, setSound] = useState<any>();
 
     const flatListRef = React.useRef<FlatList>(null); // Tham chiếu đến FlatList
 
@@ -78,9 +75,7 @@ const FlashCardScreen = () => {
                 {/* Face Side */}
                 <View style={styles.cardFaceContentContainer}>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <TouchableOpacity style={{padding: 4}} onPress={() => {
-                            playAudioBtn(item.name);
-                        }}>
+                        <TouchableOpacity style={{padding: 4}} onPress={() => {}}>
                             <FontAwesome size={20} name="volume-up" style={{opacity: 0.5}}/>
                         </TouchableOpacity>
                         <View style={{width: 6}}/>
@@ -176,37 +171,6 @@ const FlashCardScreen = () => {
         }
     };
 
-    const converTextToSpeech = async (text: string) => {
-        try {
-            const dataToPost = {
-                "text": text,
-                "language": "en",
-                "slow": false
-            }
-            const {data} = await convertTextToSpeechService(dataToPost)
-            return data?.audio_id
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    // handle play sound
-    const playAudioBtn = async (text: any) => {
-        const audioId = await converTextToSpeech(text);
-        if (audioId) {
-            try {
-                const response: any = await readMp3TextToSpeechService(audioId);
-                // Dữ liệu trả về là một buffer, chúng ta sẽ chuyển nó thành đối tượng base64 để chơi
-                const audioData = Buffer.from(response.data, 'binary').toString('base64');
-                // Tạo đường dẫn tạm để phát âm thanh
-
-            } catch (e) {
-                console.log(e);
-            }
-        }
-    }
-
-
     // Hàm khi nhấn nút Play/Pause
     const togglePlay = () => {
         if (isPlaying) {
@@ -224,15 +188,6 @@ const FlashCardScreen = () => {
             setWordsData(Object.values(wordsDataParams)[0]);
         }
     }, [router, wordsData])
-
-    useEffect(() => {
-        return sound
-            ? () => {
-                sound.unloadAsync();
-            }
-            : undefined;
-    }, [sound]);
-    // handle play sound
 
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>

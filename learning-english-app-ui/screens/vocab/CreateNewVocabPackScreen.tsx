@@ -26,6 +26,7 @@ import {addWordToPackage, createPackageService, createWord} from "../../services
 import {object} from "yup";
 import {description} from "@eva-design/eva/package";
 import data from "../../components/carousel/data";
+import {decodeJwtToken, getJwtToken} from "../../services/AuthenticationService";
 
 const CreateNewVocabPackScreen = () => {
 
@@ -213,6 +214,9 @@ const CreateNewVocabPackScreen = () => {
             listNewWords: listNewWords,
         };
 
+        const token = await getJwtToken();
+        const decodedToken: any = decodeJwtToken(token);
+
         // Validate package data
         if (!validatePackageData(packageData)) {
             Toast.show({
@@ -233,7 +237,7 @@ const CreateNewVocabPackScreen = () => {
                     name: packageData.packageName,
                     isPublished: false,
                 };
-                const createPackageResponse: any = await createPackageService(packageDto);
+                const createPackageResponse: any = await createPackageService(packageDto, decodedToken);
                 packageId = createPackageResponse.data?.id;
             }
 
