@@ -51,6 +51,7 @@ public class Users {
     @JoinColumn(name = "favorite_id", referencedColumnName = "favoriteId")
     private Favorites favorite;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserStory> userBooks;
 }
