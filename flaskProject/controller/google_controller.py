@@ -10,33 +10,26 @@ google_controller = Blueprint("google_controller", __name__, url_prefix="/google
 
 @google_controller.route("/convert-to-speech", methods=["POST"])
 def text_to_speech():
-    data = request.json
-    text = data.get('text')
-    language = data.get('language', 'en')
-    slow = data.get('slow', False)
+    try:
+        data = request.json
+        text = data.get('text')
+        language = data.get('language', 'en')  # Mặc định là 'en'
+        slow = data.get('slow', False)  # Mặc định là False
 
-    if not text:
-        return jsonify({'error': 'Text is required'}), 400
+        # Kiểm tra nếu 'text' không được cung cấp
+        if not text:
+            return jsonify({'error': 'Text is required'}), 400
 
-    audio_id = GoogleService.text_to_speech(text, language, slow)
-    if audio_id:
-        return jsonify({'message': 'Audio saved successfully', 'audio_id': audio_id}), 201
-    else:
-        return jsonify({'error': 'Failed to convert text to speech'}), 500
+        # Gọi dịch vụ chuyển văn bản thành giọng nói
+        response = GoogleService.text_to_speech(text, language, slow)
 
-@google_controller.route("/text-to-speech", methods=["GET"])
-def get_audio():
-    audio_id = request.args.get("audio_id")  # None nếu không có param
-    audio = Audio.query.get(audio_id)
-    if not audio:
-        return jsonify({'error': 'Audio not found'}), 404
-
-    # Tạo file từ dữ liệu binary
-    return send_file(
-        io.BytesIO(audio.file_data),
-        mimetype='audio/mpeg',
-        as_attachment=False,  # Không tải xuống, chỉ phát trực tiếp
-        download_name=audio.filename
-    )
+        if response:
+            # Nếu file được tạo thành công và đường dẫn file hợp lệ
+            return response, 200
+        else:
+            return jsonify({'error': 'Failed to convert text to speech'}), 500
+    except Exception as e:
+        # Xử lý ngoại lệ nếu có lỗi xảy ra
+        return jsonify({'error': str(e)}), 500
 
 
