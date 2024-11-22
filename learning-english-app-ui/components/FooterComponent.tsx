@@ -20,6 +20,11 @@ export default function FooterComponent() {
         // @ts-ignore
         navigation.navigate("VocabMainScreen")
     }
+
+    const navigateToAccountScreen = () => {
+        // @ts-ignore
+        navigation.navigate("AccountScreen");
+    }
     return (
         <View>
             <Block flexDirection="row" justifyContent="space-around" alignItems="center" height={60}>
@@ -35,7 +40,9 @@ export default function FooterComponent() {
                         <Text size={14}>Your vocab</Text>
                     </Block>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => {
+                    navigateToAccountScreen();
+                }} >
                     <Block flexDirection="column" justifyContent="center" alignItems="center">
                         <Icon name="account-settings" size={24} color="black"/>
                         <Text size={14}>Account</Text>

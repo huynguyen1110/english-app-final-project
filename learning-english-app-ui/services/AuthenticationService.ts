@@ -1,9 +1,10 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {jwtDecode} from "jwt-decode";
-import {BASE_URL, LOGIN_URI, REGISTER_URI} from "../utils/API";
+import {BASE_URL, LOGIN_URI, REGISTER_URI, USER_ENPOINT} from "../utils/API";
 import RegisterDto from "../dto/authdto/registerDto";
 import LoginDto from "../dto/authdto/loginDto";
+import axios from "axios";
 
 export const register = createAsyncThunk(
     'user/register', // action name
@@ -63,6 +64,20 @@ export const addToken = createAsyncThunk(
         await AsyncStorage.setItem('jwt', token);
     }
 )
+
+export const getUserByEmailService = async (userEmail: any) => {
+    const options = {
+        method: 'GET',
+        url: BASE_URL.concat(USER_ENPOINT.GET_USER)
+            .concat("?userEmail=", userEmail),
+    };
+
+    try {
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 // decode jwt handler
 export const decodeJwtToken = (token: any) => {

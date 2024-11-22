@@ -63,3 +63,7 @@ export const PYTHON_ENTPOINT = {
     CONVER_TEXT_TO_SPEECH: '/google/convert-to-speech',
     READ_MP3_SPEECH: '/google/text-to-speech'
 }
+
+export const USER_ENPOINT = {
+    GET_USER: "/api/v1/user/get-user",
+}

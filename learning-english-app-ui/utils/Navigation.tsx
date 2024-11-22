@@ -24,6 +24,7 @@ import StoryDetailScreen from "../screens/home/story/StoryDetailScreen";
 import VideoScreen from "../screens/home/video/VideoScreen";
 import VideoDetailScreen from "../screens/home/video/VideoDetailScreen";
 import VideoPlayScreen from "../screens/home/video/VideoPlayScreen";
+import AccountScreen from "../screens/account/AccountScreen";
 
 
 const Stack = createNativeStackNavigator();
@@ -73,6 +74,10 @@ const Navigation = () => {
                 <Stack.Screen name="VideoDetailScreen" component={VideoDetailScreen}/>
                 <Stack.Screen name="VideoPlayScreen" component={VideoPlayScreen}/>
                 {/* video */}
+
+                {/*  account screen  */}
+                <Stack.Screen name="AccountScreen" component={AccountScreen}/>
+                {/*  account screen  */}
 
             </Stack.Navigator>
         </NavigationContainer>

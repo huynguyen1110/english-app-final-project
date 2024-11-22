@@ -6,6 +6,7 @@ import {
     theme
 } from "galio-framework";
 import {GlobalStyles} from "../styles/GlobalStyles";
+import FooterComponent from "./FooterComponent";
 
 const HeaderComponent = () => {
 
@@ -20,7 +21,7 @@ const HeaderComponent = () => {
             ]}>
                 <Block flexDirection="row" justifyContent="space-between">
                     <Text h5 italic bold color={theme.COLORS?.FACEBOOK}>E-English</Text>
-                    <Text> <Icon name="bell" family="Feather" size={24}/></Text>
+                    {/*<Text> <Icon name="bell" family="Feather" size={24}/></Text>*/}
 
                 </Block>
             </Block>
