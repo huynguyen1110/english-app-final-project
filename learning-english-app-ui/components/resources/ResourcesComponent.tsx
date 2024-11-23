@@ -24,10 +24,12 @@ const ResourcesComponent = () => {
         <View>
             <Block flexDirection="row" justifyContent="space-around">
                 <Block flexDirection="column" justifyContent="center" alignItems="center">
-                    <Image style={[GlobalStyles.icon_button]}
-                           source={require('../../assets/chatgpt-icon.png')}
-                    />
-                    <Text bold size={14}>ChatGPT</Text>
+                    <TouchableOpacity>
+                        <Image style={[GlobalStyles.icon_button]}
+                               source={require('../../assets/icon-png/text_detection_icon.png')}
+                        />
+                    </TouchableOpacity>
+                    <Text bold size={14}>Ask</Text>
                 </Block>
                 <Block flexDirection="column" justifyContent="center" alignItems="center">
                     <TouchableOpacity onPress={naviateToNewsScreen} style={[GlobalStyles.icon_button, {backgroundColor: "#04b551"}]}>
