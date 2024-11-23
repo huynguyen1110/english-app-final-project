@@ -11,6 +11,10 @@ spring:
       ddl-auto: none
     show-sql: true
     database-platform: org.hibernate.dialect.MySQLDialect
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
 
 server:
   port: 9000
@@ -27,3 +31,5 @@ cloudinary:
   key: 697834762542465
   api-secret: xihSuIAdZiqhrmXE1yEti_3lzNE
   cloud-name: dw4zakhwr
+
+
