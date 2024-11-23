@@ -37,5 +37,4 @@ public class CloudinarySerivce implements ICloudinaryService {
                         "folder", folderName
                 ));
     }
-
 }
