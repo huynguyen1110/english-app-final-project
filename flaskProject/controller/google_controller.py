@@ -1,12 +1,13 @@
 import io
 import os
 
-from flask import Blueprint, jsonify, request, send_from_directory, send_file
+import requests
+from flask import Blueprint, jsonify, request
 
-from entity.audio import Audio
 from service.google_service import GoogleService
 
 google_controller = Blueprint("google_controller", __name__, url_prefix="/google")
+
 
 @google_controller.route("/convert-to-speech", methods=["POST"])
 def text_to_speech():
@@ -33,3 +34,18 @@ def text_to_speech():
         return jsonify({'error': str(e)}), 500
 
 
+@google_controller.route("/extract-text-from-image", methods=["POST"])
+def extract_text_from_image():
+    try:
+        # Lấy URL từ query parameters
+        image_url = request.args.get('url')
+        if not image_url:
+            return jsonify({'error': 'No URL provided'}), 400
+
+        # Gọi hàm xử lý ảnh của bạn
+        text = GoogleService.image_to_text(image_url)
+
+        return jsonify({'extracted_text': text})
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
