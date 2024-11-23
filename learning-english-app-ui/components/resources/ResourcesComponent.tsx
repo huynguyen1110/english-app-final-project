@@ -24,7 +24,10 @@ const ResourcesComponent = () => {
         <View>
             <Block flexDirection="row" justifyContent="space-around">
                 <Block flexDirection="column" justifyContent="center" alignItems="center">
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                        // @ts-ignore
+                        navigation.navigate("UploadImageScreen");
+                    }} >
                         <Image style={[GlobalStyles.icon_button]}
                                source={require('../../assets/icon-png/text_detection_icon.png')}
                         />

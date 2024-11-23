@@ -7,3 +7,7 @@ export const getExamplePrompt = (word: string, partOfSpeech: string, definition:
     return `-(${word}) is a (${partOfSpeech}). And here is the meaning of this word 
     (${definition}). Give me 3 simple examples with this word. Response must be in bullet point like -. no yapping.`;
 }
+
+export const summarizeTextPromt = (text: any) => {
+    return `-(${text}) Help me summarize this text. no yapping.`;
+}

@@ -66,3 +66,19 @@ export const readMp3TextToSpeechService = async (audioId: any) => {
     }
 }
 
+export const extractTextFromImageService = async (imageUrl: any) => {
+    const options = {
+        method: 'POST',
+        url: BASE_PYTHON_URL.concat(PYTHON_ENTPOINT.GET_TEXT_FROM_IMAGE)
+            .concat('?url=' + imageUrl),
+    };
+
+    try {
+        // @ts-ignore
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+        throw new Error("Err while extracting text from image");
+    }
+}
+
