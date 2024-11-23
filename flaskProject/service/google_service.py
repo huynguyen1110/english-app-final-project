@@ -44,7 +44,7 @@ class GoogleService:
             # Mở ảnh bằng Pillow
             image = Image.open(BytesIO(response.content))
 
-            GoogleService.preprocess_image(image)
+            # GoogleService.preprocess_image(image)
 
             # Trích xuất văn bản
             text = pytesseract.image_to_string(image, lang='Vietnamese+en')
