@@ -12,12 +12,12 @@ const router = createRouter({
             // component: AppLayout,
             component: MainAdmin,
             children: [
-                {
-                    path: '/',
-                    name: 'dashboard',
-                    component: () => import('@/views/Dashboard.vue'),
-                    meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
-                },
+                // {
+                //     path: '/',
+                //     name: 'dashboard',
+                //     component: () => import('@/views/Dashboard.vue'),
+                //     meta: { requiresAuth: true, roles: [USER_ROLES.SUPER_ADMIN, USER_ROLES.ADMIN] }
+                // },
                 {
                     path: '/v1/super-admin/user-management',
                     name: 'user-management',

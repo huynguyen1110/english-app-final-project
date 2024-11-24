@@ -6,12 +6,12 @@ import { SUPER_ADMIN_PERMISSION } from '@/Constaints/Constaints';
 
 
 const model = ref([
-    {
-        label: 'Home',
-        items: [
-            { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }
-        ]
-    },
+    // {
+    //     label: 'Home',
+    //     items: [
+    //         { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }
+    //     ]
+    // },
     {
         label: SUPER_ADMIN_PERMISSION.USER_MANAGEMANT,
         items: [
