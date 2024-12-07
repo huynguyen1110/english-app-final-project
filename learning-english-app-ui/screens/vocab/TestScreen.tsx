@@ -227,14 +227,10 @@ const TestScreen = () => {
                     </View>
                 </View>
                 {
-                    dataParams?.isTrueFalseOption ? (
-                        <ProgressBar
-                            progress={(currentQuestionIndex + 1) / (trueFalseQuestions?.length || 1)}
-                            color={MD3Colors.error50}
-                        />
-                    ) : (
-                        <View></View>
-                    )
+                    <ProgressBar
+                        progress={Math.round(((currentQuestionIndex + 1) / (trueFalseQuestions?.length || 1)) * 100) / 100}
+                        color={MD3Colors.error50}
+                    />
                 }
                 {
                     !isGameFinished ? (

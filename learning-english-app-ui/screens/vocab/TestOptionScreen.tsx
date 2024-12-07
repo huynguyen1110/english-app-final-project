@@ -66,6 +66,7 @@ const TestOptionScreen = () => {
         } else {
             // @ts-ignore
             navigation.navigate("TestScreen", { numberOfQuestions, wordsData, isMultipleChoiceOption, isTrueFalseOption })
+            console.log(numberOfQuestions, wordsData, isMultipleChoiceOption, isTrueFalseOption);
             setIsNotValid(false);
         }
     }
