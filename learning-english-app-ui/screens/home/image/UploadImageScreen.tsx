@@ -41,6 +41,8 @@ const UploadImageScreen = () => {
 
     const [isLoading, setIsLoading] = useState(false);
 
+    const [isTranslatedToEnglish, setIsTranslatedToEnglish] = useState(false);
+
     const [resultText, setResultText] = useState<string>("");
 
     const [chatGptResponse, setChatGptResponse] = useState<any>("");
@@ -74,7 +76,6 @@ const UploadImageScreen = () => {
         if (!result.canceled) {
             const uri = result.assets[0].uri;
             setImage(uri);
-
         }
     };
 
@@ -85,6 +86,7 @@ const UploadImageScreen = () => {
             const response: any = await updaloadImage(image, "example-image");
             const {data} = response;
             setCloudinaryImage(data.secure_url)
+            return data.secure_url;
         } catch (e) {
             console.log(e)
         } finally {
@@ -94,6 +96,7 @@ const UploadImageScreen = () => {
 
     const translateText = async (text: any, isEnglish: boolean) => {
         try {
+            setIsLoading(true);
             setChatGptResponse("");
             let params = null;
             if (isEnglish) {
@@ -113,60 +116,58 @@ const UploadImageScreen = () => {
             setResultText(data);
         } catch (e) {
             console.log(e);
+        } finally {
+            setIsLoading(false);
         }
     }
 
-    const translateToEngBtn = () => {
+    const translateToEngBtn = async () => {
         if (!image) {
             showToastNotification(true);
             return;
         }
         if (!cloudinaryImage) {
-            uploadImage();
-        }
-        if (cloudinaryImage) {
-            extractTextFromImage(cloudinaryImage);
-        }
-        if (extractText) {
-            translateText(extractText, false);
+            setIsTranslatedToEnglish(false);
+            const imageUrl = await uploadImage();
+            const extractedTextResult = await extractTextFromImage(imageUrl);
+            translateText(extractedTextResult, false);
+        } else {
+            const extractedTextResult = await extractTextFromImage(cloudinaryImage);
+            translateText(extractedTextResult, false);
         }
     }
 
-    const translateToViBtn = () => {
+
+    const translateToViBtn = async () => {
         if (!image) {
             showToastNotification(true);
             return;
         }
+
         if (!cloudinaryImage) {
-            uploadImage();
-        }
-        if (cloudinaryImage) {
-            extractTextFromImage(cloudinaryImage);
-        }
-        if (extractText) {
-            translateText(extractText, true);
+            setIsTranslatedToEnglish(false);
+            const imageUrl = await uploadImage();
+            const extractedTextResult = await extractTextFromImage(imageUrl);
+            translateText(extractedTextResult, true);
+        } else{
+            const extractedTextResult = await extractTextFromImage(cloudinaryImage);
+            translateText(extractedTextResult, true);
         }
     }
 
-    const summarizeBtn = () => {
+    const summarizeBtn = async () => {
         if (!image) {
             showToastNotification(true);
             return;
         }
-        if (!cloudinaryImage) {
-            uploadImage();
-        }
-        if (cloudinaryImage) {
-            extractTextFromImage(cloudinaryImage);
-        }
-        if(extractText) {
-            if (resultText) {
-                fetchChatGptResponse(resultText);
-                return;
-            }
-            fetchChatGptResponse(extractText);
-        }
-    }
+
+        const imageUrl = cloudinaryImage || await uploadImage();
+        const extractedTextResult = await extractTextFromImage(imageUrl);
+        const textToProcess = resultText || extractedTextResult;
+
+        fetchChatGptResponse(textToProcess);
+    };
+
 
     const showToastNotification = (isFaild: boolean) => {
         if (isFaild) {
@@ -185,6 +186,7 @@ const UploadImageScreen = () => {
             setIsLoading(true);
             const {data}: any = await extractTextFromImageService(imageUrl);
             setExtractedText(data?.extracted_text);
+            return data?.extracted_text;
         } catch (e) {
             console.log(e)
         } finally {
@@ -199,6 +201,7 @@ const UploadImageScreen = () => {
         const response = await askChatGpt(prompt);
         const {data}: any = response;
         setChatGptResponse(data.choices[0].message.content);
+        return data.choices[0].message.content
     };
 
     return (
