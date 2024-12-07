@@ -55,7 +55,7 @@ const handleSubmit = async () => {
             if (data) {
                 localStorage.setItem('jwt', data?.accessToken);
                 toast.add({ severity: 'success', summary: 'Successful', detail: 'Login successfully', life: 3000 });
-                await router.push({ name: 'dashboard' });
+                await router.push({ name: 'user-management' });
             } else {
                 toast.add({
                     severity: 'error',
