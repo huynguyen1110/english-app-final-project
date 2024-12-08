@@ -82,3 +82,19 @@ export const extractTextFromImageService = async (imageUrl: any) => {
     }
 }
 
+export const preprocessingImageService = async (imageUrl: any, processName: any) => {
+    const options = {
+        method: 'POST',
+        url: BASE_PYTHON_URL.concat(PYTHON_ENTPOINT.PREPROCESSING_IMAGE)
+            .concat('?url=' + imageUrl)
+            .concat('&process_name=' + processName),
+    };
+
+    try {
+        // @ts-ignore
+        return await axios.request(options);
+    } catch (error) {
+        console.error(error);
+        throw new Error("Err while preprocessing  image");
+    }
+}

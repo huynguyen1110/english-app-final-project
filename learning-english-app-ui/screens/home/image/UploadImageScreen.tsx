@@ -4,11 +4,11 @@ import {
     StyleSheet,
     TouchableOpacity,
     View,
-    Button,
-    Alert,
     ActivityIndicator,
     ScrollView
 } from "react-native";
+import {RadioButton} from 'react-native-paper';
+import ImageViewing from 'react-native-image-viewing';
 import {GlobalStyles} from "../../../styles/GlobalStyles";
 import {Block, Text} from "galio-framework";
 import React, {useEffect, useState} from "react";
@@ -23,17 +23,26 @@ import * as ImagePicker from 'expo-image-picker';
 import {Camera} from "expo-camera";
 import {updaloadImage} from "../../../services/FileService";
 import Toast from "react-native-toast-message";
-import {extractTextFromImageService, translateService} from "../../../services/PythonService";
+import {
+    extractTextFromImageService,
+    preprocessingImageService,
+    translateService
+} from "../../../services/PythonService";
 import {getDefinitionInVietnamesePrompt, summarizeTextPromt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
+import Modal from "react-native-modal";
+import {charcoalColor, sandDollarColor, whiteColor} from "../../../utils/constant";
+import Slider from "@react-native-community/slider";
 
 const UploadImageScreen = () => {
 
     const [image, setImage] = useState<string | null>(null);
 
-    const [cloudinaryImage, setCloudinaryImage] = useState<string | null>(null);
+    const [cloudinaryImage, setCloudinaryImage] = useState<any | null>(null);
 
-    const [extractText, setExtractedText] = useState<string | null>(null);
+    const [cloudinaryProcessedImage, setCloudinaryProcessedImage] = useState<string | null>(null);
+
+    const [extractText, setExtractedText] = useState<any | null>(null);
 
     const navigation = useNavigation();
 
@@ -47,21 +56,37 @@ const UploadImageScreen = () => {
 
     const [chatGptResponse, setChatGptResponse] = useState<any>("");
 
+    // state of setting modal
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+
+    const [radioBtnValue, setRadioBtnValue] = React.useState("");
+
+    const [isViewImage, setIsViewImage] = useState<boolean>(false);
+
+    const [images, setImages] = useState<any[]>([]);
+
     useEffect(() => {
-        (async () => {
-            const {status} = await Camera.requestCameraPermissionsAsync();
-            // @ts-ignore
-            setHasPermission(status === 'granted');
-        })();
-    }, []);
+        if (radioBtnValue === "") {
+            return;
+        }
+        preprocessImage();
+    }, [radioBtnValue]);
 
-    if (hasPermission === null) {
-        return <Text>Requesting permission...</Text>;
-    }
 
-    if (hasPermission === false) {
-        return <Text>No access to camera</Text>;
-    }
+    const handleViewImageClick = () => {
+        const newImages = []; // Tạo mảng mới để đảm bảo tính bất biến
+
+        if (image) {
+            newImages.push({ uri: image }); // Thêm ảnh từ cloudinaryImage
+        }
+
+        if (cloudinaryProcessedImage) {
+            newImages.push({ uri: cloudinaryProcessedImage }); // Thêm ảnh từ cloudinaryProcessedImage
+        }
+
+        setImages(newImages); // Cập nhật state với mảng mới
+        setIsViewImage(true); // Hiển thị modal hoặc popup
+    };
 
     const backButton = () => {
         navigation.goBack();
@@ -79,6 +104,15 @@ const UploadImageScreen = () => {
         }
     };
 
+    // open modal handler
+    const openDrawer = () => {
+        setIsVisible(true);
+    };
+
+    // close modal handler
+    const closeDrawer = () => {
+        setIsVisible(false);
+    };
 
     const uploadImage = async () => {
         try {
@@ -149,7 +183,7 @@ const UploadImageScreen = () => {
             const imageUrl = await uploadImage();
             const extractedTextResult = await extractTextFromImage(imageUrl);
             translateText(extractedTextResult, true);
-        } else{
+        } else {
             const extractedTextResult = await extractTextFromImage(cloudinaryImage);
             translateText(extractedTextResult, true);
         }
@@ -204,6 +238,28 @@ const UploadImageScreen = () => {
         return data.choices[0].message.content
     };
 
+    const preprocessImage = async () => {
+        try {
+            const uploadImageResult = await uploadImage();
+            if (!uploadImageResult) {
+                showToastNotification(true);
+                return;
+            }
+            if (!radioBtnValue) {
+                return;
+            }
+            setIsLoading(true);
+            const response: any = await preprocessingImageService(uploadImageResult, radioBtnValue);
+            const {data} = response;
+            setCloudinaryProcessedImage(data?.data?.secure_url);
+            return data?.data?.secure_url;
+        } catch (e) {
+            console.log(e);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             {isLoading && (
@@ -218,8 +274,8 @@ const UploadImageScreen = () => {
                     <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                 </TouchableOpacity>
                 <Text size={20} bold></Text>
-                <TouchableOpacity>
-                    <Text size={20}></Text>
+                <TouchableOpacity onPress={openDrawer}>
+                    <Text size={20}> <SimpleLineIcons name="settings" size={24}/> </Text>
                 </TouchableOpacity>
             </Block>
             <Block height={12}></Block>
@@ -227,14 +283,38 @@ const UploadImageScreen = () => {
             <View style={{flex: 1}}>
                 <View style={GlobalStyles.main_container}>
                     <View style={[GlobalStyles.flex_row, GlobalStyles.justify_content_space_between]}>
-                        {image ? (
-                            <Image style={styles.image_chose} source={{uri: image}}/>
+                        {cloudinaryProcessedImage ? (
+                            <TouchableOpacity onPress={() => {
+                                handleViewImageClick()
+                            }
+                            }>
+                                <Image style={styles.image_chose} source={{uri: cloudinaryProcessedImage}}/>
+                            </TouchableOpacity>
+                        ) : image ? (
+                            <TouchableOpacity onPress={() => {
+                                handleViewImageClick()
+                            }}>
+                                <Image style={styles.image_chose} source={{uri: image}}/>
+                            </TouchableOpacity>
                         ) : (
                             <View
-                                style={[GlobalStyles.align_item_center, GlobalStyles.justify_content_space_between, {width: "50%"}]}>
+                                style={[
+                                    GlobalStyles.align_item_center,
+                                    GlobalStyles.justify_content_space_between,
+                                    {width: "50%"},
+                                ]}
+                            >
                                 <MaterialCommunityIcons size={200} name="file-image"/>
                             </View>
                         )}
+
+                        <ImageViewing
+                            images={images}
+                            imageIndex={0}
+                            visible={isViewImage}
+                            onRequestClose={() => setIsViewImage(false)}
+                        />
+
                         <View style={[{width: '40%', height: 200}]}>
                             <TouchableOpacity style={styles.action_btn} onPress={translateToEngBtn}><Text>Translate to
                                 En</Text></TouchableOpacity>
@@ -266,6 +346,47 @@ const UploadImageScreen = () => {
                     </View>
                 </View>
             </View>
+            {/* setting modal */}
+            <Modal
+                // @ts-ignore
+                isVisible={isVisible}
+                onBackdropPress={closeDrawer}
+                style={styles.modal}
+                swipeDirection="down"
+                onSwipeComplete={closeDrawer}
+            >
+                <View style={[styles.drawer]}>
+                    <Block style={GlobalStyles.main_container}>
+                        <Text bold size={24}>Settings</Text>
+
+                        <Block height={12}></Block>
+
+                        <RadioButton.Group onValueChange={newValue => setRadioBtnValue(newValue)} value={radioBtnValue}>
+                            <View>
+                                <Text>Original image</Text>
+                                <RadioButton value=""/>
+                            </View>
+                            <View style={GlobalStyles.under_line}></View>
+                            <View>
+                                <Text>Binarize image</Text>
+                                <RadioButton value="BINARISIZE"/>
+                            </View>
+                            <View style={GlobalStyles.under_line}></View>
+                            <View>
+                                <Text>Thin text in image</Text>
+                                <RadioButton value="DILATION"/>
+                            </View>
+                            <View style={GlobalStyles.under_line}></View>
+                            <View>
+                                <Text>Bold text in image</Text>
+                                <RadioButton value="EROSION"/>
+                            </View>
+                        </RadioButton.Group>
+
+                    </Block>
+                </View>
+            </Modal>
+            {/* setting modal*/}
             <Toast/>
         </SafeAreaView>
     );
@@ -308,6 +429,7 @@ const styles = StyleSheet.create({
         shadowOffset: {width: 0, height: 4}, // iOS
         shadowOpacity: 0.3, // iOS
         shadowRadius: 5, // iOS
+        resizeMode: 'stretch'
     },
     action_btn: {
         width: '100%',
@@ -327,5 +449,21 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 1000, //
+    },
+    modal: {
+        justifyContent: 'flex-end',
+        margin: 0,
+    },
+    drawer: {
+        backgroundColor: 'white',
+        padding: 20,
+        height: "40%",
+        width: '100%',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
     },
 });

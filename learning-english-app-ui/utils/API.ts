@@ -1,6 +1,6 @@
-export const BASE_URL = 'http://192.168.5.173:9000';
+export const BASE_URL = 'http://192.168.21.173:9000';
 
-export const BASE_PYTHON_URL = 'http://192.168.5.173:5000';
+export const BASE_PYTHON_URL = 'http://192.168.21.173:5000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';
@@ -63,6 +63,7 @@ export const PYTHON_ENTPOINT = {
     CONVER_TEXT_TO_SPEECH: '/google/convert-to-speech',
     READ_MP3_SPEECH: '/google/text-to-speech',
     GET_TEXT_FROM_IMAGE: '/google/extract-text-from-image',
+    PREPROCESSING_IMAGE: '/google/upload_and_process',
 }
 
 export const USER_ENPOINT = {
