@@ -23,5 +23,7 @@ app.register_blueprint(video_controller)
 app.register_blueprint(translate_controller)
 app.register_blueprint(google_controller)
 
+# flask run --host=0.0.0.0
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0" ,debug=True)
