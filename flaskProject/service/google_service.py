@@ -1,7 +1,9 @@
+import io
 import os
 from io import BytesIO
 
 import cv2
+import httpx
 import numpy as np
 import requests
 from flask import send_file, jsonify
@@ -196,9 +198,81 @@ class GoogleService:
         return image.filter(ImageFilter.MedianFilter(size=size))
 
     @staticmethod
-    def preprocess_image(image):
-        image1 = GoogleService.correct_skew(image)
-        image1 = GoogleService.convert_to_binary_image(image1)
-        image1 = GoogleService.reduce_noise_pillow(image1)
-        image1.show()
-        return image1
+    async def upload_image(image: Image.Image):
+        """
+        Tải ảnh đã xử lý lên API ngoài.
+        """
+        try:
+            # Lưu ảnh đã xử lý vào bộ nhớ (file-like object)
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format='PNG')
+            img_byte_arr.seek(0)  # Reset con trỏ về đầu file
+
+            # Gửi ảnh lên API
+            url = "http://localhost:9000/api/v1/files/upload/image"
+            async with httpx.AsyncClient() as client:
+                # Tạo dữ liệu form để gửi lên server
+                data = {'folder': 'example-images'}  # Thêm folder name vào form data
+                files = {'file': ('processed_image.png', img_byte_arr, 'image/png')}
+
+                # Gửi POST request
+                response = await client.post(url, data=data, files=files)
+
+            # Kiểm tra phản hồi từ API
+            response.raise_for_status()  # Tạo exception nếu status_code không phải 2xx
+
+            return {"message": "Upload successful", "data": response.json()}
+
+        except httpx.HTTPStatusError as e:
+            # Lỗi HTTP, ví dụ lỗi 400, 500
+            return {"message": "Upload failed", "error": str(e)}
+
+        except httpx.RequestError as e:
+            # Lỗi kết nối hoặc yêu cầu không hợp lệ
+            return {"message": "Network error", "error": str(e)}
+
+        except Exception as e:
+            # Bắt tất cả các lỗi không mong đợi
+            return {"message": "Unknown error occurred", "error": str(e)}
+
+    @staticmethod
+    async def preprocess_image(image_url, process_name):
+        try:
+            # Tải ảnh từ URL
+            response = requests.get(image_url)
+            response.raise_for_status()
+
+            # Mở ảnh bằng Pillow
+            image = Image.open(BytesIO(response.content))
+
+            if process_name == "BINARISIZE":
+                imageResult = GoogleService.convert_to_binary_image(image)
+                if (imageResult):
+                    return await GoogleService.upload_image(imageResult)
+                return
+            elif process_name == "DILATION":
+                # LAM MO ANH
+                imageResult = GoogleService.dilation(image)
+                if (imageResult):
+                    return await GoogleService.upload_image(imageResult)
+                return
+            elif process_name == "EROSION":
+                imageResult = GoogleService.erosion(image)
+                if (imageResult):
+                    return await GoogleService.upload_image(imageResult)
+                return
+            elif process_name == "NOISE_REDUCTION":
+                imageResult = GoogleService.reduce_noise_pillow(image)
+                if (imageResult):
+                    return await GoogleService.upload_image(imageResult)
+                return
+            elif process_name == "CORRECT_SKEW":
+                imageResult = GoogleService.correct_skew(image)
+                if (imageResult):
+                    return await GoogleService.upload_image(imageResult)
+                return
+            else:
+                print("Unknown process")
+
+        except Exception as e:
+            return str(e)

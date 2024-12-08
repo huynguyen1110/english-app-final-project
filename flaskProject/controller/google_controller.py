@@ -1,5 +1,6 @@
 import io
 import os
+from http.client import HTTPException
 
 import requests
 from flask import Blueprint, jsonify, request
@@ -49,3 +50,24 @@ def extract_text_from_image():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@google_controller.route("/upload_and_process/", methods=["POST"])
+async def upload_and_process():
+    """
+    Nhận file ảnh từ client, giảm nhiễu, và tải lên API.
+    """
+    try:
+        image_url = request.args.get('url')
+        process_name = request.args.get('process_name')
+
+        response = await GoogleService.preprocess_image(image_url, process_name)
+
+        # Kiểm tra nếu phản hồi từ API upload thành công
+        if "error" in response:
+            raise HTTPException(status_code=500, detail=response["error"])
+
+        return response
+
+    except Exception as e:
+        # Nếu có lỗi trong quá trình xử lý ảnh hoặc upload
+        raise HTTPException(status_code=500, detail=str(e))
