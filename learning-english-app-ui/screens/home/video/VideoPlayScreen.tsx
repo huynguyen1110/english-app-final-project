@@ -6,10 +6,11 @@ import {
     Modal,
     StyleSheet,
     ActivityIndicator,
-    SectionList
+    SectionList,
 } from "react-native";
+import {default as CustomModal} from "react-native-modal";
 import {GlobalStyles} from "../../../styles/GlobalStyles";
-import {Block, Button, Text} from "galio-framework";
+import {Block, Button, Text, Input} from "galio-framework";
 import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useNavigation, useRoute} from "@react-navigation/native";
 // @ts-ignore
@@ -23,7 +24,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import YoutubePlayer from "react-native-youtube-iframe";
 import {getYtbVideoScriptService, translateService} from "../../../services/PythonService";
 import {Modalize} from "react-native-modalize";
-import {SegmentedButtons} from "react-native-paper";
+import {RadioButton, SegmentedButtons} from "react-native-paper";
 import {BASE_PYTHON_URL, ENGLISH_DIC_API, PYTHON_ENTPOINT} from "../../../utils/API";
 import axios from "axios";
 import {getDefinitionInVietnamesePrompt} from "../../../utils/GptPrompts";
@@ -44,7 +45,16 @@ const VideoPlayScreen = () => {
 
     const [playing, setPlaying] = useState(false);
 
+    const [isCorrectAnswer, setIsCorrectAnswer] = useState(false);  // Trạng thái trả lời đúng hay sai
+
+    const [pausedTime, setPausedTime] = useState(0); // Lưu thời gian khi video bị tạm dừng
+
     const [videoScript, setVideoScript] = useState<any[]>([]);
+
+    // store script for play video and type missing words
+    const [videoScriptForTyping, setVideoScriptForTyping] = useState<any[]>([]);
+
+    const [completedScripts, setCompletedScripts] = useState<number[]>([]);
 
     const [isTranslateModalVisible, setIsTranslateModalVisible] = useState(false);
 
@@ -83,6 +93,28 @@ const VideoPlayScreen = () => {
 
     // state of dictionary modal
     const [modalVisible, setModalVisible] = useState(false);
+
+    // state of setting modal
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+
+    // state of answer modal
+    const [answerModalIsVisible, setAnswerModalIsVisible] = useState<boolean>(false);
+
+    const [userAnswer, setUserAnswer] = useState<any>('');
+
+    const [unorderedWords, setUnorderedWords] = useState<string[]>([]); // Lưu các từ đảo lộn
+
+    const [radioBtnValue, setRadioBtnValue] = React.useState("");
+
+    // open modal handler
+    const openDrawer = () => {
+        setIsVisible(true);
+    };
+
+    // close modal handler
+    const closeDrawer = () => {
+        setIsVisible(false);
+    };
 
     const backButton = () => {
         navigation.goBack();
@@ -130,8 +162,28 @@ const VideoPlayScreen = () => {
         }
     }
 
+    // useEffect(() => {
+    //     // Khi video bắt đầu chơi, bắt đầu kiểm tra thời gian mỗi giây
+    //     if (playing) {
+    //         // @ts-ignore
+    //         intervalRef.current = setInterval(() => {
+    //             // @ts-ignore
+    //             playerRef.current?.getCurrentTime().then((time: any) => {
+    //                 setCurrentTime(time);
+    //                 highlightCurrentScript(time);
+    //             });
+    //         }, 500); // Cập nhật mỗi giây
+    //     } else {
+    //         // @ts-ignore
+    //         clearInterval(intervalRef.current); // Dừng kiểm tra khi video không còn chơi
+    //     }
+    //
+    //     // Dọn dẹp khi component bị hủy
+    //     // @ts-ignore
+    //     return () => clearInterval(intervalRef.current);
+    // }, [playing]);
+
     useEffect(() => {
-        // Khi video bắt đầu chơi, bắt đầu kiểm tra thời gian mỗi giây
         if (playing) {
             // @ts-ignore
             intervalRef.current = setInterval(() => {
@@ -139,17 +191,40 @@ const VideoPlayScreen = () => {
                 playerRef.current?.getCurrentTime().then((time: any) => {
                     setCurrentTime(time);
                     highlightCurrentScript(time);
+
+                    // @ts-ignore
+                    const currentScript = videoScript[activeScriptIndex];
+                    if (currentScript && time >= currentScript.start + currentScript.duration) {
+                        if (!isCorrectAnswer && radioBtnValue !== "") {
+                            setPausedTime(time); // Lưu thời gian khi video bị tạm dừng
+                            setPlaying(false);  // Dừng video khi câu trả lời sai
+
+                            // Hiển thị Modal để nhập câu trả lời
+                            setAnswerModalIsVisible(true);
+
+                            if (activeScriptIndex !=0) {
+                                // @ts-ignore
+                                const currentScript_1 = videoScript[activeScriptIndex + 1];
+                                // Hiển thị các từ đảo lộn
+                                handleUnorderedWords(currentScript_1.text);  // Gọi hàm để lấy từ đảo lộn
+                            }
+
+
+                        } else {
+                            setPlaying(true);  // Tiếp tục video nếu câu trả lời đúng
+                            setUnorderedWords([]);  // Xóa các từ đảo lộn khi video tiếp tục
+                        }
+                    }
                 });
-            }, 500); // Cập nhật mỗi giây
+            }, 500);
         } else {
             // @ts-ignore
             clearInterval(intervalRef.current); // Dừng kiểm tra khi video không còn chơi
         }
 
-        // Dọn dẹp khi component bị hủy
         // @ts-ignore
         return () => clearInterval(intervalRef.current);
-    }, [playing]);
+    }, [playing, isCorrectAnswer, activeScriptIndex]);
 
     // Hàm so sánh và làm sáng đoạn script hiện tại
     const highlightCurrentScript = (currentTime: any) => {
@@ -165,6 +240,29 @@ const VideoPlayScreen = () => {
             scrollViewRef.current.scrollTo({y: activeIndex * 60, animated: true}); // Cuộn đến vị trí của đoạn script
         }
     };
+
+    // Hàm để kiểm tra câu trả lời
+    const handleAnswer = (userAnswer: string, correctAnswer: string) => {
+        if (userAnswer === correctAnswer) {
+            setIsCorrectAnswer(true);  // Đánh dấu trả lời đúng
+        } else {
+            setIsCorrectAnswer(false);  // Đánh dấu trả lời sai
+        }
+    };
+
+    // Hàm tiếp tục video sau khi tạm dừng
+    const handleContinueVideo = () => {
+        setPlaying(true); // Tiếp tục video
+        setIsCorrectAnswer(false); // Đặt lại trạng thái trả lời để tiếp tục vòng tiếp theo
+    };
+
+    // Hàm replay video từ thời gian bị tạm dừng
+    const handleReplay = () => {
+        // @ts-ignore
+        playerRef.current?.seekTo(pausedTime, true); // Tua lại video đến thời gian bị tạm dừng
+        setPlaying(true); // Tiếp tục video
+        setIsCorrectAnswer(false); // Đặt lại trạng thái trả lời để tiếp tục
+    }
 
     // handle when press on word
     const handleWordPress = (word: string) => {
@@ -224,9 +322,9 @@ const VideoPlayScreen = () => {
         try {
             const response = await axios.post(
                 `${BASE_PYTHON_URL}${PYTHON_ENTPOINT.TRANSLATE}?source=${sourceLanguage}&target=${targetLanguage}`,  // Sửa URL
-                { text: text }  // Gửi dữ liệu text trong body của POST request
+                {text: text}  // Gửi dữ liệu text trong body của POST request
             );
-            const { data } = response;
+            const {data} = response;
             return data;  // Trả về dữ liệu nhận được từ API
         } catch (err) {
             console.log(err);
@@ -299,6 +397,59 @@ const VideoPlayScreen = () => {
         getScript(dataParams?.videoId);
     }, [dataParams]);
 
+
+    const shuffleArray = (array: any) => {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    };
+
+    const handleUnorderedWords = (text: string) => {
+        const words = text.split(" "); // Tách chuỗi thành mảng các từ
+        const randomIndex = Math.floor(Math.random() * words.length); // Chọn ngẫu nhiên một từ
+        const missingWord = words[randomIndex]; // Lấy từ bị ẩn
+        const unorderedWord = shuffleArray(missingWord.split("")); // Đảo lộn các ký tự trong từ
+
+        setUnorderedWords(unorderedWord); // Lưu các ký tự đảo lộn vào trạng thái
+    };
+
+    const processedData = (data: any) => {
+        return data.map((item: any) => {
+            // Tách text thành mảng từ
+            const words = item.text.split(" ");
+            // Chọn ngẫu nhiên một từ
+            const randomIndex = Math.floor(Math.random() * words.length);
+            const missingWord = words[randomIndex];
+            // Thay thế từ đó bằng "..."
+            words[randomIndex] = "...";
+            // Tạo chuỗi mới cho question
+            const question = words.join(" ");
+            // Tạo mảng ký tự đảo lộn cho unorderedWord
+            const unorderedWord = shuffleArray(missingWord.split(""));
+
+            // Trả về đối tượng mới với các trường cần thiết
+            return {
+                ...item,
+                question: question,
+                missingWord: missingWord,
+                unorderedWord: unorderedWord,
+                userAnswer: "", // Thêm trường userAnswer
+                isCorrectAnswer: false,
+            };
+        });
+    };
+
+    useEffect(() => {
+        if (radioBtnValue === "") {
+            return;
+        }
+        setVideoScriptForTyping(processedData(videoScript));
+    }, [radioBtnValue]);
+
+
     return (
         <SafeAreaView style={GlobalStyles.AndroidSafeArea}>
             {isLoading && (
@@ -313,8 +464,8 @@ const VideoPlayScreen = () => {
                     <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                 </TouchableOpacity>
                 <Text size={20} bold></Text>
-                <TouchableOpacity>
-                    <Text size={20}></Text>
+                <TouchableOpacity onPress={openDrawer}>
+                    <Text size={20}> <SimpleLineIcons name="settings" size={24}/> </Text>
                 </TouchableOpacity>
             </Block>
             <Block height={12}></Block>
@@ -333,7 +484,7 @@ const VideoPlayScreen = () => {
                     ref={scrollViewRef}
                 >
                     <View style={GlobalStyles.main_container}>
-                        {videoScript.length > 0 ? (
+                        {videoScript.length > 0 && radioBtnValue === "" ? (
                             videoScript.map((item, index) => {
                                 const isActive = activeScriptIndex === index; // Kiểm tra nếu đoạn này đang phát
                                 return (
@@ -388,6 +539,129 @@ const VideoPlayScreen = () => {
                                     </View>
                                 );
                             })
+                        ) : videoScriptForTyping && radioBtnValue === "TYPING" ? (
+                            // videoScriptForTyping.map((item, index) => {
+                            //     const isActive = activeScriptIndex === index; // Kiểm tra nếu đoạn này đang phát
+                            //     return (
+                            //         <View key={index}>
+                            //             <Block height={20}/>
+                            //             <View
+                            //                 style={[
+                            //                     GlobalStyles.flex_row,
+                            //                     GlobalStyles.justify_content_space_between,
+                            //                     GlobalStyles.align_item_center,
+                            //                 ]}
+                            //             >
+                            //                 <View style={{width: '75%'}}>
+                            //                     <View style={{flexWrap: 'wrap', flexDirection: 'row'}}>
+                            //                         {item?.question.replace(/\n/g, ' ').split(' ').map((word: any, index: any) => (
+                            //                             <TouchableOpacity key={index}
+                            //                                               onPress={() => handleWordPress(word)}>
+                            //                                 <Text style={{
+                            //                                     fontSize: 18,
+                            //                                     color: isActive ? 'blue' : 'black', // Đổi màu nếu đoạn này đang phát
+                            //                                 }}>{word} </Text>
+                            //                             </TouchableOpacity>
+                            //                         ))}
+                            //                     </View>
+                            //                 </View>
+                            //                 <View
+                            //                     style={[
+                            //                         GlobalStyles.flex_row,
+                            //                         GlobalStyles.justify_content_space_between,
+                            //                         GlobalStyles.align_item_center,
+                            //                         {width: '20%'},
+                            //                     ]}
+                            //                 >
+                            //                     <TouchableOpacity onPress={() => {
+                            //                         setIsTranslateModalVisible(true);
+                            //                         translateText(item?.text);
+                            //                     }}>
+                            //                         <Text>
+                            //                             <MaterialIcons size={26} name="g-translate"/>
+                            //                         </Text>
+                            //                     </TouchableOpacity>
+                            //                     <Block width={5}/>
+                            //                     <TouchableOpacity onPress={() => seekTo(item?.start)}>
+                            //                         <Text>
+                            //                             <AntDesign size={26} name="play"/>
+                            //                         </Text>
+                            //                     </TouchableOpacity>
+                            //                 </View>
+                            //             </View>
+                            //             <Block height={20}/>
+                            //             <View style={GlobalStyles.under_line}/>
+                            //         </View>
+                            //     );
+                            // }
+                            videoScriptForTyping.map((item, index) => {
+                                const isActive = activeScriptIndex === index; // Kiểm tra nếu đoạn này đang phát
+                                const isCompleted = completedScripts.includes(index); // Kiểm tra nếu đoạn này đã hoàn thành
+
+                                return (
+                                    <View key={index}>
+                                        <Block height={20} />
+                                        <View
+                                            style={[
+                                                GlobalStyles.flex_row,
+                                                GlobalStyles.justify_content_space_between,
+                                                GlobalStyles.align_item_center,
+                                            ]}
+                                        >
+                                            <View style={{ width: "75%" }}>
+                                                <View style={{ flexWrap: "wrap", flexDirection: "row" }}>
+                                                    {(isCompleted ? item.text : item.question)
+                                                        .replace(/\n/g, " ")
+                                                        .split(" ")
+                                                        .map((word: any, index: any) => (
+                                                            <TouchableOpacity
+                                                                key={index}
+                                                                onPress={() => handleWordPress(word)}
+                                                            >
+                                                                <Text
+                                                                    style={{
+                                                                        fontSize: 18,
+                                                                        color: isActive ? "blue" : "black", // Đổi màu nếu đoạn này đang phát
+                                                                    }}
+                                                                >
+                                                                    {word}{" "}
+                                                                </Text>
+                                                            </TouchableOpacity>
+                                                        ))}
+                                                </View>
+                                            </View>
+                                            <View
+                                                style={[
+                                                    GlobalStyles.flex_row,
+                                                    GlobalStyles.justify_content_space_between,
+                                                    GlobalStyles.align_item_center,
+                                                    { width: "20%" },
+                                                ]}
+                                            >
+                                                <TouchableOpacity
+                                                    onPress={() => {
+                                                        setIsTranslateModalVisible(true);
+                                                        translateText(item?.text);
+                                                    }}
+                                                >
+                                                    <Text>
+                                                        <MaterialIcons size={26} name="g-translate" />
+                                                    </Text>
+                                                </TouchableOpacity>
+                                                <Block width={5} />
+                                                <TouchableOpacity onPress={() => seekTo(item?.start)}>
+                                                    <Text>
+                                                        <AntDesign size={26} name="play" />
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
+                                        </View>
+                                        <Block height={20} />
+                                        <View style={GlobalStyles.under_line} />
+                                    </View>
+                                );
+                            }
+                            )
                         ) : (
                             <View>
                                 <Text>No transcript available</Text>
@@ -396,8 +670,42 @@ const VideoPlayScreen = () => {
                     </View>
                 </ScrollView>
             </View>
+            {/* dictionary modal */}
+            setting modal
+            <CustomModal
+                // @ts-ignore
+                isVisible={isVisible}
+                onBackdropPress={closeDrawer}
+                style={styles.modal}
+                swipeDirection="down"
+                onSwipeComplete={closeDrawer}
+            >
+                <View style={[styles.drawer]}>
+                    <Block style={GlobalStyles.main_container}>
+                        <Text bold size={24}>Settings</Text>
+
+                        <Block height={12}></Block>
+
+                        <RadioButton.Group onValueChange={newValue => setRadioBtnValue(newValue)} value={radioBtnValue}>
+                            <View>
+                                <Text>Play video with subtitle</Text>
+                                <RadioButton value=""/>
+                            </View>
+                            <View style={GlobalStyles.under_line}></View>
+                            <View>
+                                <Text>Play video and type missing words</Text>
+                                <RadioButton value="TYPING"/>
+                            </View>
+                            <View style={GlobalStyles.under_line}></View>
+                        </RadioButton.Group>
+
+                    </Block>
+                </View>
+            </CustomModal>
+            {/* setting modal*/}
             {/* translate sentence modal */}
             <Modal
+                // @ts-ignore
                 visible={isTranslateModalVisible}
                 animationType="slide"
                 transparent={true}
@@ -611,7 +919,91 @@ const VideoPlayScreen = () => {
 
                 </View>
             </Modalize>
-            {/* dictionary modal */}
+
+            {/* Hiển thị Modal khi video bị dừng */}
+            <Modal
+                visible={answerModalIsVisible}
+                animationType="slide"
+                transparent={true}
+            >
+                <View style={styles.modalOverlay}>
+
+                    <View style={styles.modalContent}>
+                        <View style={[
+                            GlobalStyles.flex_row,
+                            GlobalStyles.justify_content_space_between,
+                            { width: "100%" },
+                        ]}>
+                            <View></View>
+                            <TouchableOpacity onPress={() => {
+                                setAnswerModalIsVisible(false);
+                            }}><Text size={26} Bold>X</Text></TouchableOpacity>
+                        </View>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
+                            Nhập câu trả lời:
+                        </Text>
+
+                        {/* Hiển thị unordered words */}
+                        {unorderedWords.length > 0 && (
+                            <View style={{ flexDirection: 'row', marginBottom: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+                                {unorderedWords.map((char, index) => (
+                                    <Text
+                                        key={index}
+                                        style={{
+                                            fontSize: 24,
+                                            margin: 5,
+                                            padding: 10,
+                                            backgroundColor: '#f0f0f0',
+                                            borderRadius: 5,
+                                            textAlign: 'center',
+                                        }}
+                                    >
+                                        {char}
+                                    </Text>
+                                ))}
+                            </View>
+                        )}
+
+                        {/* Input để nhập câu trả lời */}
+                        <Input
+                            placeholder="Nhập câu trả lời"
+                            value={userAnswer}
+                            onChangeText={setUserAnswer}
+                            style={{ marginBottom: 20 }}
+                        />
+
+                        {/* Buttons */}
+                        <View
+                            style={[
+                                GlobalStyles.flex_row,
+                                GlobalStyles.justify_content_space_between,
+                                { width: "100%" },
+                            ]}
+                        >
+                            <TouchableOpacity
+                                onPress={() => {
+                                    setVideoScriptForTyping((prevScript) =>
+                                        prevScript.map((item, idx) =>
+                                            idx === activeScriptIndex
+                                                ? { ...item, question: item.text, isCorrectAnswer: true }
+                                                : item
+                                        )
+                                    );
+                                    setAnswerModalIsVisible(false); // Ẩn modal
+                                    setPlaying(true)
+                                }}
+                            >
+                                <Text>Skip</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity>
+                                <Text>Enter</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+            {/* Hiển thị Modal khi video bị dừng */}
 
         </SafeAreaView>
     )
@@ -659,6 +1051,22 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
+    modal: {
+        justifyContent: 'flex-end',
+        margin: 0,
+    },
+    drawer: {
+        backgroundColor: 'white',
+        padding: 20,
+        height: "30%",
+        width: '100%',
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+    }
 });
 
 

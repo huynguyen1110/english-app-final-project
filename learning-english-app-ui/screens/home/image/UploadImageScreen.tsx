@@ -20,7 +20,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 // @ts-ignore
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import * as ImagePicker from 'expo-image-picker';
-import {Camera} from "expo-camera";
 import {updaloadImage} from "../../../services/FileService";
 import Toast from "react-native-toast-message";
 import {
