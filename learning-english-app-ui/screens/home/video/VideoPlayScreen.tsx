@@ -21,6 +21,8 @@ import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import AntDesign from "react-native-vector-icons/AntDesign";
 // @ts-ignore
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+// @ts-ignore
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import YoutubePlayer from "react-native-youtube-iframe";
 import {getYtbVideoScriptService, translateService} from "../../../services/PythonService";
 import {Modalize} from "react-native-modalize";
@@ -30,6 +32,7 @@ import axios from "axios";
 import {getDefinitionInVietnamesePrompt} from "../../../utils/GptPrompts";
 import {askChatGpt} from "../../../services/GptService";
 import Toast from 'react-native-toast-message';
+import {Layout} from "@ui-kitten/components";
 
 const VideoPlayScreen = () => {
 
@@ -71,6 +74,8 @@ const VideoPlayScreen = () => {
 
     const modalRef = useRef<Modalize>(null);
 
+    const modalTotalWordsRef = useRef<Modalize>(null);
+
     // word need to translate
     const [translateWord, setTranslateWord] = useState<string>("");
 
@@ -92,6 +97,8 @@ const VideoPlayScreen = () => {
 
     const openModal = () => modalRef?.current?.open();
 
+    const openTotalWordsModal = () => modalTotalWordsRef?.current?.open();
+
     // state of dictionary modal
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -106,6 +113,12 @@ const VideoPlayScreen = () => {
     const [unorderedWords, setUnorderedWords] = useState<string[]>([]); // Lưu các từ đảo lộn
 
     const [radioBtnValue, setRadioBtnValue] = React.useState("");
+
+    const [correctAnswers, setCorrectAnswers] = useState<any[]>([]);
+
+    const [skipAnswers, setSkipAnswers] = useState<any[]>([]);
+
+    const [activeBtn, setActiveBtn] = useState<any>("skip");
 
     // open modal handler
     const openDrawer = () => {
@@ -165,6 +178,9 @@ const VideoPlayScreen = () => {
 
     useEffect(() => {
         if (playing) {
+            // Xóa bất kỳ interval nào đã tồn tại trước đó
+            // @ts-ignore
+            clearInterval(intervalRef?.current);
             // @ts-ignore
             intervalRef.current = setInterval(() => {
                 // @ts-ignore
@@ -194,7 +210,7 @@ const VideoPlayScreen = () => {
                         }
                     }
                 });
-            }, 500);
+            }, 1000);
         } else {
             // @ts-ignore
             clearInterval(intervalRef.current); // Dừng kiểm tra khi video không còn chơi
@@ -203,6 +219,7 @@ const VideoPlayScreen = () => {
         // @ts-ignore
         return () => clearInterval(intervalRef.current);
     }, [playing, isCorrectAnswer, activeScriptIndex]);
+
 
     // Hàm so sánh và làm sáng đoạn script hiện tại
     const highlightCurrentScript = (currentTime: any) => {
@@ -221,8 +238,12 @@ const VideoPlayScreen = () => {
 
     // Hàm để kiểm tra câu trả lời
     const handleAnswer = (userAnswer: string, correctAnswer: string) => {
-        if (userAnswer?.toLowerCase() === correctAnswer?.toLowerCase()) {
+        if (userAnswer?.toLowerCase()?.trim() === correctAnswer?.toLowerCase()?.trim()) {
             setIsCorrectAnswer(true);  // Đánh dấu trả lời đúng
+            if (correctAnswer) {
+                setCorrectAnswers((prev) => [...prev, correctAnswer]);
+            }
+
             Toast.show({
                 type: 'success',
                 text1: 'Correct answer',
@@ -260,20 +281,6 @@ const VideoPlayScreen = () => {
         }
     };
 
-
-    // Hàm tiếp tục video sau khi tạm dừng
-    const handleContinueVideo = () => {
-        setPlaying(true); // Tiếp tục video
-        setIsCorrectAnswer(false); // Đặt lại trạng thái trả lời để tiếp tục vòng tiếp theo
-    };
-
-    // Hàm replay video từ thời gian bị tạm dừng
-    const handleReplay = () => {
-        // @ts-ignore
-        playerRef.current?.seekTo(pausedTime, true); // Tua lại video đến thời gian bị tạm dừng
-        setPlaying(true); // Tiếp tục video
-        setIsCorrectAnswer(false); // Đặt lại trạng thái trả lời để tiếp tục
-    }
 
     // handle when press on word
     const handleWordPress = (word: string) => {
@@ -408,12 +415,6 @@ const VideoPlayScreen = () => {
         getScript(dataParams?.videoId);
     }, [dataParams]);
 
-    useEffect(() => {
-        console.log(videoScriptForTyping[0])
-        console.log(videoScriptForTyping[1])
-    }, [videoScriptForTyping]);
-
-
     const shuffleArray = (array: any) => {
         const shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
@@ -477,9 +478,24 @@ const VideoPlayScreen = () => {
                     <Text size={18}> <SimpleLineIcons name="arrow-left" size={18}/> </Text>
                 </TouchableOpacity>
                 <Text size={20} bold></Text>
-                <TouchableOpacity onPress={openDrawer}>
-                    <Text size={20}> <SimpleLineIcons name="settings" size={24}/> </Text>
-                </TouchableOpacity>
+                <View style={GlobalStyles.flex_row}>
+                    {
+                        radioBtnValue !== "" ? (
+                            <TouchableOpacity onPress={() => {
+                                openTotalWordsModal();
+                            }}>
+                                <Text size={20}> <FontAwesome6 name="arrow-trend-up" size={24}/> </Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <View>
+                            </View>
+                        )
+                    }
+                    <View style={{width: 6}}></View>
+                    <TouchableOpacity onPress={openDrawer}>
+                        <Text size={20}> <SimpleLineIcons name="settings" size={24}/> </Text>
+                    </TouchableOpacity>
+                </View>
             </Block>
             <Block height={12}></Block>
             <Block style={GlobalStyles.under_line}></Block>
@@ -947,6 +963,9 @@ const VideoPlayScreen = () => {
                             <TouchableOpacity
                                 style={{padding: 5}}
                                 onPress={() => {
+                                    if (videoScriptForTyping[activeScriptIndex - 1]?.missingWord) {
+                                        setSkipAnswers((prev) => [...prev, videoScriptForTyping[activeScriptIndex - 1]?.missingWord]);
+                                    }
                                     setVideoScriptForTyping((prevScript) => {
                                         // Kiểm tra nếu phần tử trước đó tồn tại
                                         if (activeScriptIndex > 0) {
@@ -994,6 +1013,71 @@ const VideoPlayScreen = () => {
                 </View>
             </Modal>
             {/* Hiển thị Modal khi video bị dừng */}
+            <Modalize
+                ref={modalTotalWordsRef}
+                modalHeight={400}
+                scrollViewProps={{showsVerticalScrollIndicator: false}}
+            >
+                <Layout level="2">
+                    <Block center>
+                        <Text bold size={20}>Total word ({videoScript?.length})</Text>
+                    </Block>
+                    <Block height={4}></Block>
+                    <Block style={GlobalStyles.under_line}></Block>
+                    <Block height={4}></Block>
+                    <View style={[GlobalStyles.flex_row]}>
+                        <View style={{width: "50%"}}>
+                            <TouchableOpacity style={{width: "100%", alignItems: 'center', padding: 10}}
+                                              onPress={() => {
+                                                  setActiveBtn("skip")
+                                              }}>
+                                <Text bold size={16}>Skipped words({skipAnswers?.length})</Text>
+                            </TouchableOpacity>
+                            {
+                                activeBtn === "skip" ? (
+                                    <Block height={4} style={GlobalStyles.under_line}></Block>
+                                ) : (
+                                    <View>
+                                    </View>
+                                )
+                            }
+                        </View>
+                        <View style={{width: "50%"}}>
+                            <TouchableOpacity style={{width: "100%", alignItems: 'center', padding: 10}}
+                                              onPress={() => {
+                                                  setActiveBtn("correct")
+                                              }}>
+                                <Text bold size={16}>Correct words({correctAnswers?.length})</Text>
+                            </TouchableOpacity>
+                            {
+                                activeBtn === "correct" ? (
+                                    <Block height={4} style={GlobalStyles.under_line}></Block>
+                                ) : (
+                                    <View>
+                                    </View>
+                                )
+                            }
+                        </View>
+                    </View>
+                </Layout>
+                <Layout level="1">
+                    <View style={GlobalStyles.main_container}>
+                        {activeBtn === "skip" ? (
+                            skipAnswers?.map((item, index) => (
+                                <View key={index}>
+                                    <Text size={16} bold>{item}</Text>
+                                </View>
+                            ))
+                        ) : (
+                            correctAnswers?.map((item, index) => (
+                                <View key={index}>
+                                    <Text size={16} bold>{item}</Text>
+                                </View>
+                            ))
+                        )}
+                    </View>
+                </Layout>
+            </Modalize>
             <Toast/>
         </SafeAreaView>
     )
