@@ -1,6 +1,6 @@
-export const BASE_URL = 'http://192.168.8.173:9000';
+export const BASE_URL = 'http://192.168.208.173:9000';
 
-export const BASE_PYTHON_URL = 'http://192.168.8.173:5000';
+export const BASE_PYTHON_URL = 'http://192.168.208.173:5000';
 
 // authentication
 export const REGISTER_URI = '/api/v1/user/register';

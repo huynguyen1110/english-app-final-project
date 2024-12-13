@@ -217,7 +217,12 @@ const UploadImageScreen = () => {
     const extractTextFromImage = async (imageUrl: any) => {
         try {
             setIsLoading(true);
-            const {data}: any = await extractTextFromImageService(imageUrl);
+            let isProcessed = "no";
+            if (radioBtnValue !== "") {
+                isProcessed = "true";
+            }
+            console.log(isProcessed);
+            const {data}: any = await extractTextFromImageService(imageUrl, isProcessed);
             setExtractedText(data?.extracted_text);
             return data?.extracted_text;
         } catch (e) {

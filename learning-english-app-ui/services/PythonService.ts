@@ -66,11 +66,12 @@ export const readMp3TextToSpeechService = async (audioId: any) => {
     }
 }
 
-export const extractTextFromImageService = async (imageUrl: any) => {
+export const extractTextFromImageService = async (imageUrl: any, isProcessed: any) => {
     const options = {
         method: 'POST',
         url: BASE_PYTHON_URL.concat(PYTHON_ENTPOINT.GET_TEXT_FROM_IMAGE)
-            .concat('?url=' + imageUrl),
+            .concat('?url=' + imageUrl)
+            .concat('&is_preprocessed=' + isProcessed),
     };
 
     try {
