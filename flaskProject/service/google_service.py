@@ -9,10 +9,12 @@ import requests
 from flask import send_file, jsonify
 from gtts import gTTS
 
-from PIL import Image, ImageFilter, ImageEnhance
+from PIL import Image, ImageFilter
 import pytesseract
+import easyocr
 from io import BytesIO
 
+reader = easyocr.Reader(['en', 'vi'])
 
 class GoogleService:
     @staticmethod
@@ -37,16 +39,23 @@ class GoogleService:
             return jsonify({'error': str(e)}), 500
 
     @staticmethod
-    def image_to_text(image_url):
+    def image_to_text(image_url, is_preprocessed):
         try:
+
             # Tải ảnh từ URL
             response = requests.get(image_url)
             response.raise_for_status()
 
             # Mở ảnh bằng Pillow
             image = Image.open(BytesIO(response.content))
+            image_np = np.array(image)
 
             # GoogleService.preprocess_image(image)
+
+            if is_preprocessed == "yes":
+                result = reader.readtext(image_np)
+                text = " ".join([text[1] for text in result])
+                return text
 
             # Trích xuất văn bản
             text = pytesseract.image_to_string(image, lang='Vietnamese+en')

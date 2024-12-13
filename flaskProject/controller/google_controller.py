@@ -40,11 +40,12 @@ def extract_text_from_image():
     try:
         # Lấy URL từ query parameters
         image_url = request.args.get('url')
+        is_preprocessed = request.args.get('is_preprocessed')
         if not image_url:
             return jsonify({'error': 'No URL provided'}), 400
 
         # Gọi hàm xử lý ảnh của bạn
-        text = GoogleService.image_to_text(image_url)
+        text = GoogleService.image_to_text(image_url, is_preprocessed)
 
         return jsonify({'extracted_text': text})
 
