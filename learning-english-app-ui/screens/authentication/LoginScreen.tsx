@@ -233,11 +233,11 @@ const LoginScreen = () => {
                                             />
                                         </Block>
                                         {errors.password && <Text size={12} color={'red'}>{errors.password}</Text>}
-                                        <Block right>
-                                            <TouchableOpacity>
-                                                <Text italic={true} bold={true} size={14}>Fotgot password?</Text>
-                                            </TouchableOpacity>
-                                        </Block>
+                                        {/*<Block right>*/}
+                                        {/*    <TouchableOpacity>*/}
+                                        {/*        <Text italic={true} bold={true} size={14}>Forgot password?</Text>*/}
+                                        {/*    </TouchableOpacity>*/}
+                                        {/*</Block>*/}
 
                                         <Block height={12}></Block>
 
